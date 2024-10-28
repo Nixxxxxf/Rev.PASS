@@ -1,0 +1,4 @@
+image:
+  repository: "pass/httpapihost"
+  tag: "latest"
+  pullPolicy: IfNotPresent

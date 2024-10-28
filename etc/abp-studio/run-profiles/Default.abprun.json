@@ -1,0 +1,17 @@
+﻿{
+  "applications": {
+    "PASS.HttpApi.Host": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44364",
+      "path": "../../../src/PASS.HttpApi.Host/PASS.HttpApi.Host.csproj",
+      "kubernetesService": ".*-httpapihost$"  
+    },
+    "PASS.Angular": {
+      "type": "cli",
+      "workingDirectory": "../../../angular",
+      "startCommand": "./start.ps1",
+      "launchUrl": "http://localhost:4200",
+      "kubernetesService": ".*-angular$"        
+    }
+  }
+}

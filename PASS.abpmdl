@@ -1,0 +1,109 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.TextTemplateManagement": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Chat": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.LanguageManagement": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.FileManagement": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict.Pro": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Gdpr": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.AuditLogging.Pro": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Saas": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity.Pro": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account.Pro": {
+      "version": "8.2.2",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "PASS.Application": {
+      "path": "src/PASS.Application/PASS.Application.abppkg",
+      "folder": "src"
+    },
+    "PASS.Application.Tests": {
+      "path": "test/PASS.Application.Tests/PASS.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "PASS.Domain.Shared": {
+      "path": "src/PASS.Domain.Shared/PASS.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "PASS.Application.Contracts": {
+      "path": "src/PASS.Application.Contracts/PASS.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "PASS.HttpApi": {
+      "path": "src/PASS.HttpApi/PASS.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "PASS.HttpApi.Client": {
+      "path": "src/PASS.HttpApi.Client/PASS.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "PASS.EntityFrameworkCore.Tests": {
+      "path": "test/PASS.EntityFrameworkCore.Tests/PASS.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "PASS.EntityFrameworkCore": {
+      "path": "src/PASS.EntityFrameworkCore/PASS.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "PASS.TestBase": {
+      "path": "test/PASS.TestBase/PASS.TestBase.abppkg",
+      "folder": "test"
+    },
+    "PASS.Domain.Tests": {
+      "path": "test/PASS.Domain.Tests/PASS.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "PASS.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/PASS.HttpApi.Client.ConsoleTestApp/PASS.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "PASS.DbMigrator": {
+      "path": "src/PASS.DbMigrator/PASS.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "PASS.HttpApi.Host": {
+      "path": "src/PASS.HttpApi.Host/PASS.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "PASS.Domain": {
+      "path": "src/PASS.Domain/PASS.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
