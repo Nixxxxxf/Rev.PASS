@@ -1,0 +1,95 @@
+<!-- Search box -->
+<div class="card">
+    <div class="card-body">
+      <div class="row" style="margin-top:15px;">
+        <div class="col col-md-5 ">
+          <div class="card flex justify-content-center">
+            <!-- <span class="p-float-label">
+              <p-autoComplete [(ngModel)]="selectedSrPlate" [virtualScroll]="true" [suggestions]="filteredSrPlates"
+                [virtualScrollItemSize]="34" (completeMethod)="filterSrPlates($event)" field="label" [dropdown]="true" inputId="SrPlate">
+              </p-autoComplete>
+              <label for="SrPlate">Source Plate</label>
+            </span> -->
+            <input
+              class="form-control"
+              list="srlistOptions"
+              id="srDataList"
+              placeholder="source plate search..."
+              [(ngModel)]="selectedSrPlate"
+            />
+            <datalist id="srlistOptions">
+              <option *ngFor="let sp of srPlates" [value]="sp.label"></option>
+            </datalist>
+          </div>
+        </div>
+        <div class="col col-md-5">
+          <div class="card flex justify-content-center">
+            <!-- <span class="p-float-label">
+              <p-autoComplete [(ngModel)]="selectedDsPlate" [virtualScroll]="true" [suggestions]="filteredDsPlates"
+                [virtualScrollItemSize]="34" (completeMethod)="filterDsPlates($event)" field="label" [dropdown]="true" inputId="DsPlate">
+              </p-autoComplete>
+              <label for="DsPlate">Destination Plate</label>
+            </span> -->
+            <input
+              class="form-control"
+              list="dslistOptions"
+              id="dsDataList"
+              placeholder="destination plate search..."
+              [(ngModel)]="selectedDsPlate"
+            />
+            <datalist id="dslistOptions">
+              <option *ngFor="let ds of dsPlates" [value]="ds.label"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="col col-md-1">
+          
+        </div>
+        <div class="col col-md-1">
+          <!-- <p-button label="Search" (click)="searchWithFilter($event)"></p-button> -->
+          <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilter($event)">Search</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'LiquidTransferHistories' | abpLocalization }}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="liquidTransferHistories.items" [count]="liquidTransferHistories.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::TransferType' | abpLocalization" prop="transferType"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::SourceLiquid' | abpLocalization"
+          prop="sourceLiquidFk.liquidCategoryFk.name"></ngx-datatable-column>
+        <!-- <ngx-datatable-column [name]="'::DestLiquid' | abpLocalization" prop="destinationLiquidFk.liquidCategoryFk.name" ></ngx-datatable-column> -->
+        <ngx-datatable-column [name]="'::FinalLiquid' | abpLocalization" prop="finalLiquidFk.liquidCategoryFk.name"
+          minWidth="300"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::SourcePlateName' | abpLocalization"
+          prop="sourcePlateChildFk.plateFk.name"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::SourcePlateRow' | abpLocalization"
+          prop="sourcePlateChildFk.row"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::SourcePlateCol' | abpLocalization"
+          prop="sourcePlateChildFk.column"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::DestPlateName' | abpLocalization"
+          prop="destinationPlateChildFk.plateFk.name"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::DestPlateRow' | abpLocalization"
+          prop="destinationPlateChildFk.row"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::DestPlateCol' | abpLocalization"
+          prop="destinationPlateChildFk.column"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::TransferVol' | abpLocalization" prop="transferVolume"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Instrument' | abpLocalization" prop="instrumentFk.name"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Comments' | abpLocalization" prop="comments"></ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>

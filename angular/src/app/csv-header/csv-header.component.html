@@ -1,0 +1,59 @@
+<!-- Search box -->
+<div class="card">
+    <div class="card-body">
+      <div class="row" style="margin-top:15px;">
+        <div class="col col-md-10 ">
+          <div class="card flex justify-content-center">
+            <!-- <span class="p-float-label">
+              <p-autoComplete [(ngModel)]="selectedCsv" [virtualScroll]="true" [suggestions]="filteredCsvs"
+                [virtualScrollItemSize]="34" (completeMethod)="filterCsvs($event)" field="label" [dropdown]="true" inputId="Csv">
+              </p-autoComplete>
+              <label for="Csv">Csv</label>
+            </span> -->
+            <input
+              class="form-control"
+              list="csvlistOptions"
+              id="csvDataList"
+              placeholder="CSV search..."
+              [(ngModel)]="selectedCsv"
+            />
+            <datalist id="csvlistOptions">
+              <option *ngFor="let csv of csvs" [value]="csv.label"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="col col-md-1">
+          
+        </div>
+        <div class="col col-md-1">
+          <!-- <p-button label="Search" (click)="searchWithFilter($event)"></p-button> -->
+          <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilter($event)">Search</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'CsvHeader'}}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="csvHeaders.items" [count]="csvHeaders.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::CsvName' | abpLocalization" prop="csvName" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::HeaderName' | abpLocalization" prop="headerName" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::ActualValue' | abpLocalization" prop="actualValue" ></ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+  

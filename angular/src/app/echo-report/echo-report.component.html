@@ -1,0 +1,68 @@
+<!-- Search box -->
+<div class="card">
+    <div class="card-body">
+        <div class="row" style="margin-top:15px;">
+            <div class="col col-md-10">
+                <div class="card flex justify-content-center">
+                  <input
+                    class="form-control"
+                    list="reportlistOptions"
+                    id="reportDataList"
+                    placeholder="report search..."
+                    [(ngModel)]="selectedReport"
+                  />
+                  <datalist id="reportlistOptions">
+                    <option *ngFor="let report of reports" [value]="report.label"></option>
+                  </datalist>
+                    <!-- <span class="p-float-label">
+                        <p-autoComplete [(ngModel)]="selectedReport" [virtualScroll]="true"
+                            [suggestions]="filteredReports" [virtualScrollItemSize]="34"
+                            (completeMethod)="filterReports($event)" field="label" [dropdown]="true" inputId="Report">
+                        </p-autoComplete>
+                        <label for="Report">Report</label>
+                    </span> -->
+
+                </div>
+            </div>
+
+            <div class="col col-md-1">
+            </div>
+            <div class="col col-md-1">
+                <!-- <p-button label="Search" (click)="searchWithFilters($event)"></p-button> -->
+              <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilters($event)">Search</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'Echo Report Details' | abpLocalization }}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="reportItems.items" [count]="reportItems.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::Report Name' | abpLocalization" prop="reportFk.reportName" ></ngx-datatable-column>
+        <!-- <ngx-datatable-column [name]="'::Date Time Point' | abpLocalization" prop="dateTimePoint" ></ngx-datatable-column> -->
+        <ngx-datatable-column [name]="'::Source Plate Barcode' | abpLocalization" prop="sourcePlateBarcode" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Source Plate Type' | abpLocalization" prop="sourcePlateType" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Source Well' | abpLocalization" prop="sourceWell" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Destination Plate Barcode' | abpLocalization" prop="destinationPlateBarcode" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Destination Plate Type' | abpLocalization" prop="destinationPlateType" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Destination Well' | abpLocalization" prop="destinationWell" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Transfer Volume(nL)' | abpLocalization" prop="transferVolumeNL" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Actual Volume(nL)' | abpLocalization" prop="actualVolumeNL" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Survey Fluid Volume(nL)' | abpLocalization" prop="surveyFluidVolumeUL" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Creation Time' | abpLocalization" prop="creationTime" ></ngx-datatable-column>
+
+      </ngx-datatable>
+    </div>
+  </div>

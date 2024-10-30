@@ -1,0 +1,23 @@
+<div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'Liquids' | abpLocalization }}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="liquids.items" [count]="liquids.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::LiquidCategory' | abpLocalization" prop="liquidCategoryFk.name" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Volume' | abpLocalization" prop="volume" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Concentration' | abpLocalization" prop="concentration" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Result' | abpLocalization" prop="result" ></ngx-datatable-column>
+        <!-- <ngx-datatable-column [name]="'::IsUsed' | abpLocalization" prop="isUsed" ></ngx-datatable-column> -->
+        <!-- <ngx-datatable-column [name]="'::Count' | abpLocalization" prop="count" ></ngx-datatable-column> -->
+        <!-- <ngx-datatable-column [name]="'::Description' | abpLocalization" prop="description" ></ngx-datatable-column> -->
+      </ngx-datatable>
+    </div>
+  </div>

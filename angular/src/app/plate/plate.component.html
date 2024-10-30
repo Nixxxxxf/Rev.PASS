@@ -1,0 +1,55 @@
+<!-- Search box -->
+<div class="card">
+  <div class="card-body">
+    <div class="row" style="margin-top:15px;">
+      <div class="col col-md-10">
+        <div class="card flex justify-content-center">
+
+          <input
+            class="form-control"
+            list="platelistOptions"
+            id="plateDataList"
+            placeholder="Plate search..."
+            [(ngModel)]="selectedPlate"
+          />
+          <datalist id="platelistOptions">
+            <option *ngFor="let plate of plates" [value]="plate.label"></option>
+          </datalist>
+        </div>
+      </div>
+
+      <div class="col col-md-1">
+      </div>
+      <div class="col col-md-1">
+        <!-- <p-button label="Search" (click)="searchWithFilters($event)"></p-button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilters($event)">Search</button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'Plates' | abpLocalization }}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="plateLst.items" [count]="plateLst.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::PlateType' | abpLocalization" prop="plateType" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Size' | abpLocalization" prop="plateSize" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Description' | abpLocalization" prop="description" ></ngx-datatable-column>
+
+        <!-- yarn ng generate module transferHistory --module app --routing --route transferHistories -->
+      </ngx-datatable>
+    </div>
+  </div>
+  

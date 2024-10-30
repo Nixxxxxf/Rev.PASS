@@ -1,0 +1,80 @@
+<!-- Search box -->
+<div class="card">
+    <div class="card-body">
+      <div class="row" style="margin-top:15px;">
+        <div class="col col-md-5">
+          <div class="card flex justify-content-center">
+            <!-- <span class="p-float-label">
+              <p-autoComplete [(ngModel)]="selectedName" [virtualScroll]="true" [suggestions]="filteredNames"
+                [virtualScrollItemSize]="34" (completeMethod)="filterNames($event)" field="label" [dropdown]="true" inputId="Name">
+              </p-autoComplete>
+              <label for="Name">Name</label>
+            </span> -->
+            <input
+              class="form-control"
+              list="namelistOptions"
+              id="nameDataList"
+              placeholder="Name search..."
+              [(ngModel)]="selectedName"
+            />
+            <datalist id="namelistOptions">
+              <option *ngFor="let name of names" [value]="name.value"></option>
+            </datalist>
+          </div>
+        </div>
+        <div class="col col-md-5">
+          <div class="card flex justify-content-center">
+            <!-- <span class="p-float-label">
+              <p-autoComplete [(ngModel)]="selectedSmiles" [virtualScroll]="true" [suggestions]="filteredSmileses"
+                [virtualScrollItemSize]="34" [forceSelection]="false" (completeMethod)="filterSmileses($event)" field="label" [dropdown]="true" inputId="Smiles">
+              </p-autoComplete>
+              <label for="Smiles">SMILES</label>
+            </span> -->
+            <input
+              class="form-control"
+              list="smileslistOptions"
+              id="smileDataList"
+              placeholder="SMILES search..."
+              [(ngModel)]="selectedSmiles"
+            />
+            <datalist id="smileslistOptions">
+              <option *ngFor="let smiles of smileses" [value]="smiles.value"></option>
+            </datalist>
+          </div>
+        </div>
+        <div class="col col-md-1"></div>
+        <div class="col col-md-1">
+          <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilters($event)">Search</button>
+          <!-- <button type="button" class="btn btn-outline-light mb-1" style="padding: 10px;">X</button> -->
+
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <div class="card">
+      <div class="card-header">
+        <div class="row">
+          <div class="col col-md-6">
+            <h5 class="card-title">
+              {{ 'CompoundLibrary' | abpLocalization }}
+            </h5>
+          </div>
+          <div class="text-end col col-md-6"></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <ngx-datatable [rows]="compounds.items" [count]="compounds.totalCount" [list]="list" default>
+          <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name" ></ngx-datatable-column>
+          <ngx-datatable-column [name]="'::Smiles' | abpLocalization" prop="smiles" ></ngx-datatable-column>
+          <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" prop="liquidType" ></ngx-datatable-column> -->
+          <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" [cellTemplate]="liquidTypeTemplate"></ngx-datatable-column> -->
+        </ngx-datatable>
+        <!-- <ng-template #liquidTypeTemplate let-row="row">
+          {{ row.liquidType | liquidType }}
+        </ng-template> -->
+      </div>
+    </div>

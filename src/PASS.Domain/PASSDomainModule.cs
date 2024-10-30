@@ -53,7 +53,7 @@ public class PASSDomainModule : AbpModule
     {
         Configure<AbpMultiTenancyOptions>(options =>
         {
-            options.IsEnabled = MultiTenancyConsts.IsEnabled;
+            options.IsEnabled = false;// MultiTenancyConsts.IsEnabled;
         });
 
         Configure<AbpLocalizationOptions>(options =>

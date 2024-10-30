@@ -24,6 +24,375 @@ namespace PASS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PASS.Domain.Entities.CsvHeader", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActualValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CsvName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HeaderName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T_CsvHeaders");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Instrument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("Component")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T_Instruments");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Liquid", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("Concentration")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LiquidCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("Result")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("Volume")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiquidCategoryId");
+
+                    b.ToTable("T_Liquids");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidAttribute", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AttributeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AttributeValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("LiquidCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiquidCategoryId");
+
+                    b.ToTable("T_LiquidAttributes");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("LiquidType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SMILES")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T_LiquidCategories");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidPositionInPlate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LiquidId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlateChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiquidId");
+
+                    b.HasIndex("PlateChildId");
+
+                    b.ToTable("T_LiquidPositionInPlates");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidTransferHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DestinationLiquidId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DestinationPlateChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FinalLiquidId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InstrumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("Result")
+                        .HasColumnType("real");
+
+                    b.Property<Guid>("SourceLiquidId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SourcePlateChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TransferType")
+                        .HasColumnType("int");
+
+                    b.Property<float?>("TransferVolume")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstrumentId");
+
+                    b.ToTable("T_LiquidTransferHistories");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Plate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlateSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PlateType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T_Plates");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.PlateChild", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Column")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Row")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlateId");
+
+                    b.ToTable("T_PlateChildren");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.PlateTransferHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan?>("AssayTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("Direction")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InstrumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("TransferTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstrumentId");
+
+                    b.HasIndex("PlateId");
+
+                    b.ToTable("T_PlateTransferHistories");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("ReportName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReportType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T_Reports");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.ReportItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("ActualVolumeNL")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<float?>("CurrentFluidVolumeUL")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("DateTimePoint")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DestinationPlateBarcode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationPlateName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationPlateType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationWell")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("FluidComposition")
+                        .HasColumnType("real");
+
+                    b.Property<string>("FluidType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FluidUnits")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ReportId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SampleID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SampleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourcePlateBarcode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourcePlateName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourcePlateType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceWell")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("SurveyFluidVolumeUL")
+                        .HasColumnType("real");
+
+                    b.Property<string>("TransferStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("TransferVolumeNL")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId");
+
+                    b.ToTable("T_ReportItems");
+                });
+
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2729,6 +3098,99 @@ namespace PASS.Migrations
                     b.ToTable("SaasTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("PASS.Domain.Entities.Liquid", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.LiquidCategory", "LiquidCategoryFk")
+                        .WithMany("LiquidList")
+                        .HasForeignKey("LiquidCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LiquidCategoryFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidAttribute", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.LiquidCategory", "LiquidCategoryFk")
+                        .WithMany("LiquidAttributeList")
+                        .HasForeignKey("LiquidCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LiquidCategoryFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidPositionInPlate", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.Liquid", "LiquidFk")
+                        .WithMany()
+                        .HasForeignKey("LiquidId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PASS.Domain.Entities.PlateChild", "PlateChildFk")
+                        .WithMany()
+                        .HasForeignKey("PlateChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LiquidFk");
+
+                    b.Navigation("PlateChildFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidTransferHistory", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.Instrument", "InstrumentFk")
+                        .WithMany()
+                        .HasForeignKey("InstrumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InstrumentFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.PlateChild", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.Plate", "PlateFk")
+                        .WithMany("PlateChildrenList")
+                        .HasForeignKey("PlateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlateFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.PlateTransferHistory", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.Instrument", "InstrumentFk")
+                        .WithMany()
+                        .HasForeignKey("InstrumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PASS.Domain.Entities.Plate", "PlateFk")
+                        .WithMany()
+                        .HasForeignKey("PlateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InstrumentFk");
+
+                    b.Navigation("PlateFk");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.ReportItem", b =>
+                {
+                    b.HasOne("PASS.Domain.Entities.Report", "ReportFk")
+                        .WithMany("ReportItemsList")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReportFk");
+                });
+
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
                 {
                     b.HasOne("Volo.Abp.AuditLogging.AuditLog", null)
@@ -2919,6 +3381,23 @@ namespace PASS.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.LiquidCategory", b =>
+                {
+                    b.Navigation("LiquidAttributeList");
+
+                    b.Navigation("LiquidList");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Plate", b =>
+                {
+                    b.Navigation("PlateChildrenList");
+                });
+
+            modelBuilder.Entity("PASS.Domain.Entities.Report", b =>
+                {
+                    b.Navigation("ReportItemsList");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

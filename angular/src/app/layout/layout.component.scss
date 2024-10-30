@@ -1,0 +1,33 @@
+.layout-chart {
+    border: 5px;
+    border-color: black;
+    float: left;
+}
+
+.result-chart-body {
+    width: 750px;
+    height: 700px;
+}
+
+.ic50-chart-body {
+    width: 750px;
+    height: 500px;
+    padding-top: 30PX;
+}
+
+.table-panel{
+    overflow-y: auto;
+    // height: 110px;
+    padding-top: 10%;
+    height: 500px; 
+    // overflow: auto;
+}
+
+.table-padding{
+    padding:10px
+}
+
+.table-panel thead th {
+    position: sticky;
+    top: 0;
+}

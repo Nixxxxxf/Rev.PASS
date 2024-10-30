@@ -1,0 +1,23 @@
+<div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col col-md-6">
+          <h5 class="card-title">
+            {{ 'LiquidCategories' | abpLocalization }}
+          </h5>
+        </div>
+        <div class="text-end col col-md-6"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <ngx-datatable [rows]="liquidCategories.items" [count]="liquidCategories.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name" ></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Smiles' | abpLocalization" prop="smiles" ></ngx-datatable-column>
+        <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" prop="liquidType" ></ngx-datatable-column> -->
+        <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" [cellTemplate]="liquidTypeTemplate"></ngx-datatable-column> -->
+      </ngx-datatable>
+      <!-- <ng-template #liquidTypeTemplate let-row="row">
+        {{ row.liquidType | liquidType }}
+      </ng-template> -->
+    </div>
+  </div>

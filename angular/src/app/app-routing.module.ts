@@ -72,6 +72,18 @@ const routes: Routes = [
     loadChildren: () =>
       import('@abp/ng.setting-management').then(m => m.SettingManagementModule.forLazy()),
   },
+  { path: 'csvHeaders', loadChildren: () => import('./csv-header/csv-header.module').then(m => m.CsvHeaderModule) },
+  { path: 'compounds', loadChildren: () => import('./compound/compound.module').then(m => m.CompoundModule) },
+  { path: 'echoReports', loadChildren: () => import('./echo-report/echo-report.module').then(m => m.EchoReportModule) },
+  { path: 'imports', loadChildren: () => import('./import/import.module').then(m => m.ImportModule) },
+  { path: 'instruments', loadChildren: () => import('./instrument/instrument.module').then(m => m.InstrumentModule) },
+  { path: 'layouts', loadChildren: () => import('./layout/layout.module').then(m => m.LayoutModule) },
+  { path: 'liquids', loadChildren: () => import('./liquid/liquid.module').then(m => m.LiquidModule) },
+  { path: 'liquidCategories', loadChildren: () => import('./liquid-category/liquid-category.module').then(m => m.LiquidCategoryModule) },
+  { path: 'liquidPositionInPlates', loadChildren: () => import('./liquid-position-in-plate/liquid-position-in-plate.module').then(m => m.LiquidPositionInPlateModule) },
+  { path: 'liquidTransferHistories', loadChildren: () => import('./liquid-transfer-history/liquid-transfer-history.module').then(m => m.LiquidTransferHistoryModule) },
+  { path: 'plates', loadChildren: () => import('./plate/plate.module').then(m => m.PlateModule) },
+  { path: 'plateTransferHistories', loadChildren: () => import('./plate-transfer-history/plate-transfer-history.module').then(m => m.PlateTransferHistoryModule) },
 ];
 
 @NgModule({

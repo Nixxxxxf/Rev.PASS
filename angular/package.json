@@ -40,7 +40,12 @@
     "@angular/router": "~17.3.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.14.0"
+    "zone.js": "~0.14.0",
+    "bootstrap-icons": "~1.8.3",
+    "echarts": "^5.4.3",
+    "papaparse": "^5.4.1",
+    "primeng": "^17.18.11",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@abp/ng.schematics": "~8.2.2",

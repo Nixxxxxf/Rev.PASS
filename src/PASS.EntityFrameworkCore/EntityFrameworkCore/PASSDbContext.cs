@@ -20,6 +20,7 @@ using Volo.Saas.EntityFrameworkCore;
 using Volo.Saas.Editions;
 using Volo.Saas.Tenants;
 using Volo.Abp.Gdpr;
+using PASS.Domain.Entities;
 
 namespace PASS.EntityFrameworkCore;
 
@@ -61,6 +62,21 @@ public class PASSDbContext :
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Edition> Editions { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
+
+    // Domain
+    public DbSet<Liquid> T_Liquids { get; set; }
+    public DbSet<LiquidAttribute> T_LiquidAttributes { get; set; }
+    public DbSet<LiquidCategory> T_LiquidCategories { get; set; }
+    public DbSet<Instrument> T_Instruments { get; set; }
+    public DbSet<Plate> T_Plates { get; set; }
+    public DbSet<PlateChild> T_PlateChildren { get; set; }
+    public DbSet<LiquidTransferHistory> T_LiquidTransferHistories { get; set; }
+    public DbSet<LiquidPositionInPlate> T_LiquidPositionInPlates { get; set; }
+    public DbSet<CsvHeader> T_CsvHeaders { get; set; }
+    public DbSet<PlateTransferHistory> T_PlateTransferHistories { get; set; }
+    public DbSet<Report> T_Reports { get; set; }
+    public DbSet<ReportItem> T_ReportItems { get; set; }
+
 
     #endregion
 
