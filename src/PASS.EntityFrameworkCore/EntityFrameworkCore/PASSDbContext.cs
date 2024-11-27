@@ -77,6 +77,12 @@ public class PASSDbContext :
     public DbSet<Report> T_Reports { get; set; }
     public DbSet<ReportItem> T_ReportItems { get; set; }
 
+    // gene
+    public DbSet<GeneTypingAlgorithm> T_GeneTypingAlgorithms { get; set; }
+    public DbSet<GenePlateResult> T_GenePlateResults { get; set; }
+    public DbSet<GeneMarkerPannel> T_GeneMarkerPannels { get; set; }
+    
+
 
     #endregion
 

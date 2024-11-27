@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PASS.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PASS.Migrations
 {
     [DbContext(typeof(PASSDbContext))]
-    partial class PASSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241126061439_add GeneMarkerPannel")]
+    partial class addGeneMarkerPannel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace PASS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("T_GeneMarkerPannels");
+                    b.ToTable("T_MarkerPannels");
                 });
 
             modelBuilder.Entity("PASS.Domain.Entities.GenePlateResult", b =>

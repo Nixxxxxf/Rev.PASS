@@ -20,8 +20,9 @@ namespace PASS.Domain.Entities
         public float? Volume { get; set; }
         public float? Concentration { get; set; }
         public float? Result { get; set; }
-        public bool IsUsed { get; set; }
-        public int Count { get; set; }
+        public float? FAM { get; set; }
+        public float? HEX { get; set; }
+        public float? ROX { get; set; }
         public Liquid(Guid id)
             : base(id)
         {

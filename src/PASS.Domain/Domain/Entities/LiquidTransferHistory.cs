@@ -19,24 +19,24 @@ namespace PASS.Domain.Entities
         public TransferType TransferType { get; set; }
 
         public Guid SourceLiquidId { get; set; }
-        [ForeignKey(nameof(SourceLiquidId))]
-        public Liquid? SourceLiquidFk { get; set; }
+        //[ForeignKey(nameof(SourceLiquidId))]
+        //public Liquid? SourceLiquidFk { get; set; }
 
         public Guid? DestinationLiquidId { get; set; }
-        [ForeignKey(nameof(DestinationLiquidId))]
-        public Liquid? DestinationLiquidFk { get; set; }
+        //[ForeignKey(nameof(DestinationLiquidId))]
+        //public Liquid? DestinationLiquidFk { get; set; }
 
         public Guid? FinalLiquidId { get; set; }
-        [ForeignKey(nameof(FinalLiquidId))]
-        public Liquid? FinalLiquidFk { get; set; }
+        //[ForeignKey(nameof(FinalLiquidId))]
+        //public Liquid? FinalLiquidFk { get; set; }
 
         public Guid SourcePlateChildId { get; set; }
-        [ForeignKey(nameof(SourcePlateChildId))]
-        public PlateChild? SourcePlateChildFk { get; set; }
+        //[ForeignKey(nameof(SourcePlateChildId))]
+        //public PlateChild? SourcePlateChildFk { get; set; }
 
         public Guid DestinationPlateChildId { get; set; }
-        [ForeignKey(nameof(DestinationPlateChildId))]
-        public PlateChild? DestinationPlateChildFk { get; set; }
+        //[ForeignKey(nameof(DestinationPlateChildId))]
+        //public PlateChild? DestinationPlateChildFk { get; set; }
 
         public float? TransferVolume { get; set; }
 

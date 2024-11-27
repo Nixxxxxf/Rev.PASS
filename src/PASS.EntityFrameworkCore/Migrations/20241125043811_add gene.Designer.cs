@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PASS.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PASS.Migrations
 {
     [DbContext(typeof(PASSDbContext))]
-    partial class PASSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241125043811_add gene")]
+    partial class addgene
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,90 +44,6 @@ namespace PASS.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("T_CsvHeaders");
-                });
-
-            modelBuilder.Entity("PASS.Domain.Entities.GeneMarkerPannel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("T_GeneMarkerPannels");
-                });
-
-            modelBuilder.Entity("PASS.Domain.Entities.GenePlateResult", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AlgorithmID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<string>("GeneMarkerResult")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GeneName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("LiquidID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("MarkerName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PlateName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WellName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AlgorithmID");
-
-                    b.HasIndex("LiquidID");
-
-                    b.ToTable("T_GenePlateResults");
-                });
-
-            modelBuilder.Entity("PASS.Domain.Entities.GeneTypingAlgorithm", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("T_GeneTypingAlgorithms");
                 });
 
             modelBuilder.Entity("PASS.Domain.Entities.Instrument", b =>
@@ -227,9 +146,6 @@ namespace PASS.Migrations
                     b.Property<int?>("GeneLocation")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("GeneMarkerPannelId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("GeneSequence")
                         .HasColumnType("nvarchar(max)");
 
@@ -255,8 +171,6 @@ namespace PASS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GeneMarkerPannelId");
 
                     b.ToTable("T_LiquidCategories");
                 });
@@ -3223,23 +3137,6 @@ namespace PASS.Migrations
                     b.ToTable("SaasTenantConnectionStrings", (string)null);
                 });
 
-            modelBuilder.Entity("PASS.Domain.Entities.GenePlateResult", b =>
-                {
-                    b.HasOne("PASS.Domain.Entities.GeneTypingAlgorithm", "AlgorithmFk")
-                        .WithMany()
-                        .HasForeignKey("AlgorithmID");
-
-                    b.HasOne("PASS.Domain.Entities.Liquid", "LiquidFk")
-                        .WithMany()
-                        .HasForeignKey("LiquidID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AlgorithmFk");
-
-                    b.Navigation("LiquidFk");
-                });
-
             modelBuilder.Entity("PASS.Domain.Entities.Liquid", b =>
                 {
                     b.HasOne("PASS.Domain.Entities.LiquidCategory", "LiquidCategoryFk")
@@ -3260,13 +3157,6 @@ namespace PASS.Migrations
                         .IsRequired();
 
                     b.Navigation("LiquidCategoryFk");
-                });
-
-            modelBuilder.Entity("PASS.Domain.Entities.LiquidCategory", b =>
-                {
-                    b.HasOne("PASS.Domain.Entities.GeneMarkerPannel", null)
-                        .WithMany("MarkerList")
-                        .HasForeignKey("GeneMarkerPannelId");
                 });
 
             modelBuilder.Entity("PASS.Domain.Entities.LiquidPositionInPlate", b =>
@@ -3530,11 +3420,6 @@ namespace PASS.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("PASS.Domain.Entities.GeneMarkerPannel", b =>
-                {
-                    b.Navigation("MarkerList");
                 });
 
             modelBuilder.Entity("PASS.Domain.Entities.LiquidCategory", b =>

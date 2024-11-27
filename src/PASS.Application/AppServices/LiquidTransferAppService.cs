@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 
 namespace PASS.AppServices
 {
@@ -62,28 +63,28 @@ namespace PASS.AppServices
                         join sp in queryPl on t.SourcePlateChildId equals sp.Id
                         join dp in queryPl on t.DestinationPlateChildId equals dp.Id
                         join ins in queryIn on t.InstrumentId equals ins.Id
-                        select new LiquidTransferHistory()
+                        select new LiquidTransferHistoryDto()
                         {
-                            SourceLiquidFk = sl,
+                            SourceLiquidFk = ObjectMapper.Map<Liquid,LiquidDto>(sl),
                             //DestinationLiquidFk = dl,
-                            FinalLiquidFk = fl,
-                            SourcePlateChildFk = sp,
-                            DestinationPlateChildFk = dp,
-                            InstrumentFk = ins,
+                            FinalLiquidFk = ObjectMapper.Map<Liquid, LiquidDto>(fl),
+                            SourcePlateChildFk = ObjectMapper.Map<PlateChild, PlateChildDto>(sp),
+                            DestinationPlateChildFk = ObjectMapper.Map<PlateChild, PlateChildDto>(dp),
+                            InstrumentFk = ObjectMapper.Map<Instrument, InstrumentDto>(ins),
                             TransferVolume = t.TransferVolume,
                             TransferType = t.TransferType,
                             Comments = t.Comments,
                         };
 
-            List<LiquidTransferHistoryDto> items = new List<LiquidTransferHistoryDto>();
-            items = ObjectMapper.Map<List<LiquidTransferHistory>, List<LiquidTransferHistoryDto>>(trans.ToList());
+            //List<LiquidTransferHistoryDto> items = new List<LiquidTransferHistoryDto>();
+            //items = ObjectMapper.Map<List<LiquidTransferHistory>, List<LiquidTransferHistoryDto>>(trans.ToList());
 
             //if (totalCount > 0)
             //{
             //    //trans = base.ApplySorting(trans, input);
             //    //trans = base.ApplyPaging(trans, input);
             //}
-            return new PagedResultDto<LiquidTransferHistoryDto>(totalCount, items);
+            return new PagedResultDto<LiquidTransferHistoryDto>(totalCount, trans.ToList());
 
         }
 
@@ -108,14 +109,14 @@ namespace PASS.AppServices
                         join sp in querySrPl on t.SourcePlateChildId equals sp.Id
                         join dp in queryDsPl on t.DestinationPlateChildId equals dp.Id
                         join ins in queryIn on t.InstrumentId equals ins.Id
-                        select new LiquidTransferHistory()
+                        select new LiquidTransferHistoryDto()
                         {
-                            SourceLiquidFk = sl,
+                            SourceLiquidFk = ObjectMapper.Map<Liquid, LiquidDto>(sl),
                             //DestinationLiquidFk = dl,
-                            FinalLiquidFk = fl,
-                            SourcePlateChildFk = sp,
-                            DestinationPlateChildFk = dp,
-                            InstrumentFk = ins,
+                            FinalLiquidFk = ObjectMapper.Map<Liquid, LiquidDto>(fl),
+                            SourcePlateChildFk = ObjectMapper.Map<PlateChild, PlateChildDto>(sp),
+                            DestinationPlateChildFk = ObjectMapper.Map<PlateChild, PlateChildDto>(dp),
+                            InstrumentFk = ObjectMapper.Map<Instrument, InstrumentDto>(ins),
                             TransferVolume = t.TransferVolume,
                             TransferType = t.TransferType,
                             Comments = t.Comments,
@@ -133,15 +134,15 @@ namespace PASS.AppServices
             }
 
 
-            List<LiquidTransferHistoryDto> items = new List<LiquidTransferHistoryDto>();
-            items = ObjectMapper.Map<List<LiquidTransferHistory>, List<LiquidTransferHistoryDto>>(trans.ToList());
+            //List<LiquidTransferHistoryDto> items = new List<LiquidTransferHistoryDto>();
+            //items = ObjectMapper.Map<List<LiquidTransferHistory>, List<LiquidTransferHistoryDto>>(trans.ToList());
 
             //if (totalCount > 0)
             //{
             //    //trans = base.ApplySorting(trans, input);
             //    //trans = base.ApplyPaging(trans, input);
             //}
-            return new PagedResultDto<LiquidTransferHistoryDto>(totalCount, items);
+            return new PagedResultDto<LiquidTransferHistoryDto>(totalCount, trans.ToList());
 
         }
 

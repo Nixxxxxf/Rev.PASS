@@ -37,7 +37,7 @@ namespace PASS.Dtos
         public PlateChildDto? DestinationPlateChildFk { get; set; }//not in db
 
 
-        public float TransferVolume { get; set; } //nL
+        public float? TransferVolume { get; set; } //nL
 
         public Guid? InstrumentId { get; set; }
         public InstrumentDto? InstrumentFk { get; set; }//not in db
