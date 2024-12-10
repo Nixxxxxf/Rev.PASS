@@ -58,6 +58,7 @@ export class ImportComponent implements OnInit{
   private fileType_8: string = "";
 
   private fileName_7: string = "";
+  private fileName_8: string = "";
 
   constructor(
     private opCompoundLibraryService: OpCompoundLibraryService,
@@ -319,7 +320,34 @@ onComplete_7(data:string){
 }
 
 
+// 8. Gene marker result
 
+onFileSelected_8(event) {
+  const file: File = event.target.files[0];
+  const reader: FileReader = new FileReader();
+  reader.onload = (e: any) => {
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      this.fileType_8 = "Excel";
+    }else if(file.name.endsWith('.csv') ){
+      this.fileType_8 = "Csv";
+    }else {
+      this.messages_8 = [this.throwFileTypeError()];
+      return;
+    }
+    this.fileContent_8 = e.target.result;
+    this.fileName_8 = file.name;
+  };
+  reader.readAsBinaryString(file);    
+}
+
+uploadFile_8() {
+  this.parser.handle_Gene_Marker_Result(this.fileName_8, this.fileContent_8, this.fileType_8);
+}
+
+onComplete_8(data:string){
+  let msgForamt = this.handleRespond(data)
+  this.messages_8 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+}
 
 
 
@@ -371,10 +399,10 @@ onComplete_7(data:string){
       this.onComplete_7(data);
     });
 
-    // this.eventService.myEvent8.subscribe((data:string) => {
-    //   console.log('My event 8 triggered!');
-    //   this.onComplete_8(data);
-    // });
+    this.eventService.myEvent8.subscribe((data:string) => {
+      console.log('My event 8 triggered!');
+      this.onComplete_8(data);
+    });
   }
 
 

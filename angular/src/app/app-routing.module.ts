@@ -84,6 +84,12 @@ const routes: Routes = [
   { path: 'liquidTransferHistories', loadChildren: () => import('./liquid-transfer-history/liquid-transfer-history.module').then(m => m.LiquidTransferHistoryModule) },
   { path: 'plates', loadChildren: () => import('./plate/plate.module').then(m => m.PlateModule) },
   { path: 'plateTransferHistories', loadChildren: () => import('./plate-transfer-history/plate-transfer-history.module').then(m => m.PlateTransferHistoryModule) },
+  { path: 'genes', loadChildren: () => import('./gene/gene.module').then(m => m.GeneModule) },
+  { path: 'markers', loadChildren: () => import('./marker/marker.module').then(m => m.MarkerModule) },
+  { path: 'markerPannels', loadChildren: () => import('./marker-pannel/marker-pannel.module').then(m => m.MarkerPannelModule) },
+  { path: 'geneTypingAlgorithms', loadChildren: () => import('./gene-typing-algorithm/gene-typing-algorithm.module').then(m => m.GeneTypingAlgorithmModule) },
+  { path: 'genePlateResults', loadChildren: () => import('./gene-plate-result/gene-plate-result.module').then(m => m.GenePlateResultModule) },
+  { path: 'geneTypeSettings', loadChildren: () => import('./gene-type-setting/gene-type-setting.module').then(m => m.GeneTypeSettingModule) },
 ];
 
 @NgModule({

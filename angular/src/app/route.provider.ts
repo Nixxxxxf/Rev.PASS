@@ -60,8 +60,8 @@ function configureRoutes(routes: RoutesService) {
         layout: eLayoutType.application,
       },
       {
-        path: '/layouts',
-        name: '::Layout',
+        path: '/geneTypings',
+        name: '::GeneTyping',
         iconClass: 'fas fa-border-all',
         order: 7,
         layout: eLayoutType.application,
@@ -76,70 +76,126 @@ function configureRoutes(routes: RoutesService) {
         layout: eLayoutType.application,
       },
       {
-        path: '/plates',
-        name: '::Plates',
-        iconClass: 'fas fa-table',
+        path: '/genes',
+        name: '::GenesLibrary',
+        iconClass: 'fas fa-capsules',
         parentName: '::Inventory',
         layout: eLayoutType.application,
       },
       {
-        path: '/liquidPositionInPlates',
-        name: '::LiquidPositionInPlates',
+        path: '/markers',
+        name: '::MarkersLibrary',
+        iconClass: 'fas fa-capsules',
+        parentName: '::Inventory',
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/markerPannels',
+        name: '::MarkerPannel',
+        iconClass: 'fas fa-capsules',
+        parentName: '::Inventory',
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/plates',
+        name: '::Plate',
         iconClass: 'fas fa-table',
         parentName: '::Inventory',
         layout: eLayoutType.application,
       },
+      
+
 
       //Import
       {
         path: '/imports',
-        name: '::Imports',
+        name: '::Import',
         iconClass: 'fas fa-upload',
         parentName: '::CsvImport',
         layout: eLayoutType.application,
       },
       {
         path: '/csvHeaders',
-        name: '::CsvHeaders',
+        name: '::CsvHeader',
         iconClass: 'fas fa-heading',
         parentName: '::CsvImport',
         layout: eLayoutType.application,
       },
 
+
       //Industry
       {
         path: '/instruments',
-        name: '::Instruments',
+        name: '::Instrument',
         iconClass: 'fas fa-cash-register',
         parentName: '::Industry',
         layout: eLayoutType.application,
       },
       
+
       //Trace
       {
+        path: '/liquidPositionInPlates',
+        name: '::LiquidPositionInPlate',
+        iconClass: 'fas fa-table',
+        parentName: '::Trace',
+        layout: eLayoutType.application,
+      },
+      {
         path: '/liquidTransferHistories',
-        name: '::LiquidTransferHistories',
+        name: '::LiquidTransferHistory',
         iconClass: 'fas fa-th-large',
         parentName: '::Trace',
         layout: eLayoutType.application,
       },
       {
         path: '/plateTransferHistories',
-        name: '::PlateTransferHistories',
+        name: '::PlateTransferHistory',
         iconClass: 'fas fa-th-large',
         parentName: '::Trace',
         layout: eLayoutType.application,
       },
 
+
       //Report
       {
         path: '/echoReports',
-        name: '::EchoReports',
+        name: '::EchoReport',
         iconClass: 'fas fa-sticky-note',
         parentName: '::Report',
         layout: eLayoutType.application,
       },
 
+
+      //GeneTyping
+      {
+        path: '/geneTypingAlgorithms',
+        name: '::GeneTypingAlgorithm',
+        iconClass: 'fas fa-sticky-note',
+        parentName: '::GeneTyping',
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/geneTypeSettings',
+        name: '::GeneTypeSetting',
+        iconClass: 'fas fa-sticky-note',
+        parentName: '::GeneTyping',
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/genePlateResults',
+        name: '::GenePlateResult',
+        iconClass: 'fas fa-sticky-note',
+        parentName: '::GeneTyping',
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/layouts',
+        name: '::Layout',
+        iconClass: 'fas fa-border-all',
+        parentName: '::GeneTyping',
+        layout: eLayoutType.application,
+      },
     ]);
   };
 }
