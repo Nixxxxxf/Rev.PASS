@@ -57,7 +57,6 @@ namespace PASS.AppServices
             var lst = await _plateRepository.GetListAsync();
             var result = ObjectMapper.Map<List<Plate>, List<PlateDto>>(lst);
             return result;
-
         }
 
         public async Task<List<InstrumentDto>> GetAllInstrumentsAsync()
@@ -65,7 +64,6 @@ namespace PASS.AppServices
             var lst = await _instrumentRepository.GetListAsync();
             var result = ObjectMapper.Map<List<Instrument>, List<InstrumentDto>>(lst);
             return result;
-
         }
 
         public async Task<List<LiquidCategoryDto>> GetAllLiquidCategoriesAsync()
@@ -73,21 +71,33 @@ namespace PASS.AppServices
             var lst = (await _liquidCategoryRepository.GetListAsync()).Distinct().ToList();
             var result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(lst);
             return result;
-
         }
 
         public async Task<List<string?>> GetAllCompoundsAsync()
         {
             var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Compound).Select(x => x.Name).Distinct().ToList();
             return lst;
-
         }
+
+
+        public async Task<List<string?>> GetAllGenesAsync()
+        {
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Gene).Select(x => x.Name).Distinct().ToList();
+            return lst;
+        }
+
+
+        public async Task<List<string?>> GetAllMarkersAsync()
+        {
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Marker).Select(x => x.Name).Distinct().ToList();
+            return lst;
+        }
+
 
         public async Task<List<string?>> GetAllSMILESAsync()
         {
             var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.SMILES != null).Select(x => x.SMILES).Distinct().ToList();
             return lst;
-
         }
 
     }

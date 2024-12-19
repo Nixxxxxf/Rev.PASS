@@ -31,8 +31,8 @@ namespace PASS.Domain.Entities
         public string? MarkerID { get; set; } //标记编号
         public string? MarkerDescription { get; set; } //标记描述
         public List<string?>? PrimerList { get; set; } //引物
-        public Nucleobase AlleleOfFAM { get; set; } //FAM对应的等位基因
-        public Nucleobase AlleleOfHEX { get; set; } //HEX对应的等位基因
+        public Nucleobase? AlleleOfFAM { get; set; } //FAM对应的等位基因
+        public Nucleobase? AlleleOfHEX { get; set; } //HEX对应的等位基因
         #endregion
 
 

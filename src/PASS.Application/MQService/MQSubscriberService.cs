@@ -80,7 +80,7 @@ namespace PASS.MQService
                 {
                     var appService = scope.ServiceProvider.GetRequiredService<IOpCompoundLibraryAppService>();
 
-                    var result = appService.ImportCherryPickMix(msg.PickList!).Result;
+                    var result = appService.ImportCompoundCellMix(msg.PickList!).Result;
 
                     Logger.LogInformation($"result: {result}");
                 }

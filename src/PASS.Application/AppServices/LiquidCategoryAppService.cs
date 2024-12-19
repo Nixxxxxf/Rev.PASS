@@ -80,5 +80,98 @@ namespace PASS.AppServices
             return new PagedResultDto<LiquidCategoryDto>(totalCount, result);
 
         }
+
+
+
+
+        public async Task<PagedResultDto<LiquidCategoryDto>> GetGeneListAsync(string? geneName, string? filter, PagedAndSortedResultRequestDto input)
+        {
+
+            IQueryable<LiquidCategory> queryLc = await _liquidCategoryRepository.GetQueryableAsync();
+
+            var liquidCategoryQuery = (from lc in queryLc
+
+                                       select new LiquidCategory()
+                                       {
+                                           Name = lc.Name,
+                                           LiquidType = lc.LiquidType,
+                                           GeneFunction = lc.GeneFunction,
+                                           GeneCDS = lc.GeneCDS,
+                                           GeneDonors = lc.GeneDonors,
+                                           GeneSequence = lc.GeneSequence,
+                                           GeneStrand = lc.GeneStrand,
+                                           GeneLocation = lc.GeneLocation,
+                                       })
+                                       .Where(x => x.LiquidType == Enum.LiquidType.Gene)
+                                       .WhereIf(!string.IsNullOrEmpty(geneName), x => (x.Name != null && x.Name.ToUpper() == geneName!.ToUpper()))
+                                       .WhereIf(!string.IsNullOrEmpty(filter), x => ((x.GeneFunction != null && x.GeneFunction.ToUpper().Contains(filter!.ToUpper()))||
+                                       (x.GeneCDS != null && x.GeneCDS.ToUpper().Contains(filter!.ToUpper()))||
+                                       (x.GeneDonors != null && x.GeneDonors.ToUpper().Contains(filter!.ToUpper()))|| 
+                                       (x.GeneSequence != null && x.GeneSequence.ToUpper().Contains(filter!.ToUpper()))
+                                       ));
+
+
+            int totalCount = await base.AsyncExecuter.CountAsync(liquidCategoryQuery).ConfigureAwait(continueOnCapturedContext: false);
+
+            if (totalCount > 0)
+            {
+                if (!input.Sorting.IsNullOrWhiteSpace())
+                {
+                    liquidCategoryQuery = liquidCategoryQuery.OrderBy(new ParsingConfig(), input.Sorting);
+                }
+                liquidCategoryQuery = liquidCategoryQuery.Skip(input.SkipCount).Take(input.MaxResultCount);
+            }
+
+
+            List<LiquidCategoryDto> result = new List<LiquidCategoryDto>();
+            result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(liquidCategoryQuery.ToList());
+
+            return new PagedResultDto<LiquidCategoryDto>(totalCount, result);
+
+        }
+
+
+
+
+        public async Task<PagedResultDto<LiquidCategoryDto>> GetMarkerListAsync(string? compoundName, string? filter, PagedAndSortedResultRequestDto input)
+        {
+
+            IQueryable<LiquidCategory> queryLc = await _liquidCategoryRepository.GetQueryableAsync();
+
+            var liquidCategoryQuery = (from lc in queryLc
+
+                                       select new LiquidCategory()
+                                       {
+                                           Name = lc.Name,
+                                           LiquidType = lc.LiquidType,
+                                           MarkerID = lc.MarkerID,
+                                           MarkerDescription = lc.MarkerDescription,
+                                           AlleleOfFAM = lc.AlleleOfFAM,
+                                           AlleleOfHEX = lc.AlleleOfHEX
+                                       })
+                                       .Where(x => x.LiquidType == Enum.LiquidType.Marker)
+                                       .WhereIf(!string.IsNullOrEmpty(compoundName), x => (x.Name != null && x.Name.ToUpper() == compoundName!.ToUpper()))
+                                       .WhereIf(!string.IsNullOrEmpty(filter), x => ((x.MarkerID != null && x.MarkerID.ToUpper().Contains(filter!.ToUpper())) ||
+                                       (x.MarkerDescription != null && x.MarkerDescription.ToUpper().Contains(filter!.ToUpper()))
+                                       ));
+
+            int totalCount = await base.AsyncExecuter.CountAsync(liquidCategoryQuery).ConfigureAwait(continueOnCapturedContext: false);
+
+            if (totalCount > 0)
+            {
+                if (!input.Sorting.IsNullOrWhiteSpace())
+                {
+                    liquidCategoryQuery = liquidCategoryQuery.OrderBy(new ParsingConfig(), input.Sorting);
+                }
+                liquidCategoryQuery = liquidCategoryQuery.Skip(input.SkipCount).Take(input.MaxResultCount);
+            }
+
+
+            List<LiquidCategoryDto> result = new List<LiquidCategoryDto>();
+            result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(liquidCategoryQuery.ToList());
+
+            return new PagedResultDto<LiquidCategoryDto>(totalCount, result);
+
+        }
     }
 }

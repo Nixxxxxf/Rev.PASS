@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 
+
 namespace PASS.Interfaces
 {
-    public interface IOpCompoundLibraryAppService :
+    public interface IOpGeneLibraryAppService :
         ICrudAppService<LiquidDto,
             Guid,
             PagedAndSortedResultRequestDto>
     {
-        Task<string> ImportCompoundCellMix(List<LiquidTransferHistoryDto> pickLst);
-        Task<string> ImportPlateTransfer(PlateTransferHistoryDto plateTrans);
-        Task<string> ImportEchoReportItemList(string reportName, string reportType, List<ReportItemDto> reportItemList);
+        //Task<string> ImportCherryPickMix(List<LiquidTransferHistoryDto> pickLst);
+        //Task<string> ImportPlateTransfer(PlateTransferHistoryDto plateTrans);
+        //Task<string> ImportEchoReportItemList(string reportName, string reportType, List<ReportItemDto> reportItemList);
     }
 }

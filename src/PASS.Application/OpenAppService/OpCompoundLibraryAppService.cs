@@ -23,6 +23,7 @@ using PASS.Domain.Entities;
 using PASS.Dtos;
 using PASS.Interfaces;
 using PASS.Enum;
+using Volo.Payment.Plans;
 
 namespace PASS.OpenAppService
 {
@@ -1220,7 +1221,7 @@ namespace PASS.OpenAppService
         /// <param name="transferHistoryDto"></param>
         /// <returns></returns>
         [UnitOfWork]
-        public async Task<string> CherryPickMix(LiquidTransferHistoryDto transferHistoryDto)
+        public async Task<string> CherryPickMix(LiquidTransferHistoryDto transferHistoryDto, LiquidType fnLiquidType)
         {
             var response = new ResponseForTransferHistoryDto();
 
@@ -1241,7 +1242,7 @@ namespace PASS.OpenAppService
                     throw new Exception("TransferType error, only accept '1'");
                 }
 
-                // Find Source Liquid Id by PlateChild
+                // Find Source Liquid Id by Plate, row, col
                 var r1 = JsonConvert.DeserializeObject<ResponseForLiquidDto>(await FindLiquid(transferHistoryDto.SourcePlateChildFk!));
                 if (r1.ErrorCode < 0)
                     throw new Exception(r1.ErrorMessage);
@@ -1249,7 +1250,7 @@ namespace PASS.OpenAppService
                 if (srcliquid == null || srcliquid.Id == default(Guid))
                     throw new Exception($"Cannot find source liquid by plate child: ({JsonConvert.SerializeObject(transferHistoryDto.SourcePlateChildFk)}) ");
 
-                // Find Dest Liquid Id by PlateChild
+                // Find Dest Liquid Id by Plate, row, col
                 var r2 = JsonConvert.DeserializeObject<ResponseForLiquidDto>(await FindLiquid(transferHistoryDto.DestinationPlateChildFk!));
                 if (r2.ErrorCode < 0)
                     throw new Exception(r2.ErrorMessage);
@@ -1280,7 +1281,7 @@ namespace PASS.OpenAppService
                 // Final Liquid is the new liquid
                 // 1. Insert new LiquidCategory
                 // 2. Recombine (dest plate child, dest liquid) => (dest plate child, final liquid)
-                var r3 = JsonConvert.DeserializeObject<ResponseForLiquidCategoryDto>(await InsertLiquidCategory(new LiquidCategoryDto() { Name = $"{srcliquid.LiquidCategoryFk!.Name}>>{dstLiquid.LiquidCategoryFk!.Name}", LiquidType = Enum.LiquidType.CompoundCellMix }));
+                var r3 = JsonConvert.DeserializeObject<ResponseForLiquidCategoryDto>(await InsertLiquidCategory(new LiquidCategoryDto() { Name = $"{srcliquid.LiquidCategoryFk!.Name}>>{dstLiquid.LiquidCategoryFk!.Name}", LiquidType = fnLiquidType }));//Enum.LiquidType.CompoundCellMix
                 if (r3.ErrorCode < 0)
                     throw new Exception(r3.ErrorMessage);
                 LiquidCategoryDto lc = r3.EntityDto!;
@@ -1437,6 +1438,15 @@ namespace PASS.OpenAppService
             return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.DMSO);
         }
 
+        public async Task<string> ImportGenePlate(List<ImportLiquidPlateDto> liquidPlateLst)
+        {
+            return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.Gene);
+        }
+
+        public async Task<string> ImportMarkerPlate(List<ImportLiquidPlateDto> liquidPlateLst)
+        {
+            return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.Marker);
+        }
 
 
         /// <summary>
@@ -1468,18 +1478,20 @@ namespace PASS.OpenAppService
                 var existCategoryNameList = new List<string?>();
                 foreach (var c in liquidPlateLst)
                 {
-                    if (existCategoryNameList.Contains(c.LiquidName))
+                    if (existCategoryNameList.Contains(c.Name))
                         continue;
 
-                    var category = new LiquidCategoryDto() { Name = c.LiquidName, LiquidType = liquidType, SMILES = c.SMILES };
+                    var category = ObjectMapper.Map<ImportLiquidPlateDto, LiquidCategoryDto>(c);
+                    category.LiquidType = liquidType;//new LiquidCategoryDto() { Name = c.LiquidName, LiquidType = liquidType, SMILES = c.SMILES, };
                     liquidCgLst.Add(category);
-                    existCategoryNameList.Add(c.LiquidName);
+                    existCategoryNameList.Add(c.Name);
                 }
 
                 // liquid position
                 foreach (var c in liquidPlateLst)
                 {
-                    var category = new LiquidCategoryDto() { Name = c.LiquidName, LiquidType = liquidType, SMILES = c.SMILES };
+                    var category = ObjectMapper.Map<ImportLiquidPlateDto, LiquidCategoryDto>(c);
+                    category.LiquidType = liquidType;//new LiquidCategoryDto() { Name = c.LiquidName, LiquidType = liquidType, SMILES = c.SMILES, };
                     var liquid = new LiquidDto() { LiquidCategoryFk = category, Volume = c.Volume, Concentration = c.Concentration };
                     var plate = new PlateDto() { Name = c.PlateName };
                     var plateChild = new PlateChildDto() { PlateFk = plate, Column = c.Column, Row = c.Row };
@@ -1586,7 +1598,7 @@ namespace PASS.OpenAppService
 
 
 
-        public async Task<string> ImportCherryPickMix(List<LiquidTransferHistoryDto> pickLst)
+        public async Task<string> ImportCompoundCellMix(List<LiquidTransferHistoryDto> pickLst)
         {
             var response = new ResponseForTransferHistoryDto();
 
@@ -1594,7 +1606,31 @@ namespace PASS.OpenAppService
             {
                 foreach (var pick in pickLst)
                 {
-                    var r1 = JsonConvert.DeserializeObject<ResponseForTransferHistoryDto>(await CherryPickMix(pick));
+                    var r1 = JsonConvert.DeserializeObject<ResponseForTransferHistoryDto>(await CherryPickMix(pick, Enum.LiquidType.CompoundCellMix));
+                    if (r1.ErrorCode < 0)
+                        throw new Exception(r1.ErrorMessage);
+                    response = r1;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ErrorCode = -1;
+                response.ErrorMessage = ex.Message;
+            }
+
+            return JsonConvert.SerializeObject(response);
+        }
+
+
+        public async Task<string> ImportGeneMarkerMix(List<LiquidTransferHistoryDto> pickLst)
+        {
+            var response = new ResponseForTransferHistoryDto();
+
+            try
+            {
+                foreach (var pick in pickLst)
+                {
+                    var r1 = JsonConvert.DeserializeObject<ResponseForTransferHistoryDto>(await CherryPickMix(pick, Enum.LiquidType.GeneMarkerMix));
                     if (r1.ErrorCode < 0)
                         throw new Exception(r1.ErrorMessage);
                     response = r1;

@@ -23,5 +23,6 @@ public class PASSApplicationAutoMapperProfile : Profile
         CreateMap<PlateTransferHistory, PlateTransferHistoryDto>().ReverseMap();
         CreateMap<Report, ReportDto>().ReverseMap();
         CreateMap<ReportItem, ReportItemDto>().ReverseMap();
+        CreateMap<ImportLiquidPlateDto, LiquidCategoryDto>().ReverseMap();
     }
 }
