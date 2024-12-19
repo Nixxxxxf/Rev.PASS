@@ -5,9 +5,9 @@ import { List } from 'echarts';
 import { ImportLiquidPlateDto, ImportPlateCopyDto, ImportResultFileDto, InstrumentDto, PlateChildDto, PlateDto, LiquidTransferHistoryDto, CsvHeaderDto, ReportDto, ReportItemDto  } from '@proxy/dtos';
 import { waitForAsync } from '@angular/core/testing';
 import { EventService } from './event-service';
-import { TransferType } from '@proxy/enum';
+import { Nucleobase, TransferType } from '@proxy/enum';
 import { CsvHeaderService } from '@proxy/app-services';
-import { lastValueFrom } from 'rxjs';
+import { distinct, lastValueFrom, map } from 'rxjs';
 import { IfStmt } from '@angular/compiler';
 // import { type } from 'os';
 
@@ -53,10 +53,11 @@ export class Parser {
         plateName: dataRow[map["PlateName"]],
         row: dataRow[map["Row"]],
         column: parseInt(dataRow[map["Column"]]),
-        liquidName: dataRow[map["CompoundName"]],
+        name: dataRow[map["CompoundName"]],
         volume: parseFloat(dataRow[map["Volume"]]),
         concentration: parseFloat(dataRow[map["Concentration"]]),
         smiles: dataRow[map["SMILES"]],
+        primerList: null
       }
       compoundLst.push(entity);
     }
@@ -98,9 +99,10 @@ export class Parser {
         plateType: dataRow[map["PlateType"]],
         row: dataRow[map["Row"]],
         column: parseInt(dataRow[map["Column"]]),
-        liquidName: dataRow[map["CompoundName"]],
+        name: dataRow[map["CompoundName"]],
         volume: parseFloat(dataRow[map["Volume(ul)"]]),
         concentration: parseFloat(dataRow[map["Concentration(mM)"]]),
+        primerList: null
       }
       liquidPlateLst.push(entity);
     }
@@ -142,8 +144,9 @@ export class Parser {
         plateType: dataRow[map["PlateType"]],
         row: dataRow[map["Row"]],
         column: parseInt(dataRow[map["Column"]]),
-        liquidName: dataRow[map["CellName"]],
+        name: dataRow[map["CellName"]],
         volume: parseFloat(dataRow[map["Volume(ul)"]]),
+        primerList: null,
       }
       liquidPlateLst.push(entity);
     }
@@ -184,9 +187,10 @@ export class Parser {
         plateName: dataRow[map["PlateName"]],
         plateType: dataRow[map["PlateType"]],
         row: dataRow[map["Row"]],
-        liquidName: "DMSO",
+        name: "DMSO",
         column: parseInt(dataRow[map["Column"]]),
         volume: parseFloat(dataRow[map["Volume(ul)"]]),
+        primerList: null
       }
       liquidPlateLst.push(entity);
     }
@@ -299,7 +303,7 @@ export class Parser {
       pickLst.push(entity);
     }
     console.log(pickLst);
-    this.opCompoundLibraryService.importCherryPickMixByPickLst(pickLst).subscribe((data) => {
+    this.opCompoundLibraryService.importCompoundCellMixByPickLst(pickLst).subscribe((data) => {
       console.log(data);
       this.eventService.myEvent5.emit(data);
     });
@@ -458,8 +462,196 @@ export class Parser {
   }
 
 
+  // 8
+  async handle_Gene_Marker_Result(fileName: string, fileContent: any, fileType:string, plateName:string, instrument:string): Promise<void> {
+    console.log(`start handle_Gene_Marker_Result...${fileType}, ${plateName}, ${instrument}`);
+    let resultFileLst: ImportResultFileDto[] = new Array<ImportResultFileDto>();
+    let map = await this.getCsvHeaderMap("Envision Result");
+
+    if (fileContent==null){
+      this.eventService.myEvent6.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+
+    let data = this.parseFile(fileContent, fileType);
+    if(data.length==0){
+      this.eventService.myEvent6.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+
+    // 96 or 384
+    let wellResultMap = this.envisionTableToMap(data);
+    
 
 
+  }
+
+
+  // 9
+  async handle_Gene_Plate(fileContent: any, fileType:string): Promise<void> {
+    console.log("start handle_Gene_Plate..."+fileType);
+    let liquidPlateLst: ImportLiquidPlateDto[] = new Array<ImportLiquidPlateDto>();
+    let map = await this.getCsvHeaderMap("Gene Plate");
+
+    if (fileContent==null){
+      this.eventService.myEvent9.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+
+    let data = this.parseFile(fileContent, fileType);
+    if(data.length==0){
+      this.eventService.myEvent9.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+    
+    let error = this.checkHeader(data[0], map);
+    if (error!=null){
+      this.eventService.myEvent9.emit(`{"ErrorCode":-1,"ErrorMessage":"${error}","EntityDto":null}`);
+      return;
+    }
+
+    for (let index = 0; index < data.length; index++) {
+      const dataRow = data[index];
+      let entity: ImportLiquidPlateDto =
+      {
+        plateName: dataRow[map["PlateName"]],
+        plateType: dataRow[map["PlateType"]],
+        row: dataRow[map["Row"]],
+        column: parseInt(dataRow[map["Column"]]),
+        name: dataRow[map["GeneName"]],
+        volume: parseFloat(dataRow[map["Volume(ul)"]]),
+        geneFunction: dataRow[map["GeneFunction"]],
+        geneCDS: dataRow[map["GeneCDS"]],
+        geneDonors: dataRow[map["GeneDonors"]],
+        geneSequence: dataRow[map["GeneSequence"]],
+        geneStrand: stringToBoolean(dataRow[map["GeneStrand"]]),
+        geneLocation: parseInt(dataRow[map["GeneLocation"]]),
+        primerList: null
+      }
+      liquidPlateLst.push(entity);
+    }
+    console.log(liquidPlateLst);
+    this.opCompoundLibraryService.importGenePlateByLiquidPlateLst(liquidPlateLst).subscribe((data) => {
+      console.log(data);
+      this.eventService.myEvent9.emit(data);
+    });
+  }
+
+
+  // 10
+  async handle_Marker_Plate(fileContent: any, fileType:string): Promise<void> {
+    console.log("start handle_Marker_Plate..."+fileType);
+    let liquidPlateLst: ImportLiquidPlateDto[] = new Array<ImportLiquidPlateDto>();
+    let map = await this.getCsvHeaderMap("Marker Plate");
+
+    if (fileContent==null){
+      this.eventService.myEvent10.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+
+    let data = this.parseFile(fileContent, fileType);
+    if(data.length==0){
+      this.eventService.myEvent10.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+    
+    let error = this.checkHeader(data[0], map);
+    if (error!=null){
+      this.eventService.myEvent10.emit(`{"ErrorCode":-1,"ErrorMessage":"${error}","EntityDto":null}`);
+      return;
+    }
+
+    for (let index = 0; index < data.length; index++) {
+      const dataRow = data[index];
+      let entity: ImportLiquidPlateDto =
+      {
+        plateName: dataRow[map["PlateName"]],
+        plateType: dataRow[map["PlateType"]],
+        row: dataRow[map["Row"]],
+        column: parseInt(dataRow[map["Column"]]),
+        name: dataRow[map["MarkerName"]],
+        volume: parseFloat(dataRow[map["Volume(ul)"]]),
+        markerID: dataRow[map["MarkerID"]],
+        markerDescription: dataRow[map["MarkerDescription"]],
+        primerList: dataRow[map["PrimerList"]].trim().split(","),
+        alleleOfFAM: strToNucleobase(dataRow[map["AlleleOfFAM"]]),
+        alleleOfHEX: strToNucleobase(dataRow[map["AlleleOfHEX"]]),
+      }
+      liquidPlateLst.push(entity);
+    }
+    console.log(liquidPlateLst);
+    this.opCompoundLibraryService.importMarkerPlateByLiquidPlateLst(liquidPlateLst).subscribe((data) => {
+      console.log(data);
+      this.eventService.myEvent10.emit(data);
+    });
+  }
+
+
+  // 11
+  async handle_Gene_Marker_Mix(fileContent: any, fileType:string): Promise<void> {
+    console.log("start handle_Gene_Marker_Mix..."+fileType);
+    let pickLst: LiquidTransferHistoryDto[] = new Array<LiquidTransferHistoryDto>();
+    let map = await this.getCsvHeaderMap("Pick List");
+
+    if (fileContent==null){
+      this.eventService.myEvent11.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+
+    let data = this.parseFile(fileContent, fileType);
+    if(data.length==0){
+      this.eventService.myEvent11.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
+      return;
+    }
+    
+    let error = this.checkHeader(data[0], map);
+    if (error!=null){
+      this.eventService.myEvent11.emit(`{"ErrorCode":-1,"ErrorMessage":"${error}","EntityDto":null}`);
+      return;
+    }
+
+    for (let index = 0; index < data.length; index++) {
+      const dataRow = data[index];
+
+      let instument:InstrumentDto = {name:"VirtualInstrument"};
+      let sourP:PlateDto = {
+        name: dataRow[map["SourcePlateName"]], plateSize: 0,
+        plateChildrenList: []
+      };
+      let sourPC: PlateChildDto = {
+        plateFk: sourP,
+        column: parseInt(dataRow[map["SourcePlateColumn"]]),
+        row: dataRow[map["SourcePlateRow"]]
+      }
+      let destP:PlateDto = {
+        name: dataRow[map["DestPlateName"]], plateSize: 0,
+        plateChildrenList: []
+      };
+      let destPC: PlateChildDto = {
+        plateFk: destP,
+        column: parseInt(dataRow[map["DestPlateColumn"]]),
+        row: dataRow[map["DestPlateRow"]]
+      };
+      
+      let entity: LiquidTransferHistoryDto =
+      {
+        sourcePlateChildFk: sourPC,
+        destinationPlateChildFk: destPC,
+        transferVolume: parseFloat(dataRow[map["Volume"]]),
+        instrumentFk: instument,
+        transferType: TransferType.Mix,
+        sourceLiquidFk: undefined,
+        destinationLiquidFk: undefined,
+        finalLiquidFk: undefined
+      }
+      pickLst.push(entity);
+    }
+    console.log(pickLst);
+    this.opCompoundLibraryService.importGeneMarkerMixByPickLst(pickLst).subscribe((data) => {
+      console.log(data);
+      this.eventService.myEvent11.emit(data);
+    });
+  }
 
 
 
@@ -502,6 +694,9 @@ export class Parser {
 
 
   checkHeader(header:any, map:CsvHeaderMap){
+    if (Object.keys(map).length==0) {
+      return `Cannot find csv header map. `;
+    }
     for (const key in map) {
       const value = map[key];
       console.log(`Key: ${key}, Value: ${value}`);
@@ -523,9 +718,116 @@ export class Parser {
     return null;
   }
 
+
+  envisionTableToMap(data: any){
+    console.log(data);
+    // find column row
+    let plateResultMap = new Array<PlateResultMap>();
+
+    let plateSize = 0;
+    let plateColIndex = 0;
+    let foundCol = false;
+
+    for (let r = 0; r < data.length; r++) {
+      const row = data[r];
+      const values = Object.values(row);
+      let colLst = new Array<any>();
+      for (let k = 0; k < values.length; k++) {
+        let value = values[k];
+        if (value!=undefined&&value!=null&&value!=""){
+          colLst.push(value);
+        }
+      }
+
+      if (colLst.length==12&&colLst[0]==1&&colLst[11]==12) {
+        plateSize = 96;
+      }else if(colLst.length==24&&colLst[0]==1&&colLst[23]==24){
+        plateSize = 384;
+      }else if(colLst.length==48&&colLst[0]==1&&colLst[47]==48){
+        plateSize = 1536;
+      }
+      if (plateSize>0){
+        foundCol = true;
+        plateColIndex = r;
+        break;
+      }
+    }
+    console.log(`find plate map:[${foundCol}], PlateColumn index:[${plateColIndex}]; Size:[${plateSize}]`);
+
+    if (!foundCol) return plateResultMap;
+    
+    // generate 
+
+    if (plateSize==96){
+      console.log(`start generate 96 map`)
+      for (let r = 1; r < 9; r++) {
+        let row = r + plateColIndex
+        console.log(data[row]);
+        
+      }
+    }else if (plateSize==384){
+      console.log(`start generate 384 map`)
+      for (let r = 1; r < 17; r++) {
+        let row = r + plateColIndex
+        //console.log(data[row]);
+        let values = Object.values(data[row])
+        for (let c = 1; c< 25; c++){
+          let rowName = values[0]
+          let wellName = `${rowName}${c}`
+          let wellResult = values[c]
+          plateResultMap[wellName] = wellResult
+          //console.log(`${wellName}: ${wellResult}`)
+        }
+      }
+    }else{
+      console.log(`start generate 1536 map`)
+      for (let r = 1; r < 33; r++) {
+        let row = r + plateColIndex
+        console.log(data[row]);
+        
+      }
+    }
+
+    console.log(plateResultMap)
+    console.log(Object.values(plateResultMap).length)
+    return plateResultMap;
+  }
+
+
+
+
 }
 
 
+function stringToBoolean(value: string): boolean {
+  const trueValues = ["true", "1"];
+  return trueValues.includes(value.toLowerCase());
+}
+
+function strToNucleobase(base: string): Nucleobase {
+  if (base==undefined) {
+    return Nucleobase.None;
+  }
+  switch (base.toUpperCase()) {
+    case "A":
+      return Nucleobase.A;
+    case "T":
+      return Nucleobase.T;
+    case "G":
+      return Nucleobase.G;
+    case "C":
+      return Nucleobase.C;
+    case "NONE":
+      return Nucleobase.None;
+    default:
+      return Nucleobase.None;
+  }
+}
+
 interface CsvHeaderMap {
   [key: string]: string;
+}
+
+interface PlateResultMap {
+  [key: string]: number;
 }

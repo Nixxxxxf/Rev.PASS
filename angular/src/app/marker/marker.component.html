@@ -1,1 +1,51 @@
-<p>marker works!</p>
+<!-- Search box -->
+<div class="card">
+    <div class="card-body">
+        <div class="row" style="margin-top:15px;">
+            <div class="col col-md-5">
+                <div class="card flex justify-content-center">
+                    <input class="form-control" list="namelistOptions" id="nameDataList" placeholder="name search..."
+                        [(ngModel)]="selectedName" />
+                    <datalist id="namelistOptions">
+                        <option *ngFor="let name of names" [value]="name.value"></option>
+                    </datalist>
+                </div>
+            </div>
+            <div class="col col-md-5">
+                <div class="card flex justify-content-center">
+                    <input class="form-control" type="text" [(ngModel)]="filter" placeholder="filter..." aria-label="default input example" />
+                </div>
+            </div>
+            <div class="col col-md-1"></div>
+            <div class="col col-md-1">
+                <button type="button" class="btn btn-outline-primary mb-1"
+                    (click)="searchWithFilters($event)">Search</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col col-md-6">
+                <h5 class="card-title">
+                    {{ 'MarkerLibrary' | abpLocalization }}
+                </h5>
+            </div>
+            <div class="text-end col col-md-6"></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <ngx-datatable [rows]="markers.items" [count]="markers.totalCount" [list]="list" default>
+            <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name"></ngx-datatable-column>
+            <ngx-datatable-column [name]="'::MarkerID' | abpLocalization" prop="markerID"></ngx-datatable-column>
+            <ngx-datatable-column [name]="'::MarkerDescription' | abpLocalization" prop="markerDescription"></ngx-datatable-column>
+            <ngx-datatable-column [name]="'::AlleleOfFAM' | abpLocalization" prop="alleleOfFAM"></ngx-datatable-column>
+            <ngx-datatable-column [name]="'::AlleleOfHEX' | abpLocalization" prop="alleleOfHEX"></ngx-datatable-column>
+        </ngx-datatable>
+    </div>
+</div>

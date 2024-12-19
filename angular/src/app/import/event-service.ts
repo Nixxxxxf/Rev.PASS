@@ -15,6 +15,12 @@ export class EventService {
   myEvent7: EventEmitter<string> = new EventEmitter<string>();
   myEvent8: EventEmitter<string> = new EventEmitter<string>();
   myEvent9: EventEmitter<string> = new EventEmitter<string>();
+  myEvent10: EventEmitter<string> = new EventEmitter<string>();
+  myEvent11: EventEmitter<string> = new EventEmitter<string>();
+  myEvent12: EventEmitter<string> = new EventEmitter<string>();
+  myEvent13: EventEmitter<string> = new EventEmitter<string>();
+  myEvent14: EventEmitter<string> = new EventEmitter<string>();
+  myEvent15: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }
 }

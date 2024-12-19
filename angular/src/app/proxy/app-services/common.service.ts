@@ -43,6 +43,14 @@ export class CommonService {
     { apiName: this.apiName,...config });
   
 
+  getAllGenes = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string[]>({
+      method: 'GET',
+      url: '/api/app/common/genes',
+    },
+    { apiName: this.apiName,...config });
+  
+
   getAllInstruments = (config?: Partial<Rest.Config>) =>
     this.restService.request<any, InstrumentDto[]>({
       method: 'GET',
@@ -55,6 +63,14 @@ export class CommonService {
     this.restService.request<any, LiquidCategoryDto[]>({
       method: 'GET',
       url: '/api/app/common/liquid-categories',
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getAllMarkers = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string[]>({
+      method: 'GET',
+      url: '/api/app/common/markers',
     },
     { apiName: this.apiName,...config });
   

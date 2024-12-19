@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { MarkerRoutingModule } from './marker-routing.module';
 import { MarkerComponent } from './marker.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
@@ -10,7 +11,7 @@ import { MarkerComponent } from './marker.component';
     MarkerComponent
   ],
   imports: [
-    CommonModule,
+    SharedModule,
     MarkerRoutingModule
   ]
 })

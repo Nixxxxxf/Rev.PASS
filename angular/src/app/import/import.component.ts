@@ -8,11 +8,13 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EventService } from './event-service';
 import { CsvHeaderService } from '@proxy/app-services';
+import { ListService } from '@abp/ng.core';
 
 @Component({
   selector: 'app-import',
   templateUrl: './import.component.html',
-  styleUrls: ['./import.component.scss']
+  styleUrls: ['./import.component.scss'],
+  providers: [ListService],
 })
 @Injectable({
   providedIn: 'root'
@@ -34,6 +36,13 @@ export class ImportComponent implements OnInit{
   messages_6: Message[] = [];
   messages_7: Message[] = [];
   messages_8: Message[] = [];
+  messages_9: Message[] = [];
+  messages_10: Message[] = [];
+  messages_11: Message[] = [];
+  messages_12: Message[] = [];
+  messages_13: Message[] = [];
+  messages_14: Message[] = [];
+  messages_15: Message[] = [];
 
   private fileContent: any;
   private fileContent_1: any;
@@ -45,6 +54,13 @@ export class ImportComponent implements OnInit{
   private fileContent_6: any;
   private fileContent_7: any;
   private fileContent_8: any;
+  private fileContent_9: any;
+  private fileContent_10: any;
+  private fileContent_11: any;
+  private fileContent_12: any;
+  private fileContent_13: any;
+  private fileContent_14: any;
+  private fileContent_15: any;
 
   private fileType: string = "";
   private fileType_1: string = "";
@@ -56,9 +72,21 @@ export class ImportComponent implements OnInit{
   private fileType_6: string = "";
   private fileType_7: string = "";
   private fileType_8: string = "";
+  private fileType_9: string = "";
+  private fileType_10: string = "";
+  private fileType_11: string = "";
+  private fileType_12: string = "";
+  private fileType_13: string = "";
+  private fileType_14: string = "";
+  private fileType_15: string = "";
 
   private fileName_7: string = "";
   private fileName_8: string = "";
+
+  plateName_8: string = "";
+  instrument_8: string = "...";
+
+  
 
   constructor(
     private opCompoundLibraryService: OpCompoundLibraryService,
@@ -341,13 +369,188 @@ onFileSelected_8(event) {
 }
 
 uploadFile_8() {
-  this.parser.handle_Gene_Marker_Result(this.fileName_8, this.fileContent_8, this.fileType_8);
+  this.parser.handle_Gene_Marker_Result(this.fileName_8, this.fileContent_8, this.fileType_8, this.plateName_8, this.instrument_8);
 }
 
 onComplete_8(data:string){
   let msgForamt = this.handleRespond(data)
   this.messages_8 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
 }
+
+
+
+// 9. Gene plate
+
+onFileSelected_9(event) {
+  const file: File = event.target.files[0];
+  const reader: FileReader = new FileReader();
+  reader.onload = (e: any) => {
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      this.fileType_9 = "Excel";
+    }else if(file.name.endsWith('.csv') ){
+      this.fileType_9 = "Csv";
+    }else {
+      this.messages_9 = [this.throwFileTypeError()];
+      return;
+    }
+    this.fileContent_9 = e.target.result;
+  };
+  reader.readAsBinaryString(file);    
+}
+
+uploadFile_9() {
+  this.parser.handle_Gene_Plate(this.fileContent_9, this.fileType_9);
+}
+
+onComplete_9(data:string){
+  let msgForamt = this.handleRespond(data)
+  this.messages_9 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+}
+
+
+// 10. Marker plate
+
+onFileSelected_10(event) {
+  const file: File = event.target.files[0];
+  const reader: FileReader = new FileReader();
+  reader.onload = (e: any) => {
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      this.fileType_10 = "Excel";
+    }else if(file.name.endsWith('.csv') ){
+      this.fileType_10 = "Csv";
+    }else {
+      this.messages_10 = [this.throwFileTypeError()];
+      return;
+    }
+    this.fileContent_10 = e.target.result;
+  };
+  reader.readAsBinaryString(file);    
+}
+
+uploadFile_10() {
+  this.parser.handle_Marker_Plate(this.fileContent_10, this.fileType_10);
+}
+
+onComplete_10(data:string){
+  let msgForamt = this.handleRespond(data)
+  this.messages_10 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+}
+
+
+// 11. Gene Marker Mix
+
+onFileSelected_11(event) {
+  const file: File = event.target.files[0];
+  const reader: FileReader = new FileReader();
+  reader.onload = (e: any) => {
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      this.fileType_11 = "Excel";
+    }else if(file.name.endsWith('.csv') ){
+      this.fileType_11 = "Csv";
+    }else {
+      this.messages_11 = [this.throwFileTypeError()];
+      return;
+    }
+    this.fileContent_11 = e.target.result;
+  };
+  reader.readAsBinaryString(file);    
+}
+
+uploadFile_11() {
+  this.parser.handle_Gene_Marker_Mix(this.fileContent_11, this.fileType_11);
+}
+
+onComplete_11(data:string){
+  let msgForamt = this.handleRespond(data)
+  this.messages_11 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+}
+
+
+// // 12. ROX
+
+// onFileSelected_12(event) {
+//   const file: File = event.target.files[0];
+//   const reader: FileReader = new FileReader();
+//   reader.onload = (e: any) => {
+//     if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+//       this.fileType_12 = "Excel";
+//     }else if(file.name.endsWith('.csv') ){
+//       this.fileType_12 = "Csv";
+//     }else {
+//       this.messages_12 = [this.throwFileTypeError()];
+//       return;
+//     }
+//     this.fileContent_12 = e.target.result;
+//   };
+//   reader.readAsBinaryString(file);    
+// }
+
+// uploadFile_12() {
+//   this.parser.handle_Marker_Plate(this.fileContent_12, this.fileType_12);
+// }
+
+// onComplete_12(data:string){
+//   let msgForamt = this.handleRespond(data)
+//   this.messages_12 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+// }
+
+
+// // 13. HEX
+
+// onFileSelected_13(event) {
+//   const file: File = event.target.files[0];
+//   const reader: FileReader = new FileReader();
+//   reader.onload = (e: any) => {
+//     if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+//       this.fileType_13 = "Excel";
+//     }else if(file.name.endsWith('.csv') ){
+//       this.fileType_13 = "Csv";
+//     }else {
+//       this.messages_13 = [this.throwFileTypeError()];
+//       return;
+//     }
+//     this.fileContent_13 = e.target.result;
+//   };
+//   reader.readAsBinaryString(file);    
+// }
+
+// uploadFile_13() {
+//   this.parser.handle_Marker_Plate(this.fileContent_13, this.fileType_13);
+// }
+
+// onComplete_13(data:string){
+//   let msgForamt = this.handleRespond(data)
+//   this.messages_13 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+// }
+
+
+// // 14. FAM
+
+// onFileSelected_14(event) {
+//   const file: File = event.target.files[0];
+//   const reader: FileReader = new FileReader();
+//   reader.onload = (e: any) => {
+//     if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+//       this.fileType_14 = "Excel";
+//     }else if(file.name.endsWith('.csv') ){
+//       this.fileType_14 = "Csv";
+//     }else {
+//       this.messages_14 = [this.throwFileTypeError()];
+//       return;
+//     }
+//     this.fileContent_14 = e.target.result;
+//   };
+//   reader.readAsBinaryString(file);    
+// }
+
+// uploadFile_14() {
+//   this.parser.handle_Marker_Plate(this.fileContent_14, this.fileType_14);
+// }
+
+// onComplete_14(data:string){
+//   let msgForamt = this.handleRespond(data)
+//   this.messages_14 =  [{ severity: msgForamt.severity, summary: msgForamt.summary, detail: msgForamt.detail }];
+// }
 
 
 
@@ -403,6 +606,41 @@ onComplete_8(data:string){
       console.log('My event 8 triggered!');
       this.onComplete_8(data);
     });
+
+    this.eventService.myEvent9.subscribe((data:string) => {
+      console.log('My event 9 triggered!');
+      this.onComplete_9(data);
+    });
+
+    this.eventService.myEvent10.subscribe((data:string) => {
+      console.log('My event 10 triggered!');
+      this.onComplete_10(data);
+    });
+
+    this.eventService.myEvent11.subscribe((data:string) => {
+      console.log('My event 11 triggered!');
+      this.onComplete_11(data);
+    });
+
+    // this.eventService.myEvent12.subscribe((data:string) => {
+    //   console.log('My event 12 triggered!');
+    //   this.onComplete_12(data);
+    // });
+
+    // this.eventService.myEvent13.subscribe((data:string) => {
+    //   console.log('My event 13 triggered!');
+    //   this.onComplete_13(data);
+    // });
+
+    // this.eventService.myEvent14.subscribe((data:string) => {
+    //   console.log('My event 14 triggered!');
+    //   this.onComplete_14(data);
+    // });
+
+    // this.eventService.myEvent15.subscribe((data:string) => {
+    //   console.log('My event 15 triggered!');
+    //   this.onComplete_15(data);
+    // });
   }
 
 

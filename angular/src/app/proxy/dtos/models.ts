@@ -1,4 +1,5 @@
 import type { CreationAuditedEntityDto, EntityDto } from '@abp/ng.core';
+import type { Nucleobase } from '../enum/nucleobase.enum';
 import type { LiquidType } from '../enum/liquid-type.enum';
 import type { TransferType } from '../enum/transfer-type.enum';
 
@@ -13,10 +14,21 @@ export interface ImportLiquidPlateDto {
   plateType?: string;
   row?: string;
   column: number;
-  liquidName?: string;
+  name?: string;
   volume?: number;
   concentration?: number;
   smiles?: string;
+  geneFunction?: string;
+  geneCDS?: string;
+  geneDonors?: string;
+  geneSequence?: string;
+  geneStrand?: boolean;
+  geneLocation?: number;
+  markerID?: string;
+  markerDescription?: string;
+  primerList: string[];
+  alleleOfFAM?: Nucleobase;
+  alleleOfHEX?: Nucleobase;
 }
 
 export interface ImportPlateCopyDto {
@@ -49,6 +61,17 @@ export interface LiquidAttributeDto extends EntityDto<string> {
 export interface LiquidCategoryDto extends EntityDto<string> {
   name?: string;
   smiles?: string;
+  geneFunction?: string;
+  geneCDS?: string;
+  geneDonors?: string;
+  geneSequence?: string;
+  geneStrand?: boolean;
+  geneLocation?: number;
+  markerID?: string;
+  markerDescription?: string;
+  primerList: string[];
+  alleleOfFAM: Nucleobase;
+  alleleOfHEX: Nucleobase;
   liquidType: LiquidType;
   liquidAttributeList: LiquidAttributeDto[];
   liquidList: LiquidDto[];
@@ -83,7 +106,7 @@ export interface LiquidTransferHistoryDto extends CreationAuditedEntityDto<strin
   sourcePlateChildFk: PlateChildDto;
   destinationPlateChildId?: string;
   destinationPlateChildFk: PlateChildDto;
-  transferVolume: number;
+  transferVolume?: number;
   instrumentId?: string;
   instrumentFk: InstrumentDto;
   result?: number;

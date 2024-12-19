@@ -44,11 +44,29 @@ export class LiquidCategoryService {
     { apiName: this.apiName,...config });
   
 
+  getGeneList = (geneName: string, filter: string, input: PagedAndSortedResultRequestDto, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, PagedResultDto<LiquidCategoryDto>>({
+      method: 'GET',
+      url: '/api/app/liquid-category/gene-list',
+      params: { geneName, filter, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName,...config });
+  
+
   getList = (input: PagedAndSortedResultRequestDto, config?: Partial<Rest.Config>) =>
     this.restService.request<any, PagedResultDto<LiquidCategoryDto>>({
       method: 'GET',
       url: '/api/app/liquid-category',
       params: { sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getMarkerList = (compoundName: string, filter: string, input: PagedAndSortedResultRequestDto, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, PagedResultDto<LiquidCategoryDto>>({
+      method: 'GET',
+      url: '/api/app/liquid-category/marker-list',
+      params: { compoundName, filter, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
     },
     { apiName: this.apiName,...config });
   

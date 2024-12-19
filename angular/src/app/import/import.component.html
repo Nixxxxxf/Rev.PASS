@@ -1,272 +1,427 @@
 <!-- 1 -->
 <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Compound Library SmartTM'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Compound Library SmartTM'}}
+        </h5>
       </div>
+      <div class="text-end col col-md-6"></div>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_1($event)" > text="xx" textContent="xx" title="222"-->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_1($event)" />
-          </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_1($event)" > text="xx" textContent="xx" title="222"-->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_1($event)" />
         </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_1()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_1()">Upload</button>
-        </div>
-        <div>
-          <p-messages [(value)]="messages_1" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_1()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_1()">Upload</button>
+      </div>
+      <div>
+        <p-messages [(value)]="messages_1" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  <!-- 1_1 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Compound Plate'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_1_1($event)" > -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_1_1($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_1_1()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_1_1()">Upload</button>
+</div>
 
+<!-- 1_1 -->
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Compound Plate'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_1_1($event)" > -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_1_1($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_1_1" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_1_1()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_1_1()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_1_1" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 2 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Cell Plate'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_2($event)"> -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_2($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_2()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_2()">Upload</button>
+</div>
 
+
+<!-- 2 -->
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Cell Plate'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_2($event)"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_2($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_2" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_2()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_2()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_2" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 3 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'DMSO Plate'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_3($event)" value="xxx"> -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_3($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_3()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_3()">Upload</button>
+</div>
 
+
+<!-- 3 -->
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'DMSO Plate'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_3($event)" value="xxx"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_3($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_3" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_3()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_3()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_3" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 4 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Plate Copy'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_4($event)" value="xxx"> -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_4($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_4()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_4()">Upload</button>
+</div>
 
+
+<!-- 4 -->
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Plate Copy'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_4($event)" value="xxx"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_4($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_4" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_4()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_4()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_4" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 5 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Pick List'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_5($event)" value="xxx"> -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_5($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_5()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_5()">Upload</button>
+</div>
 
+
+<!-- 5 -->
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Pick List'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_5($event)" value="xxx"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_5($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_5" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_5()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_5()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_5" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 6 -->
-  
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Envision Result'}}
-          </h5>
-        </div>
-        <div class="text-end col col-md-6"></div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col col-md-11">
-          <!-- <input type="file" (change)="onFileSelected_6($event)" value="xxx"> -->
-          <div class="mb-3">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_6($event)" />
-          </div>
-        </div>
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_6()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_6()">Upload</button>
+</div>
 
+
+<!-- 6 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Envision Result'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_6($event)" value="xxx"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_6($event)" />
         </div>
-        <div>
-          <p-messages [(value)]="messages_6" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_6()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_6()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_6" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  <!-- 7 -->
-  
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col col-md-6">
-          <h5 class="card-title">
-            {{ 'Echo Report'}}
-          </h5>
+</div>
+
+
+<!-- 7 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Echo Report'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+
+
+      <div class="col col-md-11">
+        <div class="card flex justify-content-center">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_7($event)" />
         </div>
-        <div class="text-end col col-md-6"></div>
+      </div>
+
+
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_7()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_7()">Upload</button>
       </div>
     </div>
-    <div class="card-body">
-      <div class="row">
 
+    <div class="col col-md-3">
 
-        <div class="col col-md-11">
-          <div class="card flex justify-content-center">
-            <input class="form-control" type="file" id="formFile" (change)="onFileSelected_7($event)" />
-          </div>
-        </div>
-
-
-        <div class="col col-md-1">
-          <!-- <button (click)="uploadFile_7()">Upload</button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_7()">Upload</button>
-        </div>
-      </div>
-      
-      <div class="col col-md-3">
-        
-        <div>
-          <p-messages [(value)]="messages_7" [enableService]="false" [closable]="false"></p-messages>
-        </div>
+      <div>
+        <p-messages [(value)]="messages_7" [enableService]="false" [closable]="false"></p-messages>
       </div>
     </div>
   </div>
-  
-  
-  
-  
+</div>
+
+
+
+<!-- 8 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Gene Marker Result'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+
+
+      <div class="col col-md-7">
+        <div class="card flex justify-content-center">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_8($event)" />
+        </div>
+      </div>
+
+      <div class="col col-md-2">
+        <input class="form-control" type="text" [(ngModel)]="plateName_8" placeholder="plate name..."
+          aria-label="default input example" />
+      </div>
+      <div class="col col-md-2">
+        <select class="form-select" aria-label="Default select example" placeholder="select instrument..."
+          [(ngModel)]="instrument_8">
+          <!-- <option selected>select instrument...</option> -->
+          <!-- <option selected>...</option> -->
+          <option value="Envision">Envision</option>
+          <option value="Nivo">Nivo</option>
+        </select>
+      </div>
+
+      <div class="col col-md-1">
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_8()">Upload</button>
+      </div>
+
+    </div>
+
+    <div class="col col-md-3">
+      <div>
+        <p-messages [(value)]="messages_8" [enableService]="false" [closable]="false"></p-messages>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- 9 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Gene Plate'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_2($event)"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_9($event)" />
+        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_2()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_9()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_9" [enableService]="false" [closable]="false"></p-messages>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- 10 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Marker Plate'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_2($event)"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_10($event)" />
+        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_2()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_10()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_10" [enableService]="false" [closable]="false"></p-messages>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 11 -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Gene Marker Mix'}}
+        </h5>
+      </div>
+      <div class="text-end col col-md-6"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col col-md-11">
+        <!-- <input type="file" (change)="onFileSelected_2($event)"> -->
+        <div class="mb-3">
+          <input class="form-control" type="file" id="formFile" (change)="onFileSelected_11($event)" />
+        </div>
+      </div>
+      <div class="col col-md-1">
+        <!-- <button (click)="uploadFile_2()">Upload</button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="uploadFile_11()">Upload</button>
+
+      </div>
+      <div>
+        <p-messages [(value)]="messages_11" [enableService]="false" [closable]="false"></p-messages>
+      </div>
+    </div>
+  </div>
+</div>
+
+

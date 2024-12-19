@@ -3451,6 +3451,36 @@
               "allowAnonymous": null,
               "implementFrom": "PASS.AppServices.CommonAppService"
             },
+            "GetAllGenesAsync": {
+              "uniqueName": "GetAllGenesAsync",
+              "name": "GetAllGenesAsync",
+              "httpMethod": "GET",
+              "url": "api/app/common/genes",
+              "supportedVersions": [],
+              "parametersOnMethod": [],
+              "parameters": [],
+              "returnValue": {
+                "type": "System.Collections.Generic.List<System.String>",
+                "typeSimple": "[string]"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.AppServices.CommonAppService"
+            },
+            "GetAllMarkersAsync": {
+              "uniqueName": "GetAllMarkersAsync",
+              "name": "GetAllMarkersAsync",
+              "httpMethod": "GET",
+              "url": "api/app/common/markers",
+              "supportedVersions": [],
+              "parametersOnMethod": [],
+              "parameters": [],
+              "returnValue": {
+                "type": "System.Collections.Generic.List<System.String>",
+                "typeSimple": "[string]"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.AppServices.CommonAppService"
+            },
             "GetAllSMILESAsync": {
               "uniqueName": "GetAllSMILESAsync",
               "name": "GetAllSMILESAsync",
@@ -5547,6 +5577,208 @@
                 {
                   "nameOnMethod": "smiles",
                   "name": "smiles",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "Sorting",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SkipCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "MaxResultCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidCategoryDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidCategoryDto>"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.AppServices.LiquidCategoryAppService"
+            },
+            "GetGeneListAsyncByGeneNameAndFilterAndInput": {
+              "uniqueName": "GetGeneListAsyncByGeneNameAndFilterAndInput",
+              "name": "GetGeneListAsync",
+              "httpMethod": "GET",
+              "url": "api/app/liquid-category/gene-list",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "geneName",
+                  "typeAsString": "System.String, System.Private.CoreLib",
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "typeAsString": "System.String, System.Private.CoreLib",
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto, Volo.Abp.Ddd.Application.Contracts",
+                  "type": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "typeSimple": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "geneName",
+                  "name": "geneName",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "filter",
+                  "name": "filter",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "Sorting",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SkipCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "MaxResultCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidCategoryDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidCategoryDto>"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.AppServices.LiquidCategoryAppService"
+            },
+            "GetMarkerListAsyncByCompoundNameAndFilterAndInput": {
+              "uniqueName": "GetMarkerListAsyncByCompoundNameAndFilterAndInput",
+              "name": "GetMarkerListAsync",
+              "httpMethod": "GET",
+              "url": "api/app/liquid-category/marker-list",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "compoundName",
+                  "typeAsString": "System.String, System.Private.CoreLib",
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "typeAsString": "System.String, System.Private.CoreLib",
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto, Volo.Abp.Ddd.Application.Contracts",
+                  "type": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "typeSimple": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "compoundName",
+                  "name": "compoundName",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "filter",
+                  "name": "filter",
                   "jsonName": null,
                   "type": "System.String",
                   "typeSimple": "string",
@@ -7784,7 +8016,7 @@
               "name": "IOpCompoundLibraryAppService",
               "methods": [
                 {
-                  "name": "ImportCherryPickMix",
+                  "name": "ImportCompoundCellMix",
                   "parametersOnMethod": [
                     {
                       "name": "pickLst",
@@ -8740,6 +8972,138 @@
                 },
                 {
                   "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneFunction",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneCDS",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneDonors",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneSequence",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneStrand",
+                  "jsonName": null,
+                  "type": "System.Boolean?",
+                  "typeSimple": "boolean?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.GeneLocation",
+                  "jsonName": null,
+                  "type": "System.Int32?",
+                  "typeSimple": "number?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.MarkerID",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.MarkerDescription",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.PrimerList",
+                  "jsonName": null,
+                  "type": "System.Collections.Generic.List<System.String>",
+                  "typeSimple": "[string]",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.AlleleOfFAM",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
+                  "name": "LiquidFk.LiquidCategoryFk.AlleleOfHEX",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "liquidPositionInPlateDto"
+                },
+                {
+                  "nameOnMethod": "liquidPositionInPlateDto",
                   "name": "LiquidFk.LiquidCategoryFk.LiquidType",
                   "jsonName": null,
                   "type": "System.String",
@@ -9047,8 +9411,8 @@
               "allowAnonymous": null,
               "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
             },
-            "CherryPickMixByTransferHistoryDto": {
-              "uniqueName": "CherryPickMixByTransferHistoryDto",
+            "CherryPickMixByTransferHistoryDtoAndFnLiquidType": {
+              "uniqueName": "CherryPickMixByTransferHistoryDtoAndFnLiquidType",
               "name": "CherryPickMix",
               "httpMethod": "POST",
               "url": "api/app/op-compound-library/cherry-pick-mix",
@@ -9059,6 +9423,14 @@
                   "typeAsString": "PASS.Dtos.LiquidTransferHistoryDto, PASS.Application.Contracts",
                   "type": "PASS.Dtos.LiquidTransferHistoryDto",
                   "typeSimple": "PASS.Dtos.LiquidTransferHistoryDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "fnLiquidType",
+                  "typeAsString": "PASS.Enum.LiquidType, PASS.Domain.Shared",
+                  "type": "PASS.Enum.LiquidType",
+                  "typeSimple": "PASS.Enum.LiquidType",
                   "isOptional": false,
                   "defaultValue": null
                 }
@@ -9074,6 +9446,18 @@
                   "defaultValue": null,
                   "constraintTypes": null,
                   "bindingSourceId": "Body",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "fnLiquidType",
+                  "name": "fnLiquidType",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
                   "descriptorName": ""
                 }
               ],
@@ -9232,6 +9616,80 @@
               "allowAnonymous": null,
               "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
             },
+            "ImportGenePlateByLiquidPlateLst": {
+              "uniqueName": "ImportGenePlateByLiquidPlateLst",
+              "name": "ImportGenePlate",
+              "httpMethod": "POST",
+              "url": "api/app/op-compound-library/import-gene-plate",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "liquidPlateLst",
+                  "typeAsString": "System.Collections.Generic.List`1[[PASS.Dtos.ImportLiquidPlateDto, PASS.Application.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib",
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ImportLiquidPlateDto>",
+                  "typeSimple": "[PASS.Dtos.ImportLiquidPlateDto]",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "liquidPlateLst",
+                  "name": "liquidPlateLst",
+                  "jsonName": null,
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ImportLiquidPlateDto>",
+                  "typeSimple": "[PASS.Dtos.ImportLiquidPlateDto]",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.String",
+                "typeSimple": "string"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
+            },
+            "ImportMarkerPlateByLiquidPlateLst": {
+              "uniqueName": "ImportMarkerPlateByLiquidPlateLst",
+              "name": "ImportMarkerPlate",
+              "httpMethod": "POST",
+              "url": "api/app/op-compound-library/import-marker-plate",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "liquidPlateLst",
+                  "typeAsString": "System.Collections.Generic.List`1[[PASS.Dtos.ImportLiquidPlateDto, PASS.Application.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib",
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ImportLiquidPlateDto>",
+                  "typeSimple": "[PASS.Dtos.ImportLiquidPlateDto]",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "liquidPlateLst",
+                  "name": "liquidPlateLst",
+                  "jsonName": null,
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ImportLiquidPlateDto>",
+                  "typeSimple": "[PASS.Dtos.ImportLiquidPlateDto]",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.String",
+                "typeSimple": "string"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
+            },
             "ImportPlateCopyByPltLst": {
               "uniqueName": "ImportPlateCopyByPltLst",
               "name": "ImportPlateCopy",
@@ -9269,11 +9727,11 @@
               "allowAnonymous": null,
               "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
             },
-            "ImportCherryPickMixByPickLst": {
-              "uniqueName": "ImportCherryPickMixByPickLst",
-              "name": "ImportCherryPickMix",
+            "ImportCompoundCellMixByPickLst": {
+              "uniqueName": "ImportCompoundCellMixByPickLst",
+              "name": "ImportCompoundCellMix",
               "httpMethod": "POST",
-              "url": "api/app/op-compound-library/import-cherry-pick-mix",
+              "url": "api/app/op-compound-library/import-compound-cell-mix",
               "supportedVersions": [],
               "parametersOnMethod": [
                 {
@@ -9305,6 +9763,43 @@
               },
               "allowAnonymous": null,
               "implementFrom": "PASS.Interfaces.IOpCompoundLibraryAppService"
+            },
+            "ImportGeneMarkerMixByPickLst": {
+              "uniqueName": "ImportGeneMarkerMixByPickLst",
+              "name": "ImportGeneMarkerMix",
+              "httpMethod": "POST",
+              "url": "api/app/op-compound-library/import-gene-marker-mix",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "pickLst",
+                  "typeAsString": "System.Collections.Generic.List`1[[PASS.Dtos.LiquidTransferHistoryDto, PASS.Application.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib",
+                  "type": "System.Collections.Generic.List<PASS.Dtos.LiquidTransferHistoryDto>",
+                  "typeSimple": "[PASS.Dtos.LiquidTransferHistoryDto]",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "pickLst",
+                  "name": "pickLst",
+                  "jsonName": null,
+                  "type": "System.Collections.Generic.List<PASS.Dtos.LiquidTransferHistoryDto>",
+                  "typeSimple": "[PASS.Dtos.LiquidTransferHistoryDto]",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.String",
+                "typeSimple": "string"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
             },
             "ImportResultFileByPltLst": {
               "uniqueName": "ImportResultFileByPltLst",
@@ -9630,6 +10125,445 @@
               "name": "GetListAsync",
               "httpMethod": "GET",
               "url": "api/app/op-compound-library",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto, Volo.Abp.Ddd.Application.Contracts",
+                  "type": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "typeSimple": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "Sorting",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SkipCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "MaxResultCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "Volo.Abp.Application.Services.IReadOnlyAppService<PASS.Dtos.LiquidDto,PASS.Dtos.LiquidDto,System.Guid,Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto>"
+            }
+          }
+        },
+        "PASS.OpenAppService.OpGeneLibraryAppService": {
+          "controllerName": "OpGeneLibrary",
+          "controllerGroupName": "OpGeneLibrary",
+          "isRemoteService": true,
+          "isIntegrationService": false,
+          "apiVersion": null,
+          "type": "PASS.OpenAppService.OpGeneLibraryAppService",
+          "interfaces": [
+            {
+              "type": "PASS.Interfaces.ILiquidAppService",
+              "name": "ILiquidAppService",
+              "methods": [
+                {
+                  "name": "GetAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "GetListAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto, Volo.Abp.Ddd.Application.Contracts",
+                      "type": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                      "typeSimple": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>"
+                  }
+                },
+                {
+                  "name": "CreateAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                      "type": "PASS.Dtos.LiquidDto",
+                      "typeSimple": "PASS.Dtos.LiquidDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "UpdateAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    },
+                    {
+                      "name": "input",
+                      "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                      "type": "PASS.Dtos.LiquidDto",
+                      "typeSimple": "PASS.Dtos.LiquidDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "DeleteAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "System.Void",
+                    "typeSimple": "System.Void"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "PASS.Interfaces.IOpGeneLibraryAppService",
+              "name": "IOpGeneLibraryAppService",
+              "methods": [
+                {
+                  "name": "GetAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "GetListAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto, Volo.Abp.Ddd.Application.Contracts",
+                      "type": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                      "typeSimple": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<PASS.Dtos.LiquidDto>"
+                  }
+                },
+                {
+                  "name": "CreateAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                      "type": "PASS.Dtos.LiquidDto",
+                      "typeSimple": "PASS.Dtos.LiquidDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "UpdateAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    },
+                    {
+                      "name": "input",
+                      "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                      "type": "PASS.Dtos.LiquidDto",
+                      "typeSimple": "PASS.Dtos.LiquidDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "PASS.Dtos.LiquidDto",
+                    "typeSimple": "PASS.Dtos.LiquidDto"
+                  }
+                },
+                {
+                  "name": "DeleteAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "System.Void",
+                    "typeSimple": "System.Void"
+                  }
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "CreateAsyncByInput": {
+              "uniqueName": "CreateAsyncByInput",
+              "name": "CreateAsync",
+              "httpMethod": "POST",
+              "url": "api/app/op-gene-library",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                  "type": "PASS.Dtos.LiquidDto",
+                  "typeSimple": "PASS.Dtos.LiquidDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "PASS.Dtos.LiquidDto",
+                  "typeSimple": "PASS.Dtos.LiquidDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "PASS.Dtos.LiquidDto",
+                "typeSimple": "PASS.Dtos.LiquidDto"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "Volo.Abp.Application.Services.ICreateAppService<PASS.Dtos.LiquidDto,PASS.Dtos.LiquidDto>"
+            },
+            "UpdateAsyncByIdAndInput": {
+              "uniqueName": "UpdateAsyncByIdAndInput",
+              "name": "UpdateAsync",
+              "httpMethod": "PUT",
+              "url": "api/app/op-gene-library/{id}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "PASS.Dtos.LiquidDto, PASS.Application.Contracts",
+                  "type": "PASS.Dtos.LiquidDto",
+                  "typeSimple": "PASS.Dtos.LiquidDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "PASS.Dtos.LiquidDto",
+                  "typeSimple": "PASS.Dtos.LiquidDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "PASS.Dtos.LiquidDto",
+                "typeSimple": "PASS.Dtos.LiquidDto"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "Volo.Abp.Application.Services.IUpdateAppService<PASS.Dtos.LiquidDto,System.Guid,PASS.Dtos.LiquidDto>"
+            },
+            "DeleteAsyncById": {
+              "uniqueName": "DeleteAsyncById",
+              "name": "DeleteAsync",
+              "httpMethod": "DELETE",
+              "url": "api/app/op-gene-library/{id}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.Void",
+                "typeSimple": "System.Void"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "Volo.Abp.Application.Services.IDeleteAppService<System.Guid>"
+            },
+            "GetAsyncById": {
+              "uniqueName": "GetAsyncById",
+              "name": "GetAsync",
+              "httpMethod": "GET",
+              "url": "api/app/op-gene-library/{id}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "PASS.Dtos.LiquidDto",
+                "typeSimple": "PASS.Dtos.LiquidDto"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "Volo.Abp.Application.Services.IReadOnlyAppService<PASS.Dtos.LiquidDto,PASS.Dtos.LiquidDto,System.Guid,Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto>"
+            },
+            "GetListAsyncByInput": {
+              "uniqueName": "GetListAsyncByInput",
+              "name": "GetListAsync",
+              "httpMethod": "GET",
+              "url": "api/app/op-gene-library",
               "supportedVersions": [],
               "parametersOnMethod": [
                 {
@@ -23839,7 +24773,7 @@
           "regex": null
         },
         {
-          "name": "LiquidName",
+          "name": "Name",
           "jsonName": null,
           "type": "System.String",
           "typeSimple": "string",
@@ -23879,6 +24813,138 @@
           "jsonName": null,
           "type": "System.String",
           "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneFunction",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneCDS",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneDonors",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneSequence",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneStrand",
+          "jsonName": null,
+          "type": "System.Boolean?",
+          "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneLocation",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MarkerID",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MarkerDescription",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "PrimerList",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AlleleOfFAM",
+          "jsonName": null,
+          "type": "PASS.Enum.Nucleobase?",
+          "typeSimple": "PASS.Enum.Nucleobase?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AlleleOfHEX",
+          "jsonName": null,
+          "type": "PASS.Enum.Nucleobase?",
+          "typeSimple": "PASS.Enum.Nucleobase?",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -24128,6 +25194,138 @@
           "jsonName": null,
           "type": "System.String",
           "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneFunction",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneCDS",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneDonors",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneSequence",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneStrand",
+          "jsonName": null,
+          "type": "System.Boolean?",
+          "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GeneLocation",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MarkerID",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MarkerDescription",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "PrimerList",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AlleleOfFAM",
+          "jsonName": null,
+          "type": "PASS.Enum.Nucleobase",
+          "typeSimple": "PASS.Enum.Nucleobase",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AlleleOfHEX",
+          "jsonName": null,
+          "type": "PASS.Enum.Nucleobase",
+          "typeSimple": "PASS.Enum.Nucleobase",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -24465,8 +25663,8 @@
         {
           "name": "TransferVolume",
           "jsonName": null,
-          "type": "System.Single",
-          "typeSimple": "number",
+          "type": "System.Single?",
+          "typeSimple": "number?",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -25069,7 +26267,33 @@
         "Compound",
         "Cell",
         "CompoundCellMix",
-        "DMSO"
+        "DMSO",
+        "Gene",
+        "Marker",
+        "GeneMarkerMix"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "PASS.Enum.Nucleobase": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "None",
+        "A",
+        "T",
+        "G",
+        "C"
       ],
       "enumValues": [
         0,
