@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { GeneRoutingModule } from './gene-routing.module';
-import { GeneComponent } from './gene.component';
+import { SampleRoutingModule } from './sample-routing.module';
+import { SampleComponent } from './sample.component';
 import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
   declarations: [
-    GeneComponent
+    SampleComponent
   ],
   imports: [
     SharedModule,
-    GeneRoutingModule
+    SampleRoutingModule
   ]
 })
-export class GeneModule { }
+export class SampleModule { }

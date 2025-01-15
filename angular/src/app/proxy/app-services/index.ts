@@ -1,5 +1,6 @@
 export * from './common.service';
 export * from './csv-header.service';
+export * from './gene-typing-algorithm.service';
 export * from './instrument.service';
 export * from './layout.service';
 export * from './liquid-category.service';

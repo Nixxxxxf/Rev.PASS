@@ -379,7 +379,7 @@ onComplete_8(data:string){
 
 
 
-// 9. Gene plate
+// 9. Sample plate
 
 onFileSelected_9(event) {
   const file: File = event.target.files[0];
@@ -399,7 +399,7 @@ onFileSelected_9(event) {
 }
 
 uploadFile_9() {
-  this.parser.handle_Gene_Plate(this.fileContent_9, this.fileType_9);
+  this.parser.handle_Sample_Plate(this.fileContent_9, this.fileType_9);
 }
 
 onComplete_9(data:string){

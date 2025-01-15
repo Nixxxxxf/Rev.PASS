@@ -12,6 +12,9 @@ namespace PASS.Dtos
         public string? Row { get; set; }
         public int Column { get; set; }
         public float? Result { get; set; }
+        public float? ROX { get; set; }
+        public float? FAM { get; set; }
+        public float? HEX { get; set; }
         public Guid? LiquidId { get; set; }
     }
 }

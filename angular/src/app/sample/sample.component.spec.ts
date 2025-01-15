@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GenePlateResultComponent } from './gene-plate-result.component';
+import { SampleComponent } from './sample.component';
 
-describe('GenePlateResultComponent', () => {
-  let component: GenePlateResultComponent;
-  let fixture: ComponentFixture<GenePlateResultComponent>;
+describe('SampleComponent', () => {
+  let component: SampleComponent;
+  let fixture: ComponentFixture<SampleComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GenePlateResultComponent]
+      declarations: [SampleComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(GenePlateResultComponent);
+    fixture = TestBed.createComponent(SampleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { GeneComponent } from './gene.component';
+import { SampleComponent } from './sample.component';
 
-const routes: Routes = [{ path: '', component: GeneComponent }];
+const routes: Routes = [{ path: '', component: SampleComponent }];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class GeneRoutingModule { }
+export class SampleRoutingModule { }

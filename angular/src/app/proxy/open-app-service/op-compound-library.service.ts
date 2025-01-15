@@ -11,6 +11,16 @@ export class OpCompoundLibraryService {
   apiName = 'Default';
   
 
+  callPythonAlgorithmKMeanByPlateName = (plateName: string, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string>({
+      method: 'POST',
+      responseType: 'text',
+      url: '/api/app/op-compound-library/call-python-algorithm-kMean',
+      params: { plateName },
+    },
+    { apiName: this.apiName,...config });
+  
+
   cherryPickMixByTransferHistoryDtoAndFnLiquidType = (transferHistoryDto: LiquidTransferHistoryDto, fnLiquidType: LiquidType, config?: Partial<Rest.Config>) =>
     this.restService.request<any, string>({
       method: 'POST',
@@ -54,7 +64,7 @@ export class OpCompoundLibraryService {
       method: 'DELETE',
       responseType: 'text',
       url: '/api/app/op-compound-library/liquid-plate-combine-by-id',
-      params: { liquidId: liquidPositionInPlateDto.liquidId, ["LiquidFk.LiquidCategoryId"]: liquidPositionInPlateDto.liquidFk.liquidCategoryId, ["LiquidFk.LiquidCategoryFk.Name"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.name, ["LiquidFk.LiquidCategoryFk.SMILES"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.smiles, ["LiquidFk.LiquidCategoryFk.GeneFunction"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneFunction, ["LiquidFk.LiquidCategoryFk.GeneCDS"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneCDS, ["LiquidFk.LiquidCategoryFk.GeneDonors"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneDonors, ["LiquidFk.LiquidCategoryFk.GeneSequence"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneSequence, ["LiquidFk.LiquidCategoryFk.GeneStrand"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneStrand, ["LiquidFk.LiquidCategoryFk.GeneLocation"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.geneLocation, ["LiquidFk.LiquidCategoryFk.MarkerID"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerID, ["LiquidFk.LiquidCategoryFk.MarkerDescription"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerDescription, ["LiquidFk.LiquidCategoryFk.PrimerList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.primerList, ["LiquidFk.LiquidCategoryFk.AlleleOfFAM"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfFAM, ["LiquidFk.LiquidCategoryFk.AlleleOfHEX"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfHEX, ["LiquidFk.LiquidCategoryFk.LiquidType"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidType, ["LiquidFk.LiquidCategoryFk.LiquidAttributeList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidAttributeList, ["LiquidFk.LiquidCategoryFk.LiquidList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidList, ["LiquidFk.LiquidCategoryFk.Id"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.id, ["LiquidFk.Volume"]: liquidPositionInPlateDto.liquidFk.volume, ["LiquidFk.Concentration"]: liquidPositionInPlateDto.liquidFk.concentration, ["LiquidFk.Result"]: liquidPositionInPlateDto.liquidFk.result, ["LiquidFk.IsUsed"]: liquidPositionInPlateDto.liquidFk.isUsed, ["LiquidFk.Count"]: liquidPositionInPlateDto.liquidFk.count, ["LiquidFk.Id"]: liquidPositionInPlateDto.liquidFk.id, plateChildId: liquidPositionInPlateDto.plateChildId, ["PlateChildFk.PlateId"]: liquidPositionInPlateDto.plateChildFk.plateId, ["PlateChildFk.PlateFk.Name"]: liquidPositionInPlateDto.plateChildFk.plateFk.name, ["PlateChildFk.PlateFk.Description"]: liquidPositionInPlateDto.plateChildFk.plateFk.description, ["PlateChildFk.PlateFk.PlateType"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateType, ["PlateChildFk.PlateFk.PlateSize"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateSize, ["PlateChildFk.PlateFk.PlateChildrenList"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateChildrenList, ["PlateChildFk.PlateFk.Id"]: liquidPositionInPlateDto.plateChildFk.plateFk.id, ["PlateChildFk.Row"]: liquidPositionInPlateDto.plateChildFk.row, ["PlateChildFk.Column"]: liquidPositionInPlateDto.plateChildFk.column, ["PlateChildFk.Id"]: liquidPositionInPlateDto.plateChildFk.id, id: liquidPositionInPlateDto.id },
+      params: { liquidId: liquidPositionInPlateDto.liquidId, ["LiquidFk.LiquidCategoryId"]: liquidPositionInPlateDto.liquidFk.liquidCategoryId, ["LiquidFk.LiquidCategoryFk.Name"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.name, ["LiquidFk.LiquidCategoryFk.SMILES"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.smiles, ["LiquidFk.LiquidCategoryFk.SampleID"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.sampleID, ["LiquidFk.LiquidCategoryFk.MarkerID"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerID, ["LiquidFk.LiquidCategoryFk.MarkerDescription"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerDescription, ["LiquidFk.LiquidCategoryFk.PrimerList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.primerList, ["LiquidFk.LiquidCategoryFk.AlleleOfFAM"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfFAM, ["LiquidFk.LiquidCategoryFk.AlleleOfHEX"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfHEX, ["LiquidFk.LiquidCategoryFk.LiquidType"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidType, ["LiquidFk.LiquidCategoryFk.LiquidAttributeList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidAttributeList, ["LiquidFk.LiquidCategoryFk.LiquidList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidList, ["LiquidFk.LiquidCategoryFk.Id"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.id, ["LiquidFk.Volume"]: liquidPositionInPlateDto.liquidFk.volume, ["LiquidFk.Concentration"]: liquidPositionInPlateDto.liquidFk.concentration, ["LiquidFk.Result"]: liquidPositionInPlateDto.liquidFk.result, ["LiquidFk.FAM"]: liquidPositionInPlateDto.liquidFk.fam, ["LiquidFk.HEX"]: liquidPositionInPlateDto.liquidFk.hex, ["LiquidFk.ROX"]: liquidPositionInPlateDto.liquidFk.rox, ["LiquidFk.IsUsed"]: liquidPositionInPlateDto.liquidFk.isUsed, ["LiquidFk.Count"]: liquidPositionInPlateDto.liquidFk.count, ["LiquidFk.Cluster"]: liquidPositionInPlateDto.liquidFk.cluster, ["LiquidFk.X"]: liquidPositionInPlateDto.liquidFk.x, ["LiquidFk.Y"]: liquidPositionInPlateDto.liquidFk.y, ["LiquidFk.Id"]: liquidPositionInPlateDto.liquidFk.id, plateChildId: liquidPositionInPlateDto.plateChildId, ["PlateChildFk.PlateId"]: liquidPositionInPlateDto.plateChildFk.plateId, ["PlateChildFk.PlateFk.Name"]: liquidPositionInPlateDto.plateChildFk.plateFk.name, ["PlateChildFk.PlateFk.Description"]: liquidPositionInPlateDto.plateChildFk.plateFk.description, ["PlateChildFk.PlateFk.PlateType"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateType, ["PlateChildFk.PlateFk.PlateSize"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateSize, ["PlateChildFk.PlateFk.PlateChildrenList"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateChildrenList, ["PlateChildFk.PlateFk.Id"]: liquidPositionInPlateDto.plateChildFk.plateFk.id, ["PlateChildFk.Row"]: liquidPositionInPlateDto.plateChildFk.row, ["PlateChildFk.Column"]: liquidPositionInPlateDto.plateChildFk.column, ["PlateChildFk.Id"]: liquidPositionInPlateDto.plateChildFk.id, id: liquidPositionInPlateDto.id },
     },
     { apiName: this.apiName,...config });
   
@@ -167,32 +177,22 @@ export class OpCompoundLibraryService {
     { apiName: this.apiName,...config });
   
 
-  importGeneMarkerMixByPickLst = (pickLst: LiquidTransferHistoryDto[], config?: Partial<Rest.Config>) =>
-    this.restService.request<any, string>({
-      method: 'POST',
-      responseType: 'text',
-      url: '/api/app/op-compound-library/import-gene-marker-mix',
-      body: pickLst,
-    },
-    { apiName: this.apiName,...config });
-  
-
-  importGenePlateByLiquidPlateLst = (liquidPlateLst: ImportLiquidPlateDto[], config?: Partial<Rest.Config>) =>
-    this.restService.request<any, string>({
-      method: 'POST',
-      responseType: 'text',
-      url: '/api/app/op-compound-library/import-gene-plate',
-      body: liquidPlateLst,
-    },
-    { apiName: this.apiName,...config });
-  
-
   importMarkerPlateByLiquidPlateLst = (liquidPlateLst: ImportLiquidPlateDto[], config?: Partial<Rest.Config>) =>
     this.restService.request<any, string>({
       method: 'POST',
       responseType: 'text',
       url: '/api/app/op-compound-library/import-marker-plate',
       body: liquidPlateLst,
+    },
+    { apiName: this.apiName,...config });
+  
+
+  importNivoResultByPltLst = (pltLst: ImportResultFileDto[], config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string>({
+      method: 'POST',
+      responseType: 'text',
+      url: '/api/app/op-compound-library/import-nivo-result',
+      body: pltLst,
     },
     { apiName: this.apiName,...config });
   
@@ -223,6 +223,26 @@ export class OpCompoundLibraryService {
       responseType: 'text',
       url: '/api/app/op-compound-library/import-result-file',
       body: pltLst,
+    },
+    { apiName: this.apiName,...config });
+  
+
+  importSampleMarkerMixByPickLst = (pickLst: LiquidTransferHistoryDto[], config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string>({
+      method: 'POST',
+      responseType: 'text',
+      url: '/api/app/op-compound-library/import-sample-marker-mix',
+      body: pickLst,
+    },
+    { apiName: this.apiName,...config });
+  
+
+  importSamplePlateByLiquidPlateLst = (liquidPlateLst: ImportLiquidPlateDto[], config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string>({
+      method: 'POST',
+      responseType: 'text',
+      url: '/api/app/op-compound-library/import-sample-plate',
+      body: liquidPlateLst,
     },
     { apiName: this.apiName,...config });
   

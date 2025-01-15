@@ -2,9 +2,13 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { ListService, PagedResultDto, QueryStreamCreatorCallback } from '@abp/ng.core';
 import { CommonService } from '@proxy/app-services/common.service';
 import { LayoutService } from '@proxy/app-services/layout.service';
-import { LiquidPositionInPlateDto, PlateDto } from '@proxy/dtos';
+import { GeneTypingAlgorithmDto, LiquidPositionInPlateDto, PlateDto } from '@proxy/dtos';
 import * as echarts from 'echarts';
 import { LiquidService } from '@proxy/app-services';
+import ecStat from 'echarts-stat';
+import { ScatterChart } from 'echarts/charts';
+import { OpCompoundLibraryService } from '@proxy/open-app-service';
+
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -24,6 +28,7 @@ export class LayoutComponent implements OnInit {
     private commonService: CommonService, 
     private layoutService:LayoutService,
     private liquidService:LiquidService,
+    private opCompoundLibraryService:OpCompoundLibraryService,
     public readonly list: ListService,
     ) { }
 
@@ -34,9 +39,16 @@ export class LayoutComponent implements OnInit {
   filteredPlates: any[] | undefined;
   plates: any[] | undefined;
 
+  // Select plates box
+  selectedAlgorithm: any;
+  algorithms: any[] | undefined;
+
   // Plate details table
   liquidPositions = { items: [], totalCount: 0 } as PagedResultDto<LiquidPositionInPlateDto>;
   sameCpdLst: LiquidPositionInPlateDto[] = [];  
+  lpLst: LiquidPositionInPlateDto[] = [];  //
+
+  // 
 
   liquidPositionStreamCreator: QueryStreamCreatorCallback<LiquidPositionInPlateDto, null>;
 
@@ -44,24 +56,26 @@ export class LayoutComponent implements OnInit {
   
   ngOnInit() {
     this.plates = [];
+    this.algorithms = [];
 
     this.getAllPlates();
+    this.getAllAlgorithms();
     
     this.wellClickEvent.subscribe((data:any) => {
       console.log('wellClickEvent triggered!');
-      this.initCellResultMapChart(data);
+      // this.initResultMapChart(data,"FAM");
+      // this.initResultMapChart(data,"HEX");
+      // this.initResultMapChart(data,"ROX");
     });
 
-    //this.liquidPositionStreamCreator = (query) => this.layoutService.getPlateDetailsForTable(this.plateName, query);
     this.liquidPositionStreamCreator = (query) => this.liquidService.getLiquidPositionInPlate(this.plateName, "", query);
-
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
   //    Search pannel
   //////////////////////////////////////////////////////////////////////////////////////////
 
-  // Init plates
+  // Init plates, algorithms
   getAllPlates(){
     this.commonService.getAllPlates().subscribe((data:PlateDto[])=>{
       for (let i = 0; i < data.length; i++) {
@@ -70,6 +84,16 @@ export class LayoutComponent implements OnInit {
       }
     })
   }
+
+  getAllAlgorithms(){
+    this.commonService.getAllAlgorithms().subscribe((data:GeneTypingAlgorithmDto[])=>{
+      for (let i = 0; i < data.length; i++) {
+        let item = data[i];
+        this.algorithms.push({ label: item.name, value: item.name });
+      }
+    })
+  }
+
 
   // Auto complete
   filterPlates(event: AutoCompleteCompleteEvent) {
@@ -104,11 +128,26 @@ export class LayoutComponent implements OnInit {
 
     // Chart
     this.layoutService.getPlateDetailsForChart(this.plateName).subscribe((data) => {
-      this.initCellResultMapChart(data);
+      this.initResultMapChart(data,"FAM");
+      this.initResultMapChart(data,"HEX");
+      this.initResultMapChart(data,"ROX");
+      this.lpLst = data;
+
     })
 
 
   }
+
+  // click generate button
+  generateScatterChart(event:Event){
+    this.opCompoundLibraryService.callPythonAlgorithmKMeanByPlateName(this.plateName).subscribe((data)=>{
+      console.log("generateScatterChart");
+      console.log(data);
+      this.initResultScatterChart(this.lpLst);
+
+    })
+  }
+  
 
 
 
@@ -117,43 +156,12 @@ export class LayoutComponent implements OnInit {
   //    Chart pannel
   //////////////////////////////////////////////////////////////////////////////////////////
 
-  // Cell result map chart
+  // result map chart
 
-  generateCols(size:number){
-    var cols = [];
-    if (size==96) {
-      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    }else if(size==384){
+  initResultMapChart(lpLst:LiquidPositionInPlateDto[], signal:string) {
 
-    }else if(size==1536){
-
-    }else{
-        console.log("size error: "+ size)
-        return null;
-    }
-    return cols;
-  }
-
-  generateRows(size:number){
-    var rows = [];
-    if (size==96) {
-      rows = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
-    }else if(size==384){
-
-    }else if(size==1536){
-
-    }else{
-        console.log("size error: "+ size)
-        return null;
-    }
-    return rows;
-  }
-
-
-
-  initCellResultMapChart(lpLst:LiquidPositionInPlateDto[]) {
-    console.log("init Cell Result Map chart")
-    var chartDom = document.getElementById('cell-result-map-chart');
+    console.log(`init ${signal} chart`)
+    var chartDom = document.getElementById(`result-map-chart-${signal}`);
     var myChart = echarts.init(chartDom);
     var option;
     var resultMin=100000;
@@ -167,9 +175,6 @@ export class LayoutComponent implements OnInit {
     const cols = this.generateCols(size);
     const rows = this.generateRows(size);
 
-    //console.log(lpLst)
-    // this.liquidPositionLst = lpLst;
-    // console.log(this.liquidPositionLst);
     var data = [];
     for (var c = 0; c < cols.length; c++) {
       for (var r = 0; r < rows.length; r++) {
@@ -177,18 +182,14 @@ export class LayoutComponent implements OnInit {
         var col = cols[c] - 1
         var lp = lpLst.find(x=>(x.plateChildFk.column==cols[c]&&x.plateChildFk.row==row));
         if(lp!=undefined){
-          data.push([col, row, lp.liquidFk.result])
-          // data.push(
-          //   {
-          //     value: [col, row, lp.liquidFk.result],
-          //     label: {
-                
-          //     },
-          //     itemStyle:{}
-          // }
-          // )
-          resultMin = Math.min(resultMin,lp.liquidFk.result)
-          resultMax = Math.max(resultMax,lp.liquidFk.result)
+          let result;
+          if (signal=="FAM"){result = Math.floor(lp.liquidFk.fam/1000)}
+          if (signal=="HEX"){result = Math.floor(lp.liquidFk.hex/1000)}
+          if (signal=="ROX"){result = Math.floor(lp.liquidFk.rox/1000)}
+
+          data.push([col, row, result])
+          resultMin = Math.min(resultMin,result)
+          resultMax = Math.max(resultMax,result)
 
         }
       }
@@ -196,14 +197,14 @@ export class LayoutComponent implements OnInit {
 
     option = {
       title: {
-        text: ' Cell plate result map',
+        text: signal,
         left: 'center'
       },
       tooltip: {
         position: 'top'
       },
       grid: {
-        height: '50%',
+        height: '65%',
         top: '10%',
         left: '3%',
         right: '4%',
@@ -231,7 +232,7 @@ export class LayoutComponent implements OnInit {
         calculable: true,
         orient: 'horizontal',
         left: 'center',
-        bottom: '15%'
+        bottom: '10%'
       },
       series: [
         {
@@ -263,7 +264,7 @@ export class LayoutComponent implements OnInit {
       let lc = lp.liquidFk.liquidCategoryFk.name;
       let lcLst = lc.split(">>")
       let compound = lcLst[0];
-      let sameCpdLst = lpLst.filter(function filterLp(lp:LiquidPositionInPlateDto):boolean{
+      let sLst = lpLst.filter(function filterLp(lp:LiquidPositionInPlateDto):boolean{
         let lc = lp.liquidFk.liquidCategoryFk.name;
         let lcLst = lc.split(">>")
         if (lcLst[0]==compound) {
@@ -274,60 +275,20 @@ export class LayoutComponent implements OnInit {
         }
       })
 
-      sameCpdLst = sameCpdLst.sort((a,b)=>a.liquidFk.concentration-b.liquidFk.concentration)
+      sLst = sLst.sort((a,b)=>a.liquidFk.concentration-b.liquidFk.concentration)
       
-      console.log(sameCpdLst);
-      initIC50Chart(sameCpdLst);
+      console.log(sLst);
+      updateSameCpdLst(sLst);
     });
 
-    
-    const initIC50Chart = (sameCpdLst:LiquidPositionInPlateDto[]): void => {
+    const updateSameCpdLst = (sameCpdLst:LiquidPositionInPlateDto[]): void => {
       //initIC50Chart(this.liquidPositionLst, params);
-      console.log("init IC50 Chart")
+      console.log("updateSameCpdLst")
       console.log(sameCpdLst);  
       this.sameCpdLst = sameCpdLst;
-      console.log(this.sameCpdLst);
-      
-      var chartDom = document.getElementById('ic-50-chart');
-      var myChart = echarts.init(chartDom);
-      var option;
-    
-      if(sameCpdLst.length==0){
-        return;
-      }
-    
-      let data = [];
-      
-      for (let i = 0; i < sameCpdLst.length; i++) {
-        let item = sameCpdLst[i];
-        data.push([item.liquidFk.concentration,item.liquidFk.result])
-      }
-
-
-      option = {
-        xAxis: {
-          //type: 'value',
-          type: 'log',
-          name:"Conc."
-        },
-        yAxis: {
-          type: 'value',
-          name:"Result"
-        },
-        series: [
-          {
-            data: data,
-            type: 'line',
-            smooth: true,
-            symbol:"rect",
-            symbolSize:20
-          }
-        ]
-      };
-      
-    
-      option && myChart.setOption(option);
     };
+    
+    
 
     option && myChart.setOption(option);
 
@@ -335,6 +296,298 @@ export class LayoutComponent implements OnInit {
 
 
   
+  // scatter chart
+  initResultScatterChart(lpLst:LiquidPositionInPlateDto[]) {
+
+    console.log(`init scatter chart`)
+    var chartDom = document.getElementById(`result-scatter-chart`);
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    var CLUSTER_COUNT = 4;
+    var DIENSIION_CLUSTER_INDEX = 2;
+    var COLOR_ALL = [
+      '#37A2DA',
+      '#e06343',
+      '#37a354',
+      '#b55dba',
+      '#b5bd48',
+      '#8378EA',
+      '#96BFFF'
+    ];
+
+    var pieces = [];
+    for (var i = 1; i < CLUSTER_COUNT+1; i++) {
+      pieces.push({
+        value: i,
+        label: 'cluster ' + i,
+        color: COLOR_ALL[i-1]
+      });
+    }
+
+    if(lpLst.length==0){
+      return;
+    }
+
+    var size = lpLst[0].plateChildFk.plateFk.plateSize;
+    const cols = this.generateCols(size);
+    const rows = this.generateRows(size);
+
+    var data = [];
+
+    let controlWell = lpLst.find(x=>(x.plateChildFk.column==2 && x.plateChildFk.row=="A"));
+
+    for (var c = 0; c < cols.length; c++) {
+      for (var r = 0; r < rows.length; r++) {
+        var row = rows[r]
+        var col = cols[c] - 1
+        var lp = lpLst.find(x=>(x.plateChildFk.column==cols[c]&&x.plateChildFk.row==row));
+        if(lp!=undefined){
+          let fam = lp.liquidFk.fam;
+          let hex = lp.liquidFk.hex;
+          let rox = lp.liquidFk.rox;
+
+          let x = (fam**2) / (rox- controlWell.liquidFk.rox);
+          let y = (hex**2) / (rox- controlWell.liquidFk.rox);
+          data.push([x, y])
+
+        }
+      }
+    }
+
+
+    ////xxxxxxxxxxxxxxxxxxxxxxx
+    var clusters = [
+      {
+          "label": "Cluster 1",
+          "color": "#ff7f50",
+          "data": [
+              [1, 2], [3, 4], [5, 6]
+          ],
+          "well": ["A1","B1","C1"]
+      },
+      {
+          "label": "Cluster 2",
+          "color": "#87cefa",
+          "data": [
+              [7, 8], [9, 10], [11, 12]
+          ],
+          "well": ["A1","B1","C1"]
+      }
+  ];
+
+
+  option = {
+      title: {
+          text: 'KMeans'
+      },
+      legend: {
+          data: clusters.map(function(cluster) { return cluster.label; })
+      },
+      tooltip: {
+          trigger: 'item',
+          formatter: function(params) {
+              var cluster = clusters[params.seriesIndex];
+              var data = cluster.data[params.dataIndex];
+              var well = cluster.well[params.dataIndex];
+              return 'Cluster: ' + cluster.label + '<br/>' +
+                    'Data: (' + well+ ')';
+          }
+      },
+      xAxis: {},
+      yAxis: {},
+      series: clusters.map(function(cluster) {
+          return {
+              name: cluster.label,
+              type: 'scatter', // 使用散点图类型
+              itemStyle: {
+                  color: cluster.color
+              },
+              data: cluster.data
+          };
+      })
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  myChart.setOption(option);
+
+/////xxxxxxxxxxxxxxxxxxxxxxxxx
+
+    // option = {
+    //   dataset: [
+    //     {
+    //       source: data
+    //     },
+    //     {
+    //       transform: {
+    //         type: 'scatter',
+    //         // print: true,
+    //         config: {
+    //           clusterCount: CLUSTER_COUNT,
+    //           outputType: 'single',
+    //           outputClusterIndexDimension: DIENSIION_CLUSTER_INDEX
+    //         }
+    //       }
+    //     }
+    //   ],
+    //   tooltip: {
+    //     position: 'top'
+    //   },
+    //   visualMap: {
+    //     type: 'piecewise',
+    //     top: 'middle',
+    //     min: 0,
+    //     max: CLUSTER_COUNT,
+    //     left: 10,
+    //     splitNumber: CLUSTER_COUNT,
+    //     dimension: DIENSIION_CLUSTER_INDEX,
+    //     pieces: pieces
+    //   },
+    //   grid: {
+    //     left: 120
+    //   },
+    //   xAxis: {},
+    //   yAxis: {},
+    //   series: {
+    //     type: 'scatter',
+    //     encode: { tooltip: [0, 1] },
+    //     symbolSize: 15,
+    //     itemStyle: {
+    //       borderColor: '#555'
+    //     },
+    //     datasetIndex: 1
+    //   }
+    // };
+
+    // myChart.on('click', function (params) {
+    //   console.log(params);
+    //   let col = params.data[0]+1
+    //   let row = params.data[1]
+    //   let lp = lpLst.find(x=>(x.plateChildFk.column==col&&x.plateChildFk.row==row));
+    //   // find compound
+    //   let lc = lp.liquidFk.liquidCategoryFk.name;
+    //   let lcLst = lc.split(">>")
+    //   let compound = lcLst[0];
+    //   let sLst = lpLst.filter(function filterLp(lp:LiquidPositionInPlateDto):boolean{
+    //     let lc = lp.liquidFk.liquidCategoryFk.name;
+    //     let lcLst = lc.split(">>")
+    //     if (lcLst[0]==compound) {
+    //       return true;
+
+    //     }else{
+    //       return false;
+    //     }
+    //   })
+
+    //   sLst = sLst.sort((a,b)=>a.liquidFk.concentration-b.liquidFk.concentration)
+      
+    //   console.log(sLst);
+    //   updateXXX(sLst);
+    // });
+
+    
+    
+
+    option && myChart.setOption(option);
+
+  }
+
+
+
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////
+  //    Utility
+  //////////////////////////////////////////////////////////////////////////////////////////
+
+  generateCols(size:number){
+    var cols = [];
+    if (size==96) {
+      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    }else if(size==384){
+      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    }else if(size==1536){
+
+    }else{
+        console.log("size error: "+ size)
+        return null;
+    }
+    return cols;
+  }
+
+  generateRows(size:number){
+    var rows = [];
+    if (size==96) {
+      rows = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
+    }else if(size==384){
+      rows = ['P', 'O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
+    }else if(size==1536){
+
+    }else{
+        console.log("size error: "+ size)
+        return null;
+    }
+    return rows;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+// const initIC50Chart = (sameCpdLst:LiquidPositionInPlateDto[]): void => {
+//   //initIC50Chart(this.liquidPositionLst, params);
+//   console.log("init IC50 Chart")
+//   console.log(sameCpdLst);  
+//   this.sameCpdLst = sameCpdLst;
+//   console.log(this.sameCpdLst);
+  
+//   var chartDom = document.getElementById('ic-50-chart');
+//   var myChart = echarts.init(chartDom);
+//   var option;
+
+//   if(sameCpdLst.length==0){
+//     return;
+//   }
+
+//   let data = [];
+  
+//   for (let i = 0; i < sameCpdLst.length; i++) {
+//     let item = sameCpdLst[i];
+//     data.push([item.liquidFk.concentration,item.liquidFk.result])
+//   }
+
+
+//   option = {
+//     xAxis: {
+//       //type: 'value',
+//       type: 'log',
+//       name:"Conc."
+//     },
+//     yAxis: {
+//       type: 'value',
+//       name:"Result"
+//     },
+//     series: [
+//       {
+//         data: data,
+//         type: 'line',
+//         smooth: true,
+//         symbol:"rect",
+//         symbolSize:20
+//       }
+//     ]
+//   };
+  
+
+//   option && myChart.setOption(option);
+// };
 
 
 
@@ -464,6 +717,3 @@ export class LayoutComponent implements OnInit {
   //   option && myChart.setOption(option);
 
   // }
-
-
-}

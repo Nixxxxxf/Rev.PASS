@@ -24,6 +24,12 @@ using PASS.Dtos;
 using PASS.Interfaces;
 using PASS.Enum;
 using Volo.Payment.Plans;
+using System.IO;
+using EasyNetQ.Internals;
+using Volo.Abp.Settings;
+using Scriban.Syntax;
+using Polly.Caching;
+using System.Collections;
 
 namespace PASS.OpenAppService
 {
@@ -34,6 +40,7 @@ namespace PASS.OpenAppService
             PagedAndSortedResultRequestDto>,
         ILiquidAppService, IOpCompoundLibraryAppService
     {
+        private readonly ISettingProvider _settingProvider;
         public readonly IUnitOfWorkManager _unitOfWorkManager;
         public readonly IRepository<Liquid, Guid> _liquidRepository;
         public readonly IRepository<LiquidCategory, Guid> _liquidCategoryRepository;
@@ -46,8 +53,10 @@ namespace PASS.OpenAppService
         public readonly IRepository<PlateTransferHistory, Guid> _plateTransferHistoryRepository;
         public readonly IRepository<Report, Guid> _reportRepository;
         public readonly IRepository<ReportItem, Guid> _reportItemRepository;
+        public readonly IRepository<GeneTypingAlgorithm, Guid> _geneTypingAlgorithmRepository;
 
         public OpCompoundLibraryAppService(
+            ISettingProvider settingProvider,
             IUnitOfWorkManager unitOfWorkManager,
             IRepository<Liquid, Guid> liquidRepository,
             IRepository<LiquidCategory, Guid> liquidCategoryRepository,
@@ -59,9 +68,12 @@ namespace PASS.OpenAppService
             IRepository<LiquidTransferHistory, Guid> transferHistoryRepository,
             IRepository<PlateTransferHistory, Guid> plateTransferHistoryRepository,
             IRepository<Report, Guid> reportRepository,
-            IRepository<ReportItem, Guid> reportItemRepository)
+            IRepository<ReportItem, Guid> reportItemRepository,
+            IRepository<GeneTypingAlgorithm, Guid> geneTypingAlgorithmRepository
+            )
             : base(liquidRepository)
         {
+            _settingProvider = settingProvider;
             _unitOfWorkManager = unitOfWorkManager;
             _liquidRepository = liquidRepository;
             _liquidCategoryRepository = liquidCategoryRepository;
@@ -74,6 +86,7 @@ namespace PASS.OpenAppService
             _plateTransferHistoryRepository = plateTransferHistoryRepository;
             _reportRepository = reportRepository;
             _reportItemRepository = reportItemRepository;
+            _geneTypingAlgorithmRepository = geneTypingAlgorithmRepository;
         }
 
 
@@ -710,9 +723,18 @@ namespace PASS.OpenAppService
                 }
                 foreach (var fr in resultFileDtoLst)
                 {
-                    var dbLiquid = dbLiquidLst.Where(x => x.PlateName == fr.PlateName && x.Row == fr.Row && x.Column == fr.Column).First();
+                    var dbLiquid = dbLiquidLst.Where(x => x.PlateName == fr.PlateName && x.Row == fr.Row && x.Column == fr.Column).FirstOrDefault();
+                    if (dbLiquid == null)
+                        continue;
                     var liquidDb = await _liquidRepository.FindAsync(x => x.Id == dbLiquid.LiquidId)!;
                     liquidDb.Result = fr.Result;
+                    if (fr.ROX != null && fr.ROX != 0)
+                        liquidDb.ROX = fr.ROX;
+                    if (fr.FAM != null && fr.FAM != 0)
+                        liquidDb.FAM = fr.FAM;
+                    if (fr.HEX != null && fr.HEX != 0)
+                        liquidDb.HEX = fr.HEX;
+
                     await _liquidRepository.UpdateAsync(liquidDb);
                 }
             }
@@ -1438,9 +1460,9 @@ namespace PASS.OpenAppService
             return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.DMSO);
         }
 
-        public async Task<string> ImportGenePlate(List<ImportLiquidPlateDto> liquidPlateLst)
+        public async Task<string> ImportSamplePlate(List<ImportLiquidPlateDto> liquidPlateLst)
         {
-            return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.Gene);
+            return await this.ImportLiquidPlate(liquidPlateLst, LiquidType.Sample);
         }
 
         public async Task<string> ImportMarkerPlate(List<ImportLiquidPlateDto> liquidPlateLst)
@@ -1622,7 +1644,7 @@ namespace PASS.OpenAppService
         }
 
 
-        public async Task<string> ImportGeneMarkerMix(List<LiquidTransferHistoryDto> pickLst)
+        public async Task<string> ImportSampleMarkerMix(List<LiquidTransferHistoryDto> pickLst)
         {
             var response = new ResponseForTransferHistoryDto();
 
@@ -1630,7 +1652,7 @@ namespace PASS.OpenAppService
             {
                 foreach (var pick in pickLst)
                 {
-                    var r1 = JsonConvert.DeserializeObject<ResponseForTransferHistoryDto>(await CherryPickMix(pick, Enum.LiquidType.GeneMarkerMix));
+                    var r1 = JsonConvert.DeserializeObject<ResponseForTransferHistoryDto>(await CherryPickMix(pick, Enum.LiquidType.SampleMarkerMix));
                     if (r1.ErrorCode < 0)
                         throw new Exception(r1.ErrorMessage);
                     response = r1;
@@ -1766,6 +1788,121 @@ namespace PASS.OpenAppService
 
         #endregion
 
+
+
+        #region sample marker transfer
+        public async Task<string> ImportNivoResult(List<ImportResultFileDto> pltLst)
+        {
+            var response = new ResponseDto();
+
+            try
+            {
+                var r1 = JsonConvert.DeserializeObject<ResponseDto>(await UpdateLiquidResult(pltLst));
+                if (r1.ErrorCode < 0)
+                    throw new Exception(r1.ErrorMessage);
+                response = r1;
+            }
+            catch (Exception ex)
+            {
+                response.ErrorCode = -1;
+                response.ErrorMessage = ex.Message;
+            }
+
+            return JsonConvert.SerializeObject(response);
+        }
+
+
+
+        #endregion
+
+
+
+        #region typing algorithm, k-means
+
+        public async Task<string> CallPythonAlgorithmKMean(string plateName)
+        {
+            var response = new ResponseDto();
+            // get all data
+            try
+            {
+                IQueryable<Liquid> queryLi = await _liquidRepository.WithDetailsAsync(x => x.LiquidCategoryFk);
+                IQueryable<PlateChild> queryPc = await _plateChildRepository.WithDetailsAsync(x => x.PlateFk);
+                IQueryable<LiquidPositionInPlate> queryLp = (await _liquidPositionInPlateRepository.WithDetailsAsync(x => x.LiquidFk, x => x.PlateChildFk));
+
+                var liquidPositionQuery = from lp in queryLp
+                                          join li in queryLi on lp.LiquidId equals li.Id
+                                          join pc in queryPc on lp.PlateChildId equals pc.Id
+                                          where pc.PlateFk!.Name == plateName
+                                          select new LiquidPositionInPlate()
+                                          {
+                                              PlateChildFk = pc,
+                                              LiquidFk = li,
+                                              PlateChildId = pc.Id,
+                                              LiquidId = li.Id
+
+                                          };
+
+                List<LiquidPositionInPlateDto> dataLst = new List<LiquidPositionInPlateDto>();
+                dataLst = ObjectMapper.Map<List<LiquidPositionInPlate>, List<LiquidPositionInPlateDto>>(liquidPositionQuery.ToList());
+                string jsonData = JsonConvert.SerializeObject(dataLst);
+
+
+                // start python
+                //string scriptName = "C:\\PASS\\PythonScript\\08_PASS_K-Mean_Algorithm.py"; 
+                var alg = (await _geneTypingAlgorithmRepository.GetListAsync()).Where(x => x.Name!.ToLower() == "k-means").FirstOrDefault();
+                if (alg == default(GeneTypingAlgorithm) || string.IsNullOrEmpty(alg.Content))
+                {
+                    response.ErrorCode = -2;
+                    response.ErrorMessage = "K-Means setting error. No python script file path.";
+                    return JsonConvert.SerializeObject(response);
+                }
+
+                var scriptName = alg.Content;
+
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "python",
+                    //Arguments = $"{scriptName} {jsonData}",
+                    Arguments = $"\"{scriptName}\"",
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                };
+                string pythonResponse;
+
+                using (Process process = Process.Start(startInfo))
+                {
+                    using (StreamWriter sw = process.StandardInput)
+                    {
+                        if (sw.BaseStream.CanWrite)
+                        {
+                            sw.Write(jsonData);
+                        }
+                    }
+
+                    pythonResponse = process.StandardOutput.ReadToEnd();
+
+                    process.WaitForExit(60 * 1000);
+
+                    Console.WriteLine("Result from Python: " + pythonResponse);
+                }
+                response.ErrorCode = 1;
+                response.ErrorMessage = pythonResponse;
+
+            }
+            catch (Exception ex)
+            {
+                response.ErrorCode = -1;
+                response.ErrorMessage = ex.Message;
+            }
+
+            return JsonConvert.SerializeObject(response);
+        }
+
+
+
+        #endregion
 
 
 

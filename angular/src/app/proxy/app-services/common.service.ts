@@ -1,7 +1,7 @@
 import { RestService, Rest } from '@abp/ng.core';
 import type { PagedAndSortedResultRequestDto, PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
-import type { InstrumentDto, LiquidCategoryDto, LiquidDto, PlateDto } from '../dtos/models';
+import type { GeneTypingAlgorithmDto, InstrumentDto, LiquidCategoryDto, LiquidDto, PlateDto } from '../dtos/models';
 
 @Injectable({
   providedIn: 'root',
@@ -35,18 +35,18 @@ export class CommonService {
     { apiName: this.apiName,...config });
   
 
-  getAllCompounds = (config?: Partial<Rest.Config>) =>
-    this.restService.request<any, string[]>({
+  getAllAlgorithms = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, GeneTypingAlgorithmDto[]>({
       method: 'GET',
-      url: '/api/app/common/compounds',
+      url: '/api/app/common/algorithms',
     },
     { apiName: this.apiName,...config });
   
 
-  getAllGenes = (config?: Partial<Rest.Config>) =>
+  getAllCompounds = (config?: Partial<Rest.Config>) =>
     this.restService.request<any, string[]>({
       method: 'GET',
-      url: '/api/app/common/genes',
+      url: '/api/app/common/compounds',
     },
     { apiName: this.apiName,...config });
   
@@ -87,6 +87,14 @@ export class CommonService {
     this.restService.request<any, string[]>({
       method: 'GET',
       url: '/api/app/common/s-mILES',
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getAllSamples = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, string[]>({
+      method: 'GET',
+      url: '/api/app/common/samples',
     },
     { apiName: this.apiName,...config });
   

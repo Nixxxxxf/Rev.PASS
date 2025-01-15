@@ -18,13 +18,8 @@ namespace PASS.Dtos
         public float? Concentration { get; set; }
         public string? SMILES { get; set; }
 
-        #region for gene
-        public string? GeneFunction { get; set; } //功能
-        public string? GeneCDS { get; set; } //蛋白编码区
-        public string? GeneDonors { get; set; } //供体
-        public string? GeneSequence { get; set; } //序列
-        public bool? GeneStrand { get; set; } //正反链; true:+, false:-
-        public int? GeneLocation { get; set; } //位置
+        #region for sample
+        public string? SampleID { get; set; } //样品编号
         #endregion
 
         #region for marker
@@ -34,5 +29,6 @@ namespace PASS.Dtos
         public Nucleobase? AlleleOfFAM { get; set; } //FAM对应的等位基因
         public Nucleobase? AlleleOfHEX { get; set; } //HEX对应的等位基因
         #endregion
+
     }
 }

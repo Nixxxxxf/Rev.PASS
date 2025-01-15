@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import * as Papa from 'papaparse';
 import { OpCompoundLibraryService } from '@proxy/open-app-service';
-import { List } from 'echarts';
+import { List, number } from 'echarts';
 import { ImportLiquidPlateDto, ImportPlateCopyDto, ImportResultFileDto, InstrumentDto, PlateChildDto, PlateDto, LiquidTransferHistoryDto, CsvHeaderDto, ReportDto, ReportItemDto  } from '@proxy/dtos';
 import { waitForAsync } from '@angular/core/testing';
 import { EventService } from './event-service';
@@ -469,29 +469,64 @@ export class Parser {
     let map = await this.getCsvHeaderMap("Envision Result");
 
     if (fileContent==null){
-      this.eventService.myEvent6.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
+      this.eventService.myEvent8.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
       return;
     }
 
     let data = this.parseFile(fileContent, fileType);
     if(data.length==0){
-      this.eventService.myEvent6.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
+      this.eventService.myEvent8.emit('{"ErrorCode":-1,"ErrorMessage":"No data.","EntityDto":null}');
       return;
     }
 
     // 96 or 384
-    let wellResultMap = this.envisionTableToMap(data);
+    let wellResultMap = this.nivoTableToMap(data);
+    let signalType = getSignalTypeFromFileName(fileName);
+
+    if(Object.values(wellResultMap).length==0){
+      this.eventService.myEvent8.emit('{"ErrorCode":-1,"ErrorMessage":"Cannot parse this file.","EntityDto":null}');
+      return;
+    }
+    if(signalType=="NONE"){
+      this.eventService.myEvent8.emit('{"ErrorCode":-1,"ErrorMessage":"The file name is not standardized. The following fields are required, FAM/HEX/ROX.","EntityDto":null}');
+      return;
+    }
+
+    for (let well in wellResultMap) {
+      console.log(well, wellResultMap[well]);
+      let result = wellResultMap[well];
+      let rc = wellToRowCol(well);
+      let famCheck = x => (x == "FAM" ?  result: 0);
+      let roxCheck = x => (x == "ROX" ?  result: 0);
+      let hexCheck = x => (x == "HEX" ?  result: 0);
+      
+      let entity: ImportResultFileDto =
+      {
+        plateName: plateName,
+        row: rc.row,
+        column: rc.col,
+        fam: famCheck(signalType),
+        rox: roxCheck(signalType),
+        hex: hexCheck(signalType),
+      }
+      resultFileLst.push(entity);
+    }
     
 
-
+    console.log(resultFileLst);
+    this.opCompoundLibraryService.importNivoResultByPltLst(resultFileLst).subscribe((data) => {
+      console.log(data);
+      this.eventService.myEvent8.emit(data);
+    });
+    
   }
 
 
   // 9
-  async handle_Gene_Plate(fileContent: any, fileType:string): Promise<void> {
-    console.log("start handle_Gene_Plate..."+fileType);
+  async handle_Sample_Plate(fileContent: any, fileType:string): Promise<void> {
+    console.log("start handle_Sample_Plate..."+fileType);
     let liquidPlateLst: ImportLiquidPlateDto[] = new Array<ImportLiquidPlateDto>();
-    let map = await this.getCsvHeaderMap("Gene Plate");
+    let map = await this.getCsvHeaderMap("Sample Plate");
 
     if (fileContent==null){
       this.eventService.myEvent9.emit('{"ErrorCode":1,"ErrorMessage":"No data.","EntityDto":null}');
@@ -518,20 +553,21 @@ export class Parser {
         plateType: dataRow[map["PlateType"]],
         row: dataRow[map["Row"]],
         column: parseInt(dataRow[map["Column"]]),
-        name: dataRow[map["GeneName"]],
+        name: dataRow[map["SampleName"]],
         volume: parseFloat(dataRow[map["Volume(ul)"]]),
-        geneFunction: dataRow[map["GeneFunction"]],
-        geneCDS: dataRow[map["GeneCDS"]],
-        geneDonors: dataRow[map["GeneDonors"]],
-        geneSequence: dataRow[map["GeneSequence"]],
-        geneStrand: stringToBoolean(dataRow[map["GeneStrand"]]),
-        geneLocation: parseInt(dataRow[map["GeneLocation"]]),
+        sampleID: dataRow[map["SampleName"]],
+        // geneFunction: dataRow[map["GeneFunction"]],
+        // geneCDS: dataRow[map["GeneCDS"]],
+        // geneDonors: dataRow[map["GeneDonors"]],
+        // geneSequence: dataRow[map["GeneSequence"]],
+        // geneStrand: stringToBoolean(dataRow[map["GeneStrand"]]),
+        // geneLocation: parseInt(dataRow[map["GeneLocation"]]),
         primerList: null
       }
       liquidPlateLst.push(entity);
     }
     console.log(liquidPlateLst);
-    this.opCompoundLibraryService.importGenePlateByLiquidPlateLst(liquidPlateLst).subscribe((data) => {
+    this.opCompoundLibraryService.importSamplePlateByLiquidPlateLst(liquidPlateLst).subscribe((data) => {
       console.log(data);
       this.eventService.myEvent9.emit(data);
     });
@@ -647,7 +683,7 @@ export class Parser {
       pickLst.push(entity);
     }
     console.log(pickLst);
-    this.opCompoundLibraryService.importGeneMarkerMixByPickLst(pickLst).subscribe((data) => {
+    this.opCompoundLibraryService.importSampleMarkerMixByPickLst(pickLst).subscribe((data) => {
       console.log(data);
       this.eventService.myEvent11.emit(data);
     });
@@ -719,10 +755,10 @@ export class Parser {
   }
 
 
-  envisionTableToMap(data: any){
+  nivoTableToMap(data: any){
     console.log(data);
     // find column row
-    let plateResultMap = new Array<PlateResultMap>();
+    let plateResultMap :PlateResultMap = {};
 
     let plateSize = 0;
     let plateColIndex = 0;
@@ -774,7 +810,10 @@ export class Parser {
         for (let c = 1; c< 25; c++){
           let rowName = values[0]
           let wellName = `${rowName}${c}`
-          let wellResult = values[c]
+          if(!isNumber(values[c])){
+            continue;
+          }
+          let wellResult = values[c] as number;
           plateResultMap[wellName] = wellResult
           //console.log(`${wellName}: ${wellResult}`)
         }
@@ -824,10 +863,55 @@ function strToNucleobase(base: string): Nucleobase {
   }
 }
 
+
+
+
+function getSignalTypeFromFileName(filename:string):string{
+  let name = filename.toUpperCase();
+  if (name.includes("FAM")) {
+    return "FAM"
+  } 
+  else if (name.includes("ROX")) {
+    return "ROX"
+  }
+  else if (name.includes("HEX")) {
+    return "HEX"
+  }else {
+    return "NONE"
+  }
+}
+
+
+
+function wellToRowCol(input: string): { row: string; col: number } {
+  const match = input.match(/[A-Za-z]+|[0-9]+/g);
+  if (match && match.length === 2) {
+    const col = parseInt(match[1], 10);
+    return { row: match[0], col };
+  } else {
+    return {row:"",col:0};
+  }
+}
+
+
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number';
+}
+
+
+
+
+
+
+
+
+
+
 interface CsvHeaderMap {
   [key: string]: string;
 }
 
 interface PlateResultMap {
-  [key: string]: number;
+  [key: string]: any;
 }

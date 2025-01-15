@@ -29,6 +29,7 @@ namespace PASS.AppServices
         public readonly IRepository<PlateChild, Guid> _plateChildRepository;
         public readonly IRepository<Instrument, Guid> _instrumentRepository;
         public readonly IRepository<LiquidTransferHistory, Guid> _transferHistoryRepository;
+        public readonly IRepository<GeneTypingAlgorithm, Guid> _geneTypingAlgorithmRepository;
 
 
         public CommonAppService(
@@ -39,7 +40,8 @@ namespace PASS.AppServices
             IRepository<Plate, Guid> plateRepository,
             IRepository<PlateChild, Guid> plateChildRepository,
             IRepository<Instrument, Guid> instrumentRepository,
-            IRepository<LiquidTransferHistory, Guid> transferHistoryRepository)
+            IRepository<LiquidTransferHistory, Guid> transferHistoryRepository,
+            IRepository<GeneTypingAlgorithm, Guid> geneTypingAlgorithmRepository)
             : base(liquidRepository)
         {
             _liquidRepository = liquidRepository;
@@ -50,55 +52,62 @@ namespace PASS.AppServices
             _plateChildRepository = plateChildRepository;
             _instrumentRepository = instrumentRepository;
             _transferHistoryRepository = transferHistoryRepository;
+            _geneTypingAlgorithmRepository = geneTypingAlgorithmRepository;
         }
 
         public async Task<List<PlateDto>> GetAllPlatesAsync()
         {
             var lst = await _plateRepository.GetListAsync();
-            var result = ObjectMapper.Map<List<Plate>, List<PlateDto>>(lst);
+            var result = ObjectMapper.Map<List<Plate>, List<PlateDto>>(lst).OrderBy(x=>x.Name).ToList();
             return result;
         }
 
         public async Task<List<InstrumentDto>> GetAllInstrumentsAsync()
         {
             var lst = await _instrumentRepository.GetListAsync();
-            var result = ObjectMapper.Map<List<Instrument>, List<InstrumentDto>>(lst);
+            var result = ObjectMapper.Map<List<Instrument>, List<InstrumentDto>>(lst).OrderBy(x => x.Name).ToList();
             return result;
         }
 
         public async Task<List<LiquidCategoryDto>> GetAllLiquidCategoriesAsync()
         {
             var lst = (await _liquidCategoryRepository.GetListAsync()).Distinct().ToList();
-            var result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(lst);
+            var result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(lst).Order().ToList();
             return result;
         }
 
         public async Task<List<string?>> GetAllCompoundsAsync()
         {
-            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Compound).Select(x => x.Name).Distinct().ToList();
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Compound).Select(x => x.Name).Distinct().Order().ToList();
             return lst;
         }
 
 
-        public async Task<List<string?>> GetAllGenesAsync()
+        public async Task<List<string?>> GetAllSamplesAsync()
         {
-            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Gene).Select(x => x.Name).Distinct().ToList();
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Sample).Select(x => x.Name).Distinct().Order().ToList();
             return lst;
         }
 
 
         public async Task<List<string?>> GetAllMarkersAsync()
         {
-            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Marker).Select(x => x.Name).Distinct().ToList();
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.LiquidType == Enum.LiquidType.Marker).Select(x => x.Name).Distinct().Order().ToList();
             return lst;
         }
 
 
         public async Task<List<string?>> GetAllSMILESAsync()
         {
-            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.SMILES != null).Select(x => x.SMILES).Distinct().ToList();
+            var lst = (await _liquidCategoryRepository.GetListAsync()).Where(x => x.SMILES != null).Select(x => x.SMILES).Distinct().Order().ToList();
             return lst;
         }
 
+        public async Task<List<GeneTypingAlgorithmDto>> GetAllAlgorithmsAsync()
+        {
+            var lst = await _geneTypingAlgorithmRepository.GetListAsync();
+            var result = ObjectMapper.Map<List<GeneTypingAlgorithm>, List<GeneTypingAlgorithmDto>>(lst).OrderBy(x => x.Name).ToList();
+            return result;
+        }
     }
 }

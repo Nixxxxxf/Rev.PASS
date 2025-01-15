@@ -1,4 +1,5 @@
 import type { CreationAuditedEntityDto, EntityDto } from '@abp/ng.core';
+import type { AlgorithmType } from '../enum/algorithm-type.enum';
 import type { Nucleobase } from '../enum/nucleobase.enum';
 import type { LiquidType } from '../enum/liquid-type.enum';
 import type { TransferType } from '../enum/transfer-type.enum';
@@ -7,6 +8,12 @@ export interface CsvHeaderDto extends EntityDto<string> {
   csvName?: string;
   headerName?: string;
   actualValue?: string;
+}
+
+export interface GeneTypingAlgorithmDto extends EntityDto<string> {
+  name?: string;
+  type: AlgorithmType;
+  content?: string;
 }
 
 export interface ImportLiquidPlateDto {
@@ -18,12 +25,7 @@ export interface ImportLiquidPlateDto {
   volume?: number;
   concentration?: number;
   smiles?: string;
-  geneFunction?: string;
-  geneCDS?: string;
-  geneDonors?: string;
-  geneSequence?: string;
-  geneStrand?: boolean;
-  geneLocation?: number;
+  sampleID?: string;
   markerID?: string;
   markerDescription?: string;
   primerList: string[];
@@ -41,6 +43,9 @@ export interface ImportResultFileDto {
   row?: string;
   column: number;
   result?: number;
+  rox?: number;
+  fam?: number;
+  hex?: number;
   liquidId?: string;
 }
 
@@ -61,12 +66,7 @@ export interface LiquidAttributeDto extends EntityDto<string> {
 export interface LiquidCategoryDto extends EntityDto<string> {
   name?: string;
   smiles?: string;
-  geneFunction?: string;
-  geneCDS?: string;
-  geneDonors?: string;
-  geneSequence?: string;
-  geneStrand?: boolean;
-  geneLocation?: number;
+  sampleID?: string;
   markerID?: string;
   markerDescription?: string;
   primerList: string[];
@@ -83,8 +83,14 @@ export interface LiquidDto extends EntityDto<string> {
   volume?: number;
   concentration?: number;
   result?: number;
+  fam?: number;
+  hex?: number;
+  rox?: number;
   isUsed: boolean;
   count: number;
+  cluster: number;
+  x: number;
+  y: number;
 }
 
 export interface LiquidPositionInPlateDto extends EntityDto<string> {

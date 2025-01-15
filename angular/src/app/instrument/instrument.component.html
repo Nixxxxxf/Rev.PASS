@@ -20,7 +20,7 @@
             [(ngModel)]="selectedInstrument"
           />
           <datalist id="instrumentlistOptions">
-            <option *ngFor="let Instrument of Instruments" [value]="Instrument.label"></option>
+            <option *ngFor="let instrument of instruments" [value]="instrument.label"></option>
           </datalist>
         </div>
       </div>

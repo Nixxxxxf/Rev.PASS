@@ -13,8 +13,8 @@ namespace PASS.Enum
         Cell = 2,
         CompoundCellMix = 3,
         DMSO = 4,
-        Gene = 5,
+        Sample = 5,
         Marker = 6,
-        GeneMarkerMix = 7,
+        SampleMarkerMix = 7,
     }
 }

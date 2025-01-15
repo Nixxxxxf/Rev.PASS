@@ -18,12 +18,12 @@ export class LiquidTypePipe implements PipeTransform {
         return 'Compound Cell Mix';
       case LiquidType.DMSO:
         return 'DMSO';
-      case LiquidType.Gene:
-        return 'Gene';
+      case LiquidType.Sample:
+        return 'Sample';
       case LiquidType.Marker:
         return 'Marker';
-      case LiquidType.GeneMarkerMix:
-        return 'GeneMarkerMix';
+      case LiquidType.SampleMarkerMix:
+        return 'SampleMarkerMix';
       default:
         return 'Unknown';
     }

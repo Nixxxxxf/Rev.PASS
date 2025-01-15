@@ -5,17 +5,16 @@ import { LiquidService } from '@proxy/app-services/liquid.service';
 import { PlateService } from '@proxy/app-services/plate.service';
 import { LiquidCategoryDto, LiquidDto, PlateDto } from '@proxy/dtos';
 //import { LiquidTypePipe } from '../liquid-position-in-plate/liquid-type.pipe';
-import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 
 
 @Component({
-  selector: 'app-gene',
-  templateUrl: './gene.component.html',
-  styleUrl: './gene.component.scss',
+  selector: 'app-sample',
+  templateUrl: './sample.component.html',
+  styleUrl: './sample.component.scss',
   providers: [ListService],
 })
 
-export class GeneComponent implements OnInit{
+export class SampleComponent implements OnInit{
 
   constructor(
     public readonly list: ListService, 
@@ -23,7 +22,7 @@ export class GeneComponent implements OnInit{
     private commonService: CommonService,) { }
 
 
-  genes = { items: [], totalCount: 0 } as PagedResultDto<LiquidCategoryDto>;
+  samples = { items: [], totalCount: 0 } as PagedResultDto<LiquidCategoryDto>;
 
   // Select plates box
   selectedName: any;
@@ -32,24 +31,24 @@ export class GeneComponent implements OnInit{
 
   // Filter input
   filter: string = "";
-  geneName:string = "";
+  sampleName:string = "";
 
-  geneStreamCreator: QueryStreamCreatorCallback<LiquidCategoryDto, null>;
+  sampleStreamCreator: QueryStreamCreatorCallback<LiquidCategoryDto, null>;
 
   ngOnInit() {
     this.names = [];
-    this.getAllGeneNames();
+    this.getAllSampleNames();
 
-    this.geneStreamCreator = (query) => this.liquidCategoryService.getGeneList(this.geneName,this.filter, query);
-    this.list.hookToQuery(this.geneStreamCreator).subscribe((response) => {
-      this.genes = response;
-      console.log(this.genes)
+    this.sampleStreamCreator = (query) => this.liquidCategoryService.getSampleList(this.sampleName,this.filter, query);
+    this.list.hookToQuery(this.sampleStreamCreator).subscribe((response) => {
+      this.samples = response;
+      console.log(this.samples)
     });
   }
 
-  // Init GeneNames
-  getAllGeneNames() {
-    this.commonService.getAllGenes().subscribe((data: string[]) => {
+  // Init SampleNames
+  getAllSampleNames() {
+    this.commonService.getAllSamples().subscribe((data: string[]) => {
       for (let i = 0; i < data.length; i++) {
         let item = data[i];
         this.names.push({ label: item, value: item });
@@ -62,20 +61,20 @@ export class GeneComponent implements OnInit{
   searchWithFilters(event: Event) {
     //console.log(this.selectedSmiles)
     console.log("click");
-    this.geneName = "";
+    this.sampleName = "";
     if (this.selectedName == undefined) {
-      this.geneName = "";
+      this.sampleName = "";
     }else if (this.selectedName.value == undefined) {
-      this.geneName = this.selectedName;
+      this.sampleName = this.selectedName;
     }else {
-      this.geneName = this.selectedName.value
+      this.sampleName = this.selectedName.value
     }
 
-    console.log(this.geneName)
+    console.log(this.sampleName)
     // Table
-    this.list.hookToQuery(this.geneStreamCreator).subscribe((response) => {
-      this.genes = response;
-      console.log(this.genes)
+    this.list.hookToQuery(this.sampleStreamCreator).subscribe((response) => {
+      this.samples = response;
+      console.log(this.samples)
     });
 
   }

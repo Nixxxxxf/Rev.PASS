@@ -25,7 +25,7 @@ export class InstrumentComponent implements OnInit{
 
   selectedInstrument: any;
   filteredInstruments: any[] | undefined;
-  Instruments: any[] | undefined;
+  instruments: any[] | undefined;
   instrumentName:string = "";
 
   ngOnInit() {
@@ -35,7 +35,7 @@ export class InstrumentComponent implements OnInit{
       this.instrumentLst = response;
     });
 
-    this.Instruments = [];
+    this.instruments = [];
     this.getAllInstrument();
 
     this.instrumentStreamCreator = (query) => this.instrumentService.getListWithFilter(this.instrumentName,query);
@@ -51,7 +51,7 @@ export class InstrumentComponent implements OnInit{
     this.commonService.getAllInstruments().subscribe((data:InstrumentDto[])=>{
       for (let i = 0; i < data.length; i++) {
         let item = data[i];
-        this.Instruments.push({ label: item.name, value: item });
+        this.instruments.push({ label: item.name, value: item });
       }
     })
   }

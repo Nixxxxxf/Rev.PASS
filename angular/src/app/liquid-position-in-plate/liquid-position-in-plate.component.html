@@ -1,91 +1,88 @@
 <!-- Search box -->
 <div class="card">
-    <div class="card-body">
-      <div class="row" style="margin-top:15px;">
-        <div class="col col-md-5">
-          <div class="card flex justify-content-center">
-            <!-- <span class="p-float-label">
+  <div class="card-body">
+    <div class="row" style="margin-top:15px;">
+      <div class="col col-md-5">
+        <div class="card flex justify-content-center">
+          <!-- <span class="p-float-label">
               <p-autoComplete [(ngModel)]="selectedPlate" [virtualScroll]="true" [suggestions]="filteredPlates"
                 [virtualScrollItemSize]="34" (completeMethod)="filterPlates($event)" field="label" [dropdown]="true" inputId="Plate">
               </p-autoComplete>
               <label for="Plate">Plate</label>
             </span>
             -->
-            <input
-              class="form-control"
-              list="platelistOptions"
-              id="plateDataList"
-              placeholder="plate search..."
-              [(ngModel)]="selectedPlate"
-            />
-            <datalist id="platelistOptions">
-              <option *ngFor="let plate of plates" [value]="plate.label"></option>
-            </datalist>
-          </div>
+          <input class="form-control" list="platelistOptions" id="plateDataList" placeholder="plate search..."
+            [(ngModel)]="selectedPlate" />
+          <datalist id="platelistOptions">
+            <option *ngFor="let plate of plates" [value]="plate.label"></option>
+          </datalist>
         </div>
-        <div class="col col-md-5">
-          <div class="card flex justify-content-center">
-            <!-- <span class="p-float-label">
+      </div>
+      <div class="col col-md-5">
+        <div class="card flex justify-content-center">
+          <!-- <span class="p-float-label">
               <p-autoComplete [(ngModel)]="selectedLiquidCategory" [virtualScroll]="true" [suggestions]="filteredLiquidCategories"
                 [virtualScrollItemSize]="34" (completeMethod)="filterLiquidCategories($event)" field="label" [dropdown]="true" inputId="Plate">
               </p-autoComplete>
               <label for="LiquidCategory">LiquidCategory</label>
             </span> -->
-           <input
-              class="form-control"
-              list="lclistOptions"
-              id="lcDataList"
-              placeholder="liquid category search..."
-              [(ngModel)]="selectedLiquidCategory"
-            />
-            <datalist id="lclistOptions">
-              <option *ngFor="let lc of liquidCategories" [value]="lc.label"></option>
-            </datalist>
-          </div>
+          <input class="form-control" list="lclistOptions" id="lcDataList" placeholder="liquid category search..."
+            [(ngModel)]="selectedLiquidCategory" />
+          <datalist id="lclistOptions">
+            <option *ngFor="let lc of liquidCategories" [value]="lc.label"></option>
+          </datalist>
         </div>
-
-        <div class="col col-md-1">
-        </div>
-        <div class="col col-md-1">
-          <!-- <p-button label="Search" (click)="searchWithFilters($event)"></p-button> -->
-          <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilters($event)">Search</button>
-
-        </div>
-  
       </div>
+
+      <div class="col col-md-1">
+      </div>
+      <div class="col col-md-1">
+        <!-- <p-button label="Search" (click)="searchWithFilters($event)"></p-button> -->
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="searchWithFilters($event)">Search</button>
+
+      </div>
+
     </div>
   </div>
-  
-  
-  <div class="card">
-      <div class="card-header">
-        <div class="row">
-          <div class="col col-md-6">
-            <h5 class="card-title">
-              {{ 'Liquid Position In Plate' | abpLocalization }}
-            </h5>
-          </div>
-          <div class="text-end col col-md-6"></div>
-        </div>
+</div>
+
+
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ 'Liquid Position In Plate' | abpLocalization }}
+        </h5>
       </div>
-      <div class="card-body">
-        <ngx-datatable [rows]="liquids.items" [count]="liquids.totalCount" [list]="list" default>
-          <ngx-datatable-column [name]="'::LiquidCategory' | abpLocalization" prop="liquidFk.liquidCategoryFk.name" ></ngx-datatable-column>
-          <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" prop="liquidFk.liquidCategoryFk.name" ></ngx-datatable-column> -->
-          <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" [cellTemplate]="liquidTypeTemplate"></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Volume' | abpLocalization" prop="liquidFk.volume" ></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Concentration' | abpLocalization" prop="liquidFk.concentration" ></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Result' | abpLocalization" prop="liquidFk.result" ></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Plate' | abpLocalization" prop="plateChildFk.plateFk.name" ></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Row' | abpLocalization" prop="plateChildFk.row" ></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::Column' | abpLocalization" prop="plateChildFk.column" ></ngx-datatable-column>
-  
-          <!-- <ngx-datatable-column [name]="'::IsUsed' | abpLocalization" prop="isUsed" ></ngx-datatable-column> -->
-          <!-- <ngx-datatable-column [name]="'::Count' | abpLocalization" prop="count" ></ngx-datatable-column> -->
-          <!-- <ngx-datatable-column [name]="'::Description' | abpLocalization" prop="description" ></ngx-datatable-column> -->
-        </ngx-datatable>
-        <ng-template #liquidTypeTemplate let-row="row">
-          {{ row.liquidFk.liquidCategoryFk.liquidType | liquidType }}
-        </ng-template>
-      </div>
+      <div class="text-end col col-md-6"></div>
     </div>
+  </div>
+  <div class="card-body">
+    <ngx-datatable [rows]="liquids.items" [count]="liquids.totalCount" [list]="list" default>
+      <ngx-datatable-column [name]="'::LiquidCategory' | abpLocalization"
+        prop="liquidFk.liquidCategoryFk.name"></ngx-datatable-column>
+      <!-- <ngx-datatable-column [name]="'::LiquidType' | abpLocalization" prop="liquidFk.liquidCategoryFk.name" ></ngx-datatable-column> -->
+      <ngx-datatable-column [name]="'::LiquidType' | abpLocalization"
+        [cellTemplate]="liquidTypeTemplate"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Volume' | abpLocalization" prop="liquidFk.volume"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Concentration' | abpLocalization"
+        prop="liquidFk.concentration"></ngx-datatable-column>
+      <!-- <ngx-datatable-column [name]="'::Result' | abpLocalization" prop="liquidFk.result"></ngx-datatable-column> -->
+      <ngx-datatable-column [name]="'::FAM' | abpLocalization" prop="liquidFk.fam"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::HEX' | abpLocalization" prop="liquidFk.hex"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::ROX' | abpLocalization" prop="liquidFk.rox"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Plate' | abpLocalization"
+        prop="plateChildFk.plateFk.name"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Row' | abpLocalization" prop="plateChildFk.row"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Column' | abpLocalization" prop="plateChildFk.column"></ngx-datatable-column>
+
+      <!-- <ngx-datatable-column [name]="'::IsUsed' | abpLocalization" prop="isUsed" ></ngx-datatable-column> -->
+      <!-- <ngx-datatable-column [name]="'::Count' | abpLocalization" prop="count" ></ngx-datatable-column> -->
+      <!-- <ngx-datatable-column [name]="'::Description' | abpLocalization" prop="description" ></ngx-datatable-column> -->
+    </ngx-datatable>
+    <ng-template #liquidTypeTemplate let-row="row">
+      {{ row.liquidFk.liquidCategoryFk.liquidType | liquidType }}
+    </ng-template>
+  </div>
+</div>

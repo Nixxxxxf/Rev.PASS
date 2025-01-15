@@ -8,5 +8,6 @@ public class PASSSettingDefinitionProvider : SettingDefinitionProvider
     {
         //Define your own settings here. Example:
         //context.Add(new SettingDefinition(PASSSettings.MySetting1));
+        
     }
 }

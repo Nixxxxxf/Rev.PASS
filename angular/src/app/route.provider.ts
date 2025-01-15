@@ -76,8 +76,8 @@ function configureRoutes(routes: RoutesService) {
         layout: eLayoutType.application,
       },
       {
-        path: '/genes',
-        name: '::GenesLibrary',
+        path: '/samples',
+        name: '::SamplesLibrary',
         iconClass: 'fas fa-capsules',
         parentName: '::Inventory',
         layout: eLayoutType.application,
@@ -183,8 +183,8 @@ function configureRoutes(routes: RoutesService) {
         layout: eLayoutType.application,
       },
       {
-        path: '/genePlateResults',
-        name: '::GenePlateResult',
+        path: '/samplePlateResults',
+        name: '::SamplePlateResult',
         iconClass: 'fas fa-sticky-note',
         parentName: '::GeneTyping',
         layout: eLayoutType.application,

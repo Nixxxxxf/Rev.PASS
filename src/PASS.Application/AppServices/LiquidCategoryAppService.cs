@@ -84,7 +84,7 @@ namespace PASS.AppServices
 
 
 
-        public async Task<PagedResultDto<LiquidCategoryDto>> GetGeneListAsync(string? geneName, string? filter, PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<LiquidCategoryDto>> GetSampleListAsync(string? sampleName, string? filter, PagedAndSortedResultRequestDto input)
         {
 
             IQueryable<LiquidCategory> queryLc = await _liquidCategoryRepository.GetQueryableAsync();
@@ -95,19 +95,11 @@ namespace PASS.AppServices
                                        {
                                            Name = lc.Name,
                                            LiquidType = lc.LiquidType,
-                                           GeneFunction = lc.GeneFunction,
-                                           GeneCDS = lc.GeneCDS,
-                                           GeneDonors = lc.GeneDonors,
-                                           GeneSequence = lc.GeneSequence,
-                                           GeneStrand = lc.GeneStrand,
-                                           GeneLocation = lc.GeneLocation,
+                                           SampleID = lc.SampleID,
                                        })
-                                       .Where(x => x.LiquidType == Enum.LiquidType.Gene)
-                                       .WhereIf(!string.IsNullOrEmpty(geneName), x => (x.Name != null && x.Name.ToUpper() == geneName!.ToUpper()))
-                                       .WhereIf(!string.IsNullOrEmpty(filter), x => ((x.GeneFunction != null && x.GeneFunction.ToUpper().Contains(filter!.ToUpper()))||
-                                       (x.GeneCDS != null && x.GeneCDS.ToUpper().Contains(filter!.ToUpper()))||
-                                       (x.GeneDonors != null && x.GeneDonors.ToUpper().Contains(filter!.ToUpper()))|| 
-                                       (x.GeneSequence != null && x.GeneSequence.ToUpper().Contains(filter!.ToUpper()))
+                                       .Where(x => x.LiquidType == Enum.LiquidType.Sample)
+                                       .WhereIf(!string.IsNullOrEmpty(sampleName), x => (x.Name != null && x.Name.ToUpper() == sampleName!.ToUpper()))
+                                       .WhereIf(!string.IsNullOrEmpty(filter), x => ((x.SampleID != null && x.SampleID.ToUpper().Contains(filter!.ToUpper()))
                                        ));
 
 
