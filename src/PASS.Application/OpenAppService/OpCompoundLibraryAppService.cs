@@ -1844,8 +1844,13 @@ namespace PASS.OpenAppService
 
                 List<LiquidPositionInPlateDto> dataLst = new List<LiquidPositionInPlateDto>();
                 dataLst = ObjectMapper.Map<List<LiquidPositionInPlate>, List<LiquidPositionInPlateDto>>(liquidPositionQuery.ToList());
-                string jsonData = JsonConvert.SerializeObject(dataLst);
-
+                KMeansInputDto input = new KMeansInputDto()
+                {
+                    Clusters = 4,
+                    ControlWell = "A1",//to do
+                    Data = dataLst
+                };
+                string jsonData = JsonConvert.SerializeObject(input);
 
                 // start python
                 //string scriptName = "C:\\PASS\\PythonScript\\08_PASS_K-Mean_Algorithm.py"; 
@@ -1862,7 +1867,6 @@ namespace PASS.OpenAppService
                 ProcessStartInfo startInfo = new ProcessStartInfo
                 {
                     FileName = "python",
-                    //Arguments = $"{scriptName} {jsonData}",
                     Arguments = $"\"{scriptName}\"",
                     UseShellExecute = false,
                     RedirectStandardInput = true,
@@ -1887,6 +1891,14 @@ namespace PASS.OpenAppService
 
                     Console.WriteLine("Result from Python: " + pythonResponse);
                 }
+
+                // parse output
+                if (string.IsNullOrEmpty(pythonResponse))
+                {
+                    throw new Exception("No python response");
+                }
+                KMeansOutputDto output = JsonConvert.DeserializeObject<KMeansOutputDto>(pythonResponse);
+
                 response.ErrorCode = 1;
                 response.ErrorMessage = pythonResponse;
 

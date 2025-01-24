@@ -142,8 +142,10 @@ export class LayoutComponent implements OnInit {
   generateScatterChart(event:Event){
     this.opCompoundLibraryService.callPythonAlgorithmKMeanByPlateName(this.plateName).subscribe((data)=>{
       console.log("generateScatterChart");
+      console.log(typeof(data));
+
       console.log(data);
-      this.initResultScatterChart(this.lpLst);
+      this.initResultScatterChart(this.lpLst, data);
 
     })
   }
@@ -297,7 +299,70 @@ export class LayoutComponent implements OnInit {
 
   
   // scatter chart
-  initResultScatterChart(lpLst:LiquidPositionInPlateDto[]) {
+  initResultScatterChart(lpLst:LiquidPositionInPlateDto[], output:string) {
+
+    var jsonObject = JSON.parse(output);
+    console.log(`jsonObject ${jsonObject}`)
+
+    var erroCode = jsonObject.ErrorCode;
+    //console.log(`erroCode ${erroCode}`)
+
+    if(erroCode != 1){
+      console.log(jsonObject.ErrorMessage);
+      return;
+    }
+    var entity = JSON.parse(jsonObject.ErrorMessage);
+    //console.log(`entity ${entity}`)
+    //console.log(`entity type ${typeof(entity)}`)
+    var wellNames = entity.WellNames;
+    var xList = entity.X;
+    var yList = entity.Y;
+    var labels = entity.ClusterLabels;
+    var clustersNum = entity.Clusters;
+    var controlWell = entity.ControlWell;
+
+    //console.log(`wellNames ${wellNames}`)
+    //console.log(`xList ${xList}`)
+    //console.log(`yList ${yList}`)
+    //console.log(`labels ${labels}`)
+    //console.log(`clustersNum ${clustersNum}`)
+    //console.log(`controlWell ${controlWell}`)
+    xList = xList.map((x) => x / 10**7);
+    yList = yList.map((x) => x / 10**7);
+
+
+    var cluster1_data = []
+    var cluster2_data = []
+    var cluster3_data = []
+    var cluster4_data = []
+
+    var cluster1_well = []
+    var cluster2_well = []
+    var cluster3_well = []
+    var cluster4_well = []
+
+    for (let i = 0; i < wellNames.length; i++) {
+      //console.log(wellNames[i])
+      //console.log(xList[i])
+      //console.log(yList[i])
+      //console.log(labels[i])
+      if (labels[i]==0) {
+        cluster1_data.push([xList[i],yList[i]])
+        cluster1_well.push(wellNames[i])
+      }else if(labels[i]==1){
+        cluster2_data.push([xList[i],yList[i]])
+        cluster2_well.push(wellNames[i])
+      }else if(labels[i]==2){
+        cluster3_data.push([xList[i],yList[i]])
+        cluster3_well.push(wellNames[i])
+      }else if(labels[i]==3){
+        cluster4_data.push([xList[i],yList[i]])
+        cluster4_well.push(wellNames[i])
+      }
+    }
+
+
+
 
     console.log(`init scatter chart`)
     var chartDom = document.getElementById(`result-scatter-chart`);
@@ -316,68 +381,65 @@ export class LayoutComponent implements OnInit {
       '#96BFFF'
     ];
 
-    var pieces = [];
-    for (var i = 1; i < CLUSTER_COUNT+1; i++) {
-      pieces.push({
-        value: i,
-        label: 'cluster ' + i,
-        color: COLOR_ALL[i-1]
-      });
-    }
+    // var pieces = [];
+    // for (var i = 1; i < CLUSTER_COUNT+1; i++) {
+    //   pieces.push({
+    //     value: i,
+    //     label: 'cluster ' + i,
+    //     color: COLOR_ALL[i-1]
+    //   });
+    // }
 
-    if(lpLst.length==0){
-      return;
-    }
+    // if(lpLst.length==0){
+    //   return;
+    // }
 
-    var size = lpLst[0].plateChildFk.plateFk.plateSize;
-    const cols = this.generateCols(size);
-    const rows = this.generateRows(size);
+    // var size = lpLst[0].plateChildFk.plateFk.plateSize;
+    // const cols = this.generateCols(size);
+    // const rows = this.generateRows(size);
 
-    var data = [];
-
-    let controlWell = lpLst.find(x=>(x.plateChildFk.column==2 && x.plateChildFk.row=="A"));
-
-    for (var c = 0; c < cols.length; c++) {
-      for (var r = 0; r < rows.length; r++) {
-        var row = rows[r]
-        var col = cols[c] - 1
-        var lp = lpLst.find(x=>(x.plateChildFk.column==cols[c]&&x.plateChildFk.row==row));
-        if(lp!=undefined){
-          let fam = lp.liquidFk.fam;
-          let hex = lp.liquidFk.hex;
-          let rox = lp.liquidFk.rox;
-
-          let x = (fam**2) / (rox- controlWell.liquidFk.rox);
-          let y = (hex**2) / (rox- controlWell.liquidFk.rox);
-          data.push([x, y])
-
-        }
-      }
-    }
-
-
+    var clusters = [];
+    
     ////xxxxxxxxxxxxxxxxxxxxxxx
-    var clusters = [
+    clusters = [
+      // {
+      //     "label": "Cluster 1",
+      //     "color": "#ff7f50",
+      //     "data": [
+      //         [1, 2], [3, 4], [5, 6]
+      //     ],
+      //     "well": ["A1","B1","C1"]
+      // },
       {
-          "label": "Cluster 1",
-          "color": "#ff7f50",
-          "data": [
-              [1, 2], [3, 4], [5, 6]
-          ],
-          "well": ["A1","B1","C1"]
+        "label": "Cluster 1",
+        "color": COLOR_ALL[0],
+        "data": cluster1_data,
+        "well": cluster1_well
       },
       {
           "label": "Cluster 2",
-          "color": "#87cefa",
-          "data": [
-              [7, 8], [9, 10], [11, 12]
-          ],
-          "well": ["A1","B1","C1"]
+          "color": COLOR_ALL[1],
+          "data": cluster2_data,
+          "well": cluster2_well
+      },
+      {
+        "label": "Cluster 3",
+        "color": COLOR_ALL[2],
+        "data": cluster3_data,
+        "well": cluster3_well
+      },
+      {
+        "label": "Cluster 4",
+        "color": COLOR_ALL[3],
+        "data": cluster4_data,
+        "well": cluster4_well
       }
-  ];
+    ];
 
+    console.log(`cluster3_well: ${cluster3_well}`)
+    console.log(cluster3_data)
 
-  option = {
+    option = {
       title: {
           text: 'KMeans'
       },
@@ -399,7 +461,8 @@ export class LayoutComponent implements OnInit {
       series: clusters.map(function(cluster) {
           return {
               name: cluster.label,
-              type: 'scatter', // 使用散点图类型
+              symbolSize: 15,
+              type: 'scatter', 
               itemStyle: {
                   color: cluster.color
               },
