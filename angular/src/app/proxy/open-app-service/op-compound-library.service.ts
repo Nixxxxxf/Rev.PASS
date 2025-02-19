@@ -1,7 +1,7 @@
 import { RestService, Rest } from '@abp/ng.core';
 import type { PagedAndSortedResultRequestDto, PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
-import type { ImportLiquidPlateDto, ImportPlateCopyDto, ImportResultFileDto, InstrumentDto, LiquidAttributeDto, LiquidCategoryDto, LiquidDto, LiquidPositionInPlateDto, LiquidTransferHistoryDto, PlateChildDto, PlateDto, PlateTransferHistoryDto, ReportItemDto } from '../dtos/models';
+import type { ClusterResultInput, ImportLiquidPlateDto, ImportPlateCopyDto, ImportResultFileDto, InstrumentDto, LiquidAttributeDto, LiquidCategoryDto, LiquidDto, LiquidPositionInPlateDto, LiquidTransferHistoryDto, PlateChildDto, PlateDto, PlateTransferHistoryDto, ReportItemDto } from '../dtos/models';
 import type { LiquidType } from '../enum/liquid-type.enum';
 
 @Injectable({
@@ -65,6 +65,15 @@ export class OpCompoundLibraryService {
       responseType: 'text',
       url: '/api/app/op-compound-library/liquid-plate-combine-by-id',
       params: { liquidId: liquidPositionInPlateDto.liquidId, ["LiquidFk.LiquidCategoryId"]: liquidPositionInPlateDto.liquidFk.liquidCategoryId, ["LiquidFk.LiquidCategoryFk.Name"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.name, ["LiquidFk.LiquidCategoryFk.SMILES"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.smiles, ["LiquidFk.LiquidCategoryFk.SampleID"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.sampleID, ["LiquidFk.LiquidCategoryFk.MarkerID"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerID, ["LiquidFk.LiquidCategoryFk.MarkerDescription"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.markerDescription, ["LiquidFk.LiquidCategoryFk.PrimerList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.primerList, ["LiquidFk.LiquidCategoryFk.AlleleOfFAM"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfFAM, ["LiquidFk.LiquidCategoryFk.AlleleOfHEX"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.alleleOfHEX, ["LiquidFk.LiquidCategoryFk.LiquidType"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidType, ["LiquidFk.LiquidCategoryFk.LiquidAttributeList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidAttributeList, ["LiquidFk.LiquidCategoryFk.LiquidList"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.liquidList, ["LiquidFk.LiquidCategoryFk.Id"]: liquidPositionInPlateDto.liquidFk.liquidCategoryFk.id, ["LiquidFk.Volume"]: liquidPositionInPlateDto.liquidFk.volume, ["LiquidFk.Concentration"]: liquidPositionInPlateDto.liquidFk.concentration, ["LiquidFk.Result"]: liquidPositionInPlateDto.liquidFk.result, ["LiquidFk.FAM"]: liquidPositionInPlateDto.liquidFk.fam, ["LiquidFk.HEX"]: liquidPositionInPlateDto.liquidFk.hex, ["LiquidFk.ROX"]: liquidPositionInPlateDto.liquidFk.rox, ["LiquidFk.IsUsed"]: liquidPositionInPlateDto.liquidFk.isUsed, ["LiquidFk.Count"]: liquidPositionInPlateDto.liquidFk.count, ["LiquidFk.Cluster"]: liquidPositionInPlateDto.liquidFk.cluster, ["LiquidFk.X"]: liquidPositionInPlateDto.liquidFk.x, ["LiquidFk.Y"]: liquidPositionInPlateDto.liquidFk.y, ["LiquidFk.Id"]: liquidPositionInPlateDto.liquidFk.id, plateChildId: liquidPositionInPlateDto.plateChildId, ["PlateChildFk.PlateId"]: liquidPositionInPlateDto.plateChildFk.plateId, ["PlateChildFk.PlateFk.Name"]: liquidPositionInPlateDto.plateChildFk.plateFk.name, ["PlateChildFk.PlateFk.Description"]: liquidPositionInPlateDto.plateChildFk.plateFk.description, ["PlateChildFk.PlateFk.PlateType"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateType, ["PlateChildFk.PlateFk.PlateSize"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateSize, ["PlateChildFk.PlateFk.PlateChildrenList"]: liquidPositionInPlateDto.plateChildFk.plateFk.plateChildrenList, ["PlateChildFk.PlateFk.Id"]: liquidPositionInPlateDto.plateChildFk.plateFk.id, ["PlateChildFk.Row"]: liquidPositionInPlateDto.plateChildFk.row, ["PlateChildFk.Column"]: liquidPositionInPlateDto.plateChildFk.column, ["PlateChildFk.Id"]: liquidPositionInPlateDto.plateChildFk.id, id: liquidPositionInPlateDto.id },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  exportClusterResultCsvByInputs = (inputs: ClusterResultInput[], config?: Partial<Rest.Config>) =>
+    this.restService.request<any, void>({
+      method: 'POST',
+      url: '/api/app/op-compound-library/export-cluster-result-csv',
+      body: inputs,
     },
     { apiName: this.apiName,...config });
   

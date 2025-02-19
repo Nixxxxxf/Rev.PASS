@@ -30,6 +30,12 @@ using Volo.Abp.Settings;
 using Scriban.Syntax;
 using Polly.Caching;
 using System.Collections;
+using System.Formats.Asn1;
+using System.Globalization;
+using CsvHelper;
+using PASS.Data;
+using PASS.Management;
+using Volo.Abp.ObjectExtending;
 
 namespace PASS.OpenAppService
 {
@@ -42,6 +48,9 @@ namespace PASS.OpenAppService
     {
         private readonly ISettingProvider _settingProvider;
         public readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly ILogger<OpCompoundLibraryAppService> _logger;
+        private readonly ClusterManagement _clusterManagement;
+
         public readonly IRepository<Liquid, Guid> _liquidRepository;
         public readonly IRepository<LiquidCategory, Guid> _liquidCategoryRepository;
         public readonly IRepository<LiquidAttribute, Guid> _liquidAttributeRepository;
@@ -58,6 +67,9 @@ namespace PASS.OpenAppService
         public OpCompoundLibraryAppService(
             ISettingProvider settingProvider,
             IUnitOfWorkManager unitOfWorkManager,
+            ILogger<OpCompoundLibraryAppService> logger,
+            ClusterManagement clusterManagement,
+
             IRepository<Liquid, Guid> liquidRepository,
             IRepository<LiquidCategory, Guid> liquidCategoryRepository,
             IRepository<LiquidAttribute, Guid> liquidAttributeRepository,
@@ -75,6 +87,9 @@ namespace PASS.OpenAppService
         {
             _settingProvider = settingProvider;
             _unitOfWorkManager = unitOfWorkManager;
+            _logger = logger;
+            _clusterManagement = clusterManagement;
+
             _liquidRepository = liquidRepository;
             _liquidCategoryRepository = liquidCategoryRepository;
             _liquidAttributeRepository = liquidAttributeRepository;
@@ -87,6 +102,7 @@ namespace PASS.OpenAppService
             _reportRepository = reportRepository;
             _reportItemRepository = reportItemRepository;
             _geneTypingAlgorithmRepository = geneTypingAlgorithmRepository;
+
         }
 
 
@@ -110,7 +126,7 @@ namespace PASS.OpenAppService
         /// <param name="liquidCategoryDto"></param>
         /// <returns></returns>
         [UnitOfWork]
-        public async Task<string> InsertLiquidCategory(LiquidCategoryDto liquidCategoryDto)
+        public async Task<string> InsertLiquidCategory(LiquidCategoryDto liquidCategoryDto, bool needNew=false)
         {
             var response = new ResponseDto();
 
@@ -129,7 +145,10 @@ namespace PASS.OpenAppService
                 else
                 {
                     liquidCategoryDto.Id = dbliquidCategory.Id;
-                    throw new Exception($"liquidCategory: ({dbliquidCategory.Name}) exist");
+                    if (needNew)
+                    {
+                        throw new Exception($"liquidCategory: ({dbliquidCategory.Name}) exist");
+                    }
                 }
 
                 response.ErrorCode = 0;
@@ -1303,7 +1322,18 @@ namespace PASS.OpenAppService
                 // Final Liquid is the new liquid
                 // 1. Insert new LiquidCategory
                 // 2. Recombine (dest plate child, dest liquid) => (dest plate child, final liquid)
-                var r3 = JsonConvert.DeserializeObject<ResponseForLiquidCategoryDto>(await InsertLiquidCategory(new LiquidCategoryDto() { Name = $"{srcliquid.LiquidCategoryFk!.Name}>>{dstLiquid.LiquidCategoryFk!.Name}", LiquidType = fnLiquidType }));//Enum.LiquidType.CompoundCellMix
+                var r3 = JsonConvert.DeserializeObject<ResponseForLiquidCategoryDto>(await InsertLiquidCategory(
+                    new LiquidCategoryDto() 
+                    { 
+                        Name = $"{srcliquid.LiquidCategoryFk!.Name}>>{dstLiquid.LiquidCategoryFk!.Name}", 
+                        LiquidType = fnLiquidType,
+                        //only for gene, marker to sample, marker
+                        MarkerID = srcliquid.LiquidCategoryFk!.Name,
+                        SampleID = dstLiquid.LiquidCategoryFk!.Name,
+                        AlleleOfFAM = srcliquid.LiquidCategoryFk!.AlleleOfFAM,
+                        AlleleOfHEX = srcliquid.LiquidCategoryFk!.AlleleOfHEX,
+                    }
+                    ));//Enum.LiquidType.CompoundCellMix
                 if (r3.ErrorCode < 0)
                     throw new Exception(r3.ErrorMessage);
                 LiquidCategoryDto lc = r3.EntityDto!;
@@ -1917,6 +1947,82 @@ namespace PASS.OpenAppService
         #endregion
 
 
+        #region export csv
+
+        public async Task ExportClusterResultCsv(List<ClusterResultInput> inputs)
+        {
+            try
+            {
+                _logger.LogInformation("+++++++ExportClusterResultCsv.");
+
+                // get all liquid by plate
+                IQueryable<Liquid> queryLi = await _liquidRepository.WithDetailsAsync(x => x.LiquidCategoryFk);
+                IQueryable<PlateChild> queryPc = await _plateChildRepository.WithDetailsAsync(x => x.PlateFk);
+                IQueryable<Plate> queryP = await _plateRepository.GetQueryableAsync();
+                IQueryable<LiquidPositionInPlate> queryLp = (await _liquidPositionInPlateRepository.WithDetailsAsync(x => x.LiquidFk, x => x.PlateChildFk));
+                var liquidQuery = from li in queryLi
+                                  join lp in queryLp on li.Id equals lp.LiquidId
+                                  join pc in queryPc on lp.PlateChildId equals pc.Id
+                                  join p in queryP on pc.PlateId equals p.Id
+                                  where p.Name == inputs[0].PlateName
+                                  select new ClusterResultCsv()
+                                  {
+                                      PlateName = p.Name,
+                                      WellName = $"{pc.Row}{pc.Column}",
+                                      SampleName = li.LiquidCategoryFk == null ? "" : li.LiquidCategoryFk.SampleID,
+                                      MarkerName = li.LiquidCategoryFk == null ? "" : li.LiquidCategoryFk.MarkerID,
+                                      AlleleOfFAM = li.LiquidCategoryFk == null ? "" : li.LiquidCategoryFk.AlleleOfFAM.ToString(),
+                                      AlleleOfHEX = li.LiquidCategoryFk == null ? "" : li.LiquidCategoryFk.AlleleOfHEX.ToString(),
+                                      Result = ""
+                                  };
+
+                List<ClusterResultCsv> orilst = liquidQuery.ToList();
+
+                for (int i = 0; i < orilst.Count; i++)
+                {
+                    var ori = orilst[i];
+                    var res = inputs.Where(x=>x.WellName==ori.WellName).FirstOrDefault();
+                    if (res != null)
+                    {
+                        if (res.Cluster == 1) // close to (0,0)
+                        {
+                            ori.Result = "-";
+                        }
+                        else if (res.Cluster == 2) // 
+                        {
+                            ori.Result = $"{ori.AlleleOfHEX}:{ori.AlleleOfHEX}"; 
+                        }
+                        else if (res.Cluster == 3) // 
+                        {
+                            ori.Result = $"{ori.AlleleOfFAM}:{ori.AlleleOfHEX}";
+                        }
+                        else if (res.Cluster == 4) // 
+                        {
+                            ori.Result = $"{ori.AlleleOfFAM}:{ori.AlleleOfFAM}";
+                        }
+
+                    }
+                }
+
+                
+                using (var writer = new StreamWriter("C:\\PASS\\PythonScript\\test.csv"))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(orilst);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+                Logger.LogError(ex.StackTrace);
+            }
+
+            //Logger.LogInformation(JsonConvert.SerializeObject(response));
+            
+        }
+
+        #endregion
 
 
 

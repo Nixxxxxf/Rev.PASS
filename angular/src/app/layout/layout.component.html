@@ -2,7 +2,7 @@
 <div class="card">
   <div class="card-body">
     <div class="row" style="margin-top:15px;">
-      <div class="col col-md-10">
+      <div class="col col-md-11">
         <div class="card flex justify-content-center">
           <input class="form-control" list="platelistOptions" id="plateDataList" placeholder="plate search..."
             [(ngModel)]="selectedPlate" />
@@ -12,8 +12,8 @@
         </div>
       </div>
 
-      <div class="col col-md-1">
-      </div>
+      <!-- <div class="col col-md-1">
+      </div> -->
       <div class="col col-md-1">
         <!-- <p-button label="Search" (click)="searchPlateDetails($event)"></p-button> -->
         <button type="button" class="btn btn-outline-primary mb-1" (click)="searchPlateDetails($event)">Search</button>
@@ -69,7 +69,7 @@
   <div class="card-body">
 
     <div class="row" style="margin-top:15px;">
-      <div class="col col-md-9">
+      <div class="col col-md-11">
         <div class="card flex justify-content-center">
           <input class="form-control" list="algorithmlistOptions" id="algorithmDataList" placeholder="algorithm search..."
             [(ngModel)]="selectedAlgorithm" />
@@ -78,18 +78,43 @@
           </datalist>
         </div>
       </div>
-      <div class="col col-md-2">
-        <button type="button" class="btn btn-outline-primary mb-1" (click)="generateScatterChart($event)">Generate Scatter Chart</button>
-      </div>
       <div class="col col-md-1">
-        <button type="button" class="btn btn-outline-primary mb-1" (click)="generateScatterChart($event)">Export</button>
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="generateClusterChart($event)">Generate</button>
       </div>
+      <!-- <div class="col col-md-1">
+        <button type="button" class="btn btn-outline-primary mb-1" (click)="changeCluster($event)">Export</button>
+      </div> -->
     </div>
     
     <div class="row">
-      <div class="col com-md-4">
+      <div class="col com-md-9">
         <div class="layout-chart">
-          <div id="result-scatter-chart" class="result-scatter-body"></div>
+          <div id="result-cluster-chart" class="result-cluster-body"></div>
+        </div>
+      </div>
+      <div class="col com-md-3">
+        <p class="form-label" style="padding-top: 20px;">Set cluster</p>
+        <div class="btn-group" id="setClusterBtn" role="group" aria-label="Basic mixed styles example" >
+          <button type="button" class="btn" style="background-color: #37A2DA;" (click)="changeCluster1($event)">1</button>
+          <button type="button" class="btn" style="background-color: #e06343;" (click)="changeCluster2($event)">2</button>
+          <button type="button" class="btn" style="background-color: #37a354;" (click)="changeCluster3($event)">3</button>
+          <button type="button" class="btn" style="background-color: #b55dba;" (click)="changeCluster4($event)">4</button>
+        </div>        
+        <!-- <div class="col col-md-3">
+          <button type="button" class="btn btn-outline-primary" style="color: red;background-color: black;" (click)="changeCluster1($event)">Set cluster 1 </button>
+        </div>
+        <div class="col col-md-3">
+          <button type="button" class="btn" (click)="changeCluster2($event)">Set cluster 2 </button>
+        </div>
+        <div class="col col-md-3">
+          <button type="button" class="btn" (click)="changeCluster3($event)">Set cluster 3 </button>
+        </div>
+        <div class="col col-md-3">
+          <button type="button" class="btn" (click)="changeCluster4($event)">Set cluster 4 </button>
+        </div> -->
+
+        <div class="col col-md-12" style="padding-top: 600px;">
+          <button type="button" class="btn btn-outline-success" (click)="exportCSV()">Export csv </button>
         </div>
       </div>
     </div>

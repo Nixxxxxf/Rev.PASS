@@ -2,12 +2,13 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { ListService, PagedResultDto, QueryStreamCreatorCallback } from '@abp/ng.core';
 import { CommonService } from '@proxy/app-services/common.service';
 import { LayoutService } from '@proxy/app-services/layout.service';
-import { GeneTypingAlgorithmDto, LiquidPositionInPlateDto, PlateDto } from '@proxy/dtos';
+import { ClusterResultInput, GeneTypingAlgorithmDto, LiquidPositionInPlateDto, PlateDto } from '@proxy/dtos';
 import * as echarts from 'echarts';
 import { LiquidService } from '@proxy/app-services';
 import ecStat from 'echarts-stat';
 import { ScatterChart } from 'echarts/charts';
 import { OpCompoundLibraryService } from '@proxy/open-app-service';
+import { consumerPollProducersForChange } from '@angular/core/primitives/signals';
 
 
 interface AutoCompleteCompleteEvent {
@@ -48,7 +49,14 @@ export class LayoutComponent implements OnInit {
   sameCpdLst: LiquidPositionInPlateDto[] = [];  
   lpLst: LiquidPositionInPlateDto[] = [];  //
 
-  // 
+  // cluster chart
+  clusterChart:any;
+  clusterOption:any;
+  clusterDom:any;
+  COLOR_ALL:any[];
+  seriesIndex:number=0;
+
+
 
   liquidPositionStreamCreator: QueryStreamCreatorCallback<LiquidPositionInPlateDto, null>;
 
@@ -139,14 +147,14 @@ export class LayoutComponent implements OnInit {
   }
 
   // click generate button
-  generateScatterChart(event:Event){
+  generateClusterChart(event:Event){
     this.opCompoundLibraryService.callPythonAlgorithmKMeanByPlateName(this.plateName).subscribe((data)=>{
-      console.log("generateScatterChart");
+      console.log("generateClusterChart");
       console.log(typeof(data));
 
       console.log(data);
-      this.initResultScatterChart(this.lpLst, data);
-
+      this.initResultClusterChart(this.lpLst, data);
+      this.onClickPoint();
     })
   }
   
@@ -298,11 +306,11 @@ export class LayoutComponent implements OnInit {
 
 
   
-  // scatter chart
-  initResultScatterChart(lpLst:LiquidPositionInPlateDto[], output:string) {
+  // cluster chart
+  initResultClusterChart(lpLst:LiquidPositionInPlateDto[], output:string) {
 
     var jsonObject = JSON.parse(output);
-    console.log(`jsonObject ${jsonObject}`)
+    //console.log(jsonObject)
 
     var erroCode = jsonObject.ErrorCode;
     //console.log(`erroCode ${erroCode}`)
@@ -324,142 +332,72 @@ export class LayoutComponent implements OnInit {
     //console.log(`wellNames ${wellNames}`)
     //console.log(`xList ${xList}`)
     //console.log(`yList ${yList}`)
-    //console.log(`labels ${labels}`)
+    console.log(`labels ${labels}`)
     //console.log(`clustersNum ${clustersNum}`)
     //console.log(`controlWell ${controlWell}`)
     xList = xList.map((x) => x / 10**7);
     yList = yList.map((x) => x / 10**7);
 
-
-    var cluster1_data = []
-    var cluster2_data = []
-    var cluster3_data = []
-    var cluster4_data = []
-
-    var cluster1_well = []
-    var cluster2_well = []
-    var cluster3_well = []
-    var cluster4_well = []
-
-    for (let i = 0; i < wellNames.length; i++) {
-      //console.log(wellNames[i])
-      //console.log(xList[i])
-      //console.log(yList[i])
-      //console.log(labels[i])
-      if (labels[i]==0) {
-        cluster1_data.push([xList[i],yList[i]])
-        cluster1_well.push(wellNames[i])
-      }else if(labels[i]==1){
-        cluster2_data.push([xList[i],yList[i]])
-        cluster2_well.push(wellNames[i])
-      }else if(labels[i]==2){
-        cluster3_data.push([xList[i],yList[i]])
-        cluster3_well.push(wellNames[i])
-      }else if(labels[i]==3){
-        cluster4_data.push([xList[i],yList[i]])
-        cluster4_well.push(wellNames[i])
-      }
-    }
-
-
-
-
-    console.log(`init scatter chart`)
-    var chartDom = document.getElementById(`result-scatter-chart`);
-    var myChart = echarts.init(chartDom);
-    var option;
+    console.log(`init cluster chart`)
+    this.clusterDom = document.getElementById(`result-cluster-chart`);
+    this.clusterChart = echarts.init(this.clusterDom);
+    //this.clusterOption;
 
     var CLUSTER_COUNT = 4;
-    var DIENSIION_CLUSTER_INDEX = 2;
-    var COLOR_ALL = [
+    this.COLOR_ALL = [
+      '#96BFFF',
       '#37A2DA',
       '#e06343',
       '#37a354',
       '#b55dba',
       '#b5bd48',
       '#8378EA',
-      '#96BFFF'
     ];
 
-    // var pieces = [];
-    // for (var i = 1; i < CLUSTER_COUNT+1; i++) {
-    //   pieces.push({
-    //     value: i,
-    //     label: 'cluster ' + i,
-    //     color: COLOR_ALL[i-1]
-    //   });
-    // }
+    var legends = [];
+    for (var i = 1; i < CLUSTER_COUNT+1; i++) {
+      legends.push(
+        `Cluster ${i}`
+      );
+    }
 
-    // if(lpLst.length==0){
-    //   return;
-    // }
-
-    // var size = lpLst[0].plateChildFk.plateFk.plateSize;
-    // const cols = this.generateCols(size);
-    // const rows = this.generateRows(size);
-
+  
     var clusters = [];
-    
-    ////xxxxxxxxxxxxxxxxxxxxxxx
-    clusters = [
-      // {
-      //     "label": "Cluster 1",
-      //     "color": "#ff7f50",
-      //     "data": [
-      //         [1, 2], [3, 4], [5, 6]
-      //     ],
-      //     "well": ["A1","B1","C1"]
-      // },
-      {
-        "label": "Cluster 1",
-        "color": COLOR_ALL[0],
-        "data": cluster1_data,
-        "well": cluster1_well
-      },
-      {
-          "label": "Cluster 2",
-          "color": COLOR_ALL[1],
-          "data": cluster2_data,
-          "well": cluster2_well
-      },
-      {
-        "label": "Cluster 3",
-        "color": COLOR_ALL[2],
-        "data": cluster3_data,
-        "well": cluster3_well
-      },
-      {
-        "label": "Cluster 4",
-        "color": COLOR_ALL[3],
-        "data": cluster4_data,
-        "well": cluster4_well
-      }
-    ];
+    for (let i = 0; i < wellNames.length; i++) {
+      clusters.push(
+        {
+          "label": `Cluster ${labels[i]}`,
+          "color": this.COLOR_ALL[labels[i]],
+          "data": [[xList[i],yList[i]]],
+          "well": wellNames[i]
+        }
+      )
+    }
 
-    console.log(`cluster3_well: ${cluster3_well}`)
-    console.log(cluster3_data)
 
-    option = {
+    this.clusterOption = {
       title: {
-          text: 'KMeans'
+          text: 'K-Means'
       },
       legend: {
-          data: clusters.map(function(cluster) { return cluster.label; })
+          data: legends//clusters.map(function(cluster) { return cluster.label; })
       },
       tooltip: {
           trigger: 'item',
           formatter: function(params) {
               var cluster = clusters[params.seriesIndex];
-              var data = cluster.data[params.dataIndex];
-              var well = cluster.well[params.dataIndex];
+              var data = cluster.data//[params.dataIndex];
+              var well = cluster.well//[params.dataIndex];
               return 'Cluster: ' + cluster.label + '<br/>' +
-                    'Data: (' + well+ ')';
+                    'Well: (' + well+ ')';
           }
       },
-      xAxis: {},
-      yAxis: {},
+      xAxis: {name: 'FAM'},
+      yAxis: {name: 'HEX'},
+      animation: true,
       series: clusters.map(function(cluster) {
           return {
+              id: cluster.well,
               name: cluster.label,
               symbolSize: 15,
               type: 'scatter', 
@@ -469,92 +407,77 @@ export class LayoutComponent implements OnInit {
               data: cluster.data
           };
       })
-  };
-  // 使用刚指定的配置项和数据显示图表。
-  myChart.setOption(option);
+    };
 
-/////xxxxxxxxxxxxxxxxxxxxxxxxx
-
-    // option = {
-    //   dataset: [
-    //     {
-    //       source: data
-    //     },
-    //     {
-    //       transform: {
-    //         type: 'scatter',
-    //         // print: true,
-    //         config: {
-    //           clusterCount: CLUSTER_COUNT,
-    //           outputType: 'single',
-    //           outputClusterIndexDimension: DIENSIION_CLUSTER_INDEX
-    //         }
-    //       }
-    //     }
-    //   ],
-    //   tooltip: {
-    //     position: 'top'
-    //   },
-    //   visualMap: {
-    //     type: 'piecewise',
-    //     top: 'middle',
-    //     min: 0,
-    //     max: CLUSTER_COUNT,
-    //     left: 10,
-    //     splitNumber: CLUSTER_COUNT,
-    //     dimension: DIENSIION_CLUSTER_INDEX,
-    //     pieces: pieces
-    //   },
-    //   grid: {
-    //     left: 120
-    //   },
-    //   xAxis: {},
-    //   yAxis: {},
-    //   series: {
-    //     type: 'scatter',
-    //     encode: { tooltip: [0, 1] },
-    //     symbolSize: 15,
-    //     itemStyle: {
-    //       borderColor: '#555'
-    //     },
-    //     datasetIndex: 1
-    //   }
-    // };
-
-    // myChart.on('click', function (params) {
-    //   console.log(params);
-    //   let col = params.data[0]+1
-    //   let row = params.data[1]
-    //   let lp = lpLst.find(x=>(x.plateChildFk.column==col&&x.plateChildFk.row==row));
-    //   // find compound
-    //   let lc = lp.liquidFk.liquidCategoryFk.name;
-    //   let lcLst = lc.split(">>")
-    //   let compound = lcLst[0];
-    //   let sLst = lpLst.filter(function filterLp(lp:LiquidPositionInPlateDto):boolean{
-    //     let lc = lp.liquidFk.liquidCategoryFk.name;
-    //     let lcLst = lc.split(">>")
-    //     if (lcLst[0]==compound) {
-    //       return true;
-
-    //     }else{
-    //       return false;
-    //     }
-    //   })
-
-    //   sLst = sLst.sort((a,b)=>a.liquidFk.concentration-b.liquidFk.concentration)
-      
-    //   console.log(sLst);
-    //   updateXXX(sLst);
-    // });
-
-    
-    
-
-    option && myChart.setOption(option);
-
+    this.clusterOption && this.clusterChart.setOption(this.clusterOption);
+    console.log(this.clusterOption)
   }
 
 
+  onClickPoint(){
+    // click event
+    this.clusterChart.on('click', (params) =>{
+      console.log(params);
+      var pointId = params["seriesId"];
+
+      // 获取当前点击的点的索引和系列
+      this.seriesIndex = params.seriesIndex;
+      var dataIndex = params.dataIndex;
+
+      console.log(this.seriesIndex);
+
+      
+      
+      
+    });
+  }
+
+  changeCluster1(event:Event){
+    this.changeCluster(1);
+  }
+  changeCluster2(event:Event){
+    this.changeCluster(2);
+  }
+  changeCluster3(event:Event){
+    this.changeCluster(3);
+  }
+  changeCluster4(event:Event){
+    this.changeCluster(4);
+  }
+
+  changeCluster(cluster:number){
+    var prePoint = this.clusterOption.series[this.seriesIndex]
+    var curPoint = prePoint
+    curPoint.name = `Cluster ${cluster}`
+    curPoint.itemStyle.color = this.COLOR_ALL[cluster]
+    this.clusterOption.series[this.seriesIndex] = curPoint
+    this.clusterChart.clear();
+    this.clusterOption.animation=false;
+    this.clusterChart.setOption(this.clusterOption)
+  }
+
+
+  exportCSV(){
+    console.log(this.clusterOption.series);
+    let itemLst: Array<ClusterResultInput>=[];
+    for (let i = 0; i < this.clusterOption.series.length; i++) {
+      let item: ClusterResultInput={};
+      item.plateName = this.plateName
+      item.wellName = this.clusterOption.series[i].id
+      //item.x = this.clusterOption.series[i].data[0][0]
+      //item.y = this.clusterOption.series[i].data[0][1]
+      let clusterName = this.clusterOption.series[i].name
+      let lastChar = clusterName[clusterName.length - 1]; 
+      item.cluster = parseInt(lastChar, 10);
+      console.log(item)
+      itemLst.push(item);
+    }
+
+
+    this.opCompoundLibraryService.exportClusterResultCsvByInputs(itemLst).subscribe((data)=>{
+      console.log("exportClusterResultCsv");
+    })
+  }
 
 
 

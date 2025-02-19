@@ -4,6 +4,12 @@ import type { Nucleobase } from '../enum/nucleobase.enum';
 import type { LiquidType } from '../enum/liquid-type.enum';
 import type { TransferType } from '../enum/transfer-type.enum';
 
+export interface ClusterResultInput {
+  plateName?: string;
+  wellName?: string;
+  cluster?: number;
+}
+
 export interface CsvHeaderDto extends EntityDto<string> {
   csvName?: string;
   headerName?: string;

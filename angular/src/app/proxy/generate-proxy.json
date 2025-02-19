@@ -10474,6 +10474,43 @@
               "allowAnonymous": null,
               "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
             },
+            "ExportClusterResultCsvByInputs": {
+              "uniqueName": "ExportClusterResultCsvByInputs",
+              "name": "ExportClusterResultCsv",
+              "httpMethod": "POST",
+              "url": "api/app/op-compound-library/export-cluster-result-csv",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "inputs",
+                  "typeAsString": "System.Collections.Generic.List`1[[PASS.Dtos.ClusterResultInput, PASS.Application.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib",
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ClusterResultInput>",
+                  "typeSimple": "[PASS.Dtos.ClusterResultInput]",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "inputs",
+                  "name": "inputs",
+                  "jsonName": null,
+                  "type": "System.Collections.Generic.List<PASS.Dtos.ClusterResultInput>",
+                  "typeSimple": "[PASS.Dtos.ClusterResultInput]",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.Void",
+                "typeSimple": "System.Void"
+              },
+              "allowAnonymous": null,
+              "implementFrom": "PASS.OpenAppService.OpCompoundLibraryAppService"
+            },
             "CreateAsyncByInput": {
               "uniqueName": "CreateAsyncByInput",
               "name": "CreateAsync",
@@ -25194,6 +25231,51 @@
     }
   },
   "types": {
+    "PASS.Dtos.ClusterResultInput": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "PlateName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "WellName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Cluster",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "PASS.Dtos.CsvHeaderDto": {
       "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
       "isEnum": false,
