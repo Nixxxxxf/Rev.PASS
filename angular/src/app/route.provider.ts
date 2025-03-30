@@ -66,6 +66,13 @@ function configureRoutes(routes: RoutesService) {
         order: 7,
         layout: eLayoutType.application,
       },
+      {
+        path: '/utilities',
+        name: '::Utility',
+        iconClass: 'fas fa-border-all',
+        order: 8,
+        layout: eLayoutType.application,
+      },
 
       //Inventory
       {
@@ -194,6 +201,16 @@ function configureRoutes(routes: RoutesService) {
         name: '::Layout',
         iconClass: 'fas fa-border-all',
         parentName: '::GeneTyping',
+        layout: eLayoutType.application,
+      },
+
+
+      //Utility
+      {
+        path: '/gradientDilutions',
+        name: '::GradientDilution',
+        iconClass: 'fas fa-border-all',
+        parentName: '::Utility',
         layout: eLayoutType.application,
       },
     ]);

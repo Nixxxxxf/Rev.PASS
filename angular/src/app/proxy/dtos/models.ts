@@ -151,6 +151,12 @@ export interface PlateTransferHistoryDto extends CreationAuditedEntityDto<string
   comments?: string;
 }
 
+export interface ProtocolDto extends EntityDto<string> {
+  name?: string;
+  description?: string;
+  content?: string;
+}
+
 export interface ReportDto extends CreationAuditedEntityDto<string> {
   reportType?: string;
   reportName?: string;

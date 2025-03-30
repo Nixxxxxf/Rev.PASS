@@ -38,6 +38,7 @@
     "@volo/abp.ng.saas": "~8.2.2",
     "@volo/abp.ng.text-template-management": "~8.2.2",
     "@volosoft/abp.ng.theme.lepton-x": "~3.2.2",
+    "bootstrap": "^5.3.3",
     "bootstrap-icons": "~1.8.3",
     "echarts": "^5.4.3",
     "echarts-stat": "^1.2.0",

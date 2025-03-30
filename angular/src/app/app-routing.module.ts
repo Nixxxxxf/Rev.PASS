@@ -90,6 +90,7 @@ const routes: Routes = [
   { path: 'geneTypeSettings', loadChildren: () => import('./gene-type-setting/gene-type-setting.module').then(m => m.GeneTypeSettingModule) },
   { path: 'samples', loadChildren: () => import('./sample/sample.module').then(m => m.SampleModule) },
   { path: 'samplePlateResults', loadChildren: () => import('./sample-plate-result/sample-plate-result.module').then(m => m.SamplePlateResultModule) },
+  { path: 'gradientDilutions', loadChildren: () => import('./gradient-dilution/gradient-dilution.module').then(m => m.GradientDilutionModule) },
 ];
 
 @NgModule({

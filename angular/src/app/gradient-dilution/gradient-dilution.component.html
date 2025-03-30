@@ -1,0 +1,722 @@
+<!-- wizard-horizontal.component.html -->
+<div class="card">
+    <div class="card-body">
+        <div class="wizard-horizontal">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li *ngFor="let step of steps; let i = index" class="breadcrumb-item"
+                        [class.active]="i != currentStep">
+                        <p style="width:200px;">{{ step.title }}</p>
+                        <!-- <a (click)="currentStep = i + 1">{{ step.title }}</a> -->
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="wizard-content">
+                <div *ngFor="let step of steps; let i = index" [hidden]="i !== currentStep">
+                    <!-- protocol -->
+                    <div *ngIf="i === 0">
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input class="form-control" type="text" placeholder="new protocol name..."
+                                        aria-label="default input example" [(ngModel)]="newPro" />
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="createNewProtocol()">Create</button>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <div class="list-group flex-grow-1">
+                                        <label class="list-group-item " *ngFor="let item of proList; let i = index">
+                                            <input class="form-check-input me-1" type="radio" name="RadioDefault"
+                                                [value]="item" [(ngModel)]="selectedPro" />
+                                            {{ item.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                        (click)="deleteProtocol()">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-success  g-btn"
+                                    (click)="generateIPTable()">Generate</button>
+                            </div>
+                            <ul class="nav">
+                                <li class="nav-item">
+                                    <a class="nav-link" [class.active]="activeTab === 0" (click)="setActiveTab(0)">Theoretical</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" [class.active]="activeTab === 1" (click)="setActiveTab(1)">Actual</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" [class.active]="activeTab === 2" (click)="setActiveTab(2)">Curve Display</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" [class.active]="activeTab === 3" (click)="setActiveTab(3)">Intermediate</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <ng-container *ngIf="activeTab === 0">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Concentration(mM)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of theoreticalList; let i = index">
+                                                <th scope="row">{{ i + 1 }}</th>
+                                                <td>{{ item.concentration }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ng-container>
+                                <ng-container *ngIf="activeTab === 1">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Source Concentration(mM)</th>
+                                                <th scope="col">Transfer Volume(nL)</th>
+                                                <th scope="col">Backfill Volume(nL)</th>
+                                                <th scope="col">Theoretical Concentration(mM)</th>
+                                                <th scope="col">Final Concentration(mM)</th>
+                                                <th scope="col">% Error Concentration</th>
+                                                <th scope="col">% Solvent</th>
+                                                <th scope="col">Comment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of actualList; let i = index">
+                                                <th scope="row">{{ i + 1 }}</th>
+                                                <td>{{ item.SourceConcen }}</td>
+                                                <td>{{ item.TransVolResult }}</td>
+                                                <td>{{ item.BackfillVol }}</td>
+                                                <td>{{ item.TheoreConcen }}</td>
+                                                <td>{{ item.RealConcen }}</td>
+                                                <td>{{ item.ErrorConcen }}</td>
+                                                <td>{{solvent}}</td>
+                                                <td style="color: red;">{{ item.Comment }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ng-container>
+                                <ng-container *ngIf="activeTab === 2">
+                                    to do chart
+                                </ng-container>
+                                <ng-container *ngIf="activeTab === 3">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Source Concentration(mM)</th>
+                                                <th scope="col">Transfer Volume(nL)</th>
+                                                <th scope="col">Final Concentration(mM)</th>
+                                                <th scope="col">Bulk-Fill Volume(uL)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of intermediateList; let i = index">
+                                                <th scope="row">{{ i + 1 }}</th>
+                                                <td>{{ item.SourceConcen }}</td>
+                                                <td>{{ item.TransVolResult }}</td>
+                                                <td>{{ item.FinalConcen }}</td>
+                                                <td>{{ item.BulkfillVol }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- sp -->
+                    <div *ngIf="i === 1">
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <select class="form-select" aria-label="Default select example"
+                                        [(ngModel)]="spSize">
+                                        <!-- <option selected>384</option> -->
+                                        <option value="96">96</option>
+                                        <option value="384">384</option>
+                                        <option value="1536">1536</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="createNewSP()">Create</button>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                            <label class="list-group-item" *ngFor="let sp of spList; let i = index">
+                                                <input class="form-check-input me-1" type="radio" name="RadioDefault"
+                                                    [value]="sp" [(ngModel)]="selectedSP" />
+                                                {{ sp.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="initSPChart()">Show</button>
+
+                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                        (click)="deleteSP()">Delete</button>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col com-md-10">
+                                    <div id="sp-chart" class="chart-body"></div>
+                                </div>
+
+
+                                <div class="col com-md-2 border-left">
+                                    <p class="form-label" style="padding-top: 20px;">Set point :
+                                        {{spCurrentPoint[1]}}{{spCurrentPoint[0]+1}}</p>
+                                    <div class="btn-group-vertical mb-3" id="setClusterBtn" role="group"
+                                        aria-label="Vertical button group">
+                                        <button type="button" class="btn" style="background-color: rgb(255, 0, 0);"
+                                            (click)="setSPPointSample()">Sample</button>
+                                        <button type="button" class="btn" style="background-color: rgb(0, 191, 255);"
+                                            (click)="setSPPointControl()">Control</button>
+                                        <button type="button" class="btn" style="background-color: rgb(255, 255, 0);"
+                                            (click)="setSPPointSolvent()">Solvent</button>
+                                        <button type="button" class="btn" style="background-color: rgb(116, 116, 116);"
+                                            (click)="setSPPointReserved()">Reserved</button>
+                                        <button type="button" class="btn" style="background-color: rgb(240, 240, 240);"
+                                            (click)="setSPPointAvailable()">Available</button>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value=""
+                                            [(ngModel)]="spIsSetArea" id="flexCheckChecked" unchecked />
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Set area
+                                        </label>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="start row"
+                                            [(ngModel)]="spStartRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="end row"
+                                            [(ngModel)]="spEndRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="start col"
+                                            [(ngModel)]="spStartCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="end col"
+                                            [(ngModel)]="spEndCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- cp -->
+                    <div *ngIf="i === 2">
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <select class="form-select" aria-label="Default select example"
+                                        [(ngModel)]="cpSize">
+                                        <!-- <option selected>384</option> -->
+                                        <option value="96">96</option>
+                                        <option value="384">384</option>
+                                        <option value="1536">1536</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="createNewCP()">Create</button>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                            <label class="list-group-item" *ngFor="let cp of cpList; let i = index">
+                                                <input class="form-check-input me-1" type="radio" name="RadioDefault"
+                                                    [value]="cp" [(ngModel)]="selectedCP" />
+                                                {{ cp.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="initCPChart()">Show</button>
+                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                        (click)="deleteCP()">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col com-md-10">
+                                    <div id="cp-chart" class="chart-body"></div>
+                                </div>
+
+
+                                <div class="col com-md-2 border-left">
+                                    <p class="form-label" style="padding-top: 20px;">Set point :
+                                        {{cpCurrentPoint[1]}}{{cpCurrentPoint[0]+1}}</p>
+                                    <div class="btn-group-vertical mb-3" id="setClusterBtn" role="group"
+                                        aria-label="Vertical button group">
+                                        <button type="button" class="btn" style="background-color: rgb(0, 191, 255);"
+                                            (click)="setCPPointControl()">Control</button>
+                                        <button type="button" class="btn" style="background-color: rgb(116, 116, 116);"
+                                            (click)="setCPPointReserved()">Reserved</button>
+                                        <button type="button" class="btn" style="background-color: rgb(240, 240, 240);"
+                                            (click)="setCPPointAvailable()">Available</button>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value=""
+                                            [(ngModel)]="cpIsSetArea" id="flexCheckChecked" unchecked />
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Set area
+                                        </label>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="start row"
+                                            [(ngModel)]="cpStartRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="end row"
+                                            [(ngModel)]="cpEndRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="start col"
+                                            [(ngModel)]="cpStartCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="end col"
+                                            [(ngModel)]="cpEndCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ip -->
+                    <div *ngIf="i === 3">
+                        <div class="custom-border">
+                            <p>Intermediate Settings</p>
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Per Point Max Transfer Volume</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="interMaxTransfer"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> nl </span>
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Per Point Min Transfer Volume</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="interMinTransfer"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> nl </span>
+                                </div>
+                            </div>
+                            <div class="row"> 
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Max Number of Intermediate Templates</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="maxInterPlateNum"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Max number of Concentrations Per Template</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="maxInterConcenNum"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Constant Bulkfill Volume</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="bulkFill"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> ul </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="custom-border">
+                            <p>Destination Settings</p>
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Add Assay Reagent Volume</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="reagentVolume"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> ul </span>
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Per Point Max Transfer Volume</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="destMaxTransfer"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> nl </span>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <!-- <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">max solvent percentage(%)</span>
+                                    <input type="number" class="form-control default-input" [value]="-" [disabled]="true"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div> -->
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Per Point Voncentration Tolerance</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="concenTolerance"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <span class="input-group-text"> % </span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Number of Curve Replicates</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="curveReplicates"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Number of Destination Copies</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="destinationCopies"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Sample Concentration</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="sampleConcentration"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <select class="input-group-text" id="inputGroupSelect01"
+                                        [(ngModel)]="ipConUnitSample">
+                                        <!-- <option selected>uM</option> -->
+                                        <option value="M">M</option>
+                                        <option value="mM">mM</option>
+                                        <option value="uM" selected>uM</option>
+                                        <option value="nM">nM</option>
+                                        <option value="pM">pM</option>
+                                        <option value="fM">fM</option>
+                                        <option value="aM">aM</option>
+                                    </select>
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Starting Concentration</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="startConcentration"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                    <select class="input-group-text" id="inputGroupSelect02"
+                                        [(ngModel)]="ipConUnitStart">
+                                        <!-- <option selected>uM</option> -->
+                                        <option value="M">M</option>
+                                        <option value="mM">mM</option>
+                                        <option value="uM" selected>uM</option>
+                                        <option value="nM">nM</option>
+                                        <option value="pM">pM</option>
+                                        <option value="fM">fM</option>
+                                        <option value="aM">aM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Dilution Factor</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="dilutionFactor"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                                <div class="input-group input-group-sm mb-3 col">
+                                    <span class="input-group-text large-span" id="inputGroup-sizing-sm">Data Points</span>
+                                    <input type="number" class="form-control default-input" [(ngModel)]="dataPoints"
+                                        aria-describedby="inputGroup-sizing-sm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <select class="form-select" aria-label="Default select example"
+                                        [(ngModel)]="ipSize">
+                                        <!-- <option selected>384</option> -->
+                                        <option value="96">96</option>
+                                        <option value="384">384</option>
+                                        <option value="1536">1536</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="createNewIP()">Create</button>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                            <label class="list-group-item" *ngFor="let ip of ipList; let i = index">
+                                                <input class="form-check-input me-1" type="radio" name="RadioDefault"
+                                                    [value]="ip" [(ngModel)]="selectedIP" />
+                                                {{ ip.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="initIPChart()">Show</button>
+                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                        (click)="deleteIP()">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col com-md-10">
+                                    <div id="ip-chart" class="chart-body"></div>
+                                </div>
+
+                                <div class="col com-md-2 border-left">
+                                    <p class="form-label" style="padding-top: 20px;">Set point :
+                                        {{ipCurrentPoint[1]}}{{ipCurrentPoint[0]+1}}</p>
+                                    <div class="btn-group-vertical mb-3" id="setClusterBtn" role="group"
+                                        aria-label="Vertical button group">
+                                        <button type="button" class="btn" style="background-color: rgb(255, 165, 0);"
+                                            (click)="setIPPointBulkFill()">Bulk-Fill</button>
+                                        <button type="button" class="btn" style="background-color: rgb(116, 116, 116);"
+                                            (click)="setIPPointReserved()">Reserved</button>
+                                        <button type="button" class="btn" style="background-color: rgb(240, 240, 240);"
+                                            (click)="setIPPointAvailable()">Available</button>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value=""
+                                            [(ngModel)]="ipIsSetArea" id="flexCheckChecked" unchecked />
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Set area
+                                        </label>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="start row"
+                                            [(ngModel)]="ipStartRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="end row"
+                                            [(ngModel)]="ipEndRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="start col"
+                                            [(ngModel)]="ipStartCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="end col"
+                                            [(ngModel)]="ipEndCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <button type="button" class="btn btn-outline-success  g-btn"
+                                            (click)="generateIPTable()">Generate</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+
+                    <!-- dp -->
+                    <div *ngIf="i === 4">
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <select class="form-select" aria-label="Default select example"
+                                        [(ngModel)]="dpSize">
+                                        <!-- <option selected>384</option> -->
+                                        <option value="96">96</option>
+                                        <option value="384">384</option>
+                                        <option value="1536">1536</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="createNewDP()">Create</button>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                            <label class="list-group-item" *ngFor="let dp of dpList; let i = index">
+                                                <input class="form-check-input me-1" type="radio" name="RadioDefault"
+                                                    [value]="dp" [(ngModel)]="selectedDP" />
+                                                {{ dp.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="initDPChart()">Show</button>
+                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                        (click)="deleteDP()">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col com-md-10">
+                                    <div id="dp-chart" class="chart-body"></div>
+                                </div>
+
+
+                                <div class="col com-md-2 border-left">
+                                    <p class="form-label" style="padding-top: 20px;">Set point :
+                                        {{dpCurrentPoint[1]}}{{dpCurrentPoint[0]+1}}</p>
+                                    <div class="btn-group-vertical mb-3" id="setClusterBtn" role="group"
+                                        aria-label="Vertical button group">
+                                        <!-- <button type="button" class="btn" style="background-color: rgb(255, 0, 0);"
+                                            (click)="setDPPointSample()">Sample</button> -->
+                                        <button type="button" class="btn" style="background-color: rgb(0, 191, 255);"
+                                            (click)="setDPPointControl()">Control</button>
+                                        <button type="button" class="btn" style="background-color: rgb(255, 255, 0);"
+                                            (click)="setDPPointSolvent()">Solvent</button>
+                                        <button type="button" class="btn" style="background-color: rgb(116, 116, 116);"
+                                            (click)="setDPPointReserved()">Reserved</button>
+                                        <button type="button" class="btn" style="background-color: rgb(240, 240, 240);"
+                                            (click)="setDPPointAvailable()">Available</button>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value=""
+                                            [(ngModel)]="dpIsSetArea" id="flexCheckChecked" unchecked />
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Set area
+                                        </label>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="start row"
+                                            [(ngModel)]="dpStartRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Row</span>
+                                        <input type="text" class="form-control default-input" aria-label="end row"
+                                            [(ngModel)]="dpEndRow" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">Start
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="start col"
+                                            [(ngModel)]="dpStartCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text default-span" id="inputGroup-sizing-sm">End
+                                            Col</span>
+                                        <input type="number" class="form-control default-input" aria-label="end col"
+                                            [(ngModel)]="dpEndCol" aria-describedby="inputGroup-sizing-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- export -->
+                    <div *ngIf="i === 5">
+                        <div class="custom-border">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input class="form-control" type="text" placeholder=""
+                                        aria-label="default input example" [(ngModel)]="selectedPro.name" />
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                        (click)="saveProtocol()">Save</button>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-buttons">
+                <div style="float: right;">
+                    <button (click)="previousStep()" class="btn btn-secondary" [hidden]="currentStep==0"
+                        [disabled]="currentStep === 0">Previous</button>
+                    <button (click)="nextStep()" class="btn btn-primary" [hidden]="currentStep!=0"
+                        [disabled]="currentStep === steps.length-1">Select</button>
+                    <button (click)="nextStep()" class="btn btn-primary" [hidden]="currentStep==0"
+                        [disabled]="currentStep === steps.length-1">Next</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="alert" class="alert alert-primary" *ngIf="showResetPro">
+    The protocol has been reset.
+</div>
+
+<div role="alert" class="alert alert-warning" *ngIf="showNonePro">
+    Select a protocol!
+</div>

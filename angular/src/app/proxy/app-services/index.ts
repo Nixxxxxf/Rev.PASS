@@ -8,4 +8,5 @@ export * from './liquid-transfer.service';
 export * from './liquid.service';
 export * from './plate-transfer.service';
 export * from './plate.service';
+export * from './protocol.service';
 export * from './report.service';

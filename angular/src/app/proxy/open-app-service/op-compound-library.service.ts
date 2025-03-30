@@ -317,11 +317,12 @@ export class OpCompoundLibraryService {
     { apiName: this.apiName,...config });
   
 
-  insertLiquidCategoryByLiquidCategoryDto = (liquidCategoryDto: LiquidCategoryDto, config?: Partial<Rest.Config>) =>
+  insertLiquidCategoryByLiquidCategoryDtoAndNeedNew = (liquidCategoryDto: LiquidCategoryDto, needNew?: boolean, config?: Partial<Rest.Config>) =>
     this.restService.request<any, string>({
       method: 'POST',
       responseType: 'text',
       url: '/api/app/op-compound-library/liquid-category',
+      params: { needNew },
       body: liquidCategoryDto,
     },
     { apiName: this.apiName,...config });
