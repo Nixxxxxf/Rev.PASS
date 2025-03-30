@@ -25,5 +25,6 @@ public class PASSApplicationAutoMapperProfile : Profile
         CreateMap<ReportItem, ReportItemDto>().ReverseMap();
         CreateMap<ImportLiquidPlateDto, LiquidCategoryDto>().ReverseMap();
         CreateMap<GeneTypingAlgorithm, GeneTypingAlgorithmDto>().ReverseMap();
+        CreateMap<Protocol, ProtocolDto>().ReverseMap();
     }
 }
