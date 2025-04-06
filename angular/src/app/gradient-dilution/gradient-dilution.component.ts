@@ -1,4 +1,5 @@
-import { ListService, PagedResultDto, QueryStreamCreatorCallback } from '@abp/ng.core';
+import { ListService, PagedResultDto, QueryStreamCreatorCallback, isNullOrEmpty } from '@abp/ng.core';
+import { ReturnStatement } from '@angular/compiler';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } from '@angular/core';
 import { CommonService, CsvHeaderService, ProtocolService } from '@proxy/app-services';
 import { CsvHeaderDto, ProtocolDto } from '@proxy/dtos';
@@ -95,26 +96,26 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   maxInterPlateNum:number=1;
   maxInterConcenNum:number=2;
 
-  reagentVolume:number=0;
+  reagentVolume:number=40;
   solvent:number=100;
-  destMaxTransfer:number=200;
+  destMaxTransfer:number=40;
   concenTolerance:number=10;
-  curveReplicates:number=1;
   destinationCopies: number=1;
 
   sampleConcentration: number=10;
   startConcentration: number=10;
   dilutionFactor: number=3;
   dataPoints: number=8;
-  ipConUnitSample:string="uM";
-  ipConUnitStart:string="uM";
+  conUnitSample:string="mM";
+  conUnitStart:string="uM";
+  curveReplicates:number=1;
+  perPlateControlCurve:boolean=true;
 
   //ip tabs
   activeTab = 0;
   theoreticalList:any[]=[];
-  actualList:any[]=[];
-  intermediateList:any[]=[];
-
+  actualList:ActualEntity[]=[];
+  intermediateList:IntermediateEntity[]=[];
 
   // dp chart list
   dpChart:any;
@@ -131,9 +132,15 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   dpStartCol:number=1;
   dpEndCol:number=24;
 
+  // dir
+  sampleDirection:string="Down"
+  curveDirection:string="Across"
+
   //modal
   deleteHidden:boolean=true;
 
+  //export
+  pickListName:string="";
 
 
   ngOnInit(): void {
@@ -141,10 +148,16 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    Page Logic
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //////////////////////////////////////////////////////////////////////////////////////////
+
+
+  //////////////////////////////////////////////////////////////////////////////
   //    pro list
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   initProtocolList(){
     console.log("initProtocolList");
     this.protocolService.getAllProtocolsForSelect().subscribe((data)=>{
@@ -190,13 +203,20 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       destMaxTransfer:this.destMaxTransfer,
 
       concenTolerance:this.concenTolerance,
-      curveReplicates:this.curveReplicates,
       destinationCopies:this.destinationCopies,
 
       sampleConcentration:this.sampleConcentration,
+      conUnitSample:this.conUnitSample,
       startConcentration:this.startConcentration,
+      conUnitStart:this.conUnitStart,
       dilutionFactor:this.dilutionFactor,
       dataPoints:this.dataPoints,
+
+      sampleDirection:this.sampleDirection,
+      curveDirection:this.curveDirection,
+
+      curveReplicates:this.curveReplicates,
+      perPlateControlCurve:this.perPlateControlCurve,
     }
 
     let content:ProtocolContent={
@@ -214,10 +234,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   //    sp chart
-  //////////////////////////////////////////////////////////////////////////////////////////
-
+  //////////////////////////////////////////////////////////////////////////////
 
   initSPList(){
     // first time init
@@ -250,8 +269,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
     const newNumber = maxNumber + 1;
     const newName = `SP_${newNumber}`;
-    const cols = this.generateCols(this.spSize);
-    const rows = this.generateRows(this.spSize);
+    const cols = generateCols(this.spSize);
+    const rows = generateRows(this.spSize);
     var wellLst = [];
     for (var c = 0; c < cols.length; c++) {
       for (var r = 0; r < rows.length; r++) {
@@ -272,7 +291,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     console.log("Updated plateList:", this.spList);
   }
 
-
   deleteSP(){
     var newLst = []
     this.spList.forEach(x=>{
@@ -282,7 +300,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     })
     this.spList = newLst;
   }
-
 
   // on select sp chart
   initSPChart() {
@@ -310,13 +327,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     });
   }
 
-  // general set index to type
+  // general set point type
   setSPPoint(type: number){
     console.log(`spIsSetArea: ${this.spIsSetArea}`);
     if(this.spIsSetArea){
       var newData = []
       this.spOption.series[0].data.forEach(e => {
-        if(this.checkInArea(e[1],e[0]+1,this.spStartCol,this.spEndCol,this.spStartRow,this.spEndRow)){   // col check, need +1
+        if(checkInArea(e[1],e[0]+1,this.spStartCol,this.spEndCol,this.spStartRow,this.spEndRow,this.spSize)){   // col check, need +1
           newData.push([e[0],e[1],type])
         }else{
           newData.push(e)
@@ -354,6 +371,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.setSPPoint(3)
   }
 
+  // options ==> this.splist
   updateSPList(){
     console.log("updateSPList")
     var wellLst=[];
@@ -380,8 +398,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     console.log(this.spList)
   }
 
-
-  // general
+  // general chart option
   setOption(chartName:string, plateSize:number, data:any){
     var visualMap;
     if (chartName.includes("SP")) {
@@ -421,9 +438,12 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           max: 5,
           type: 'piecewise',
           pieces: [
+            { min: 0, max: 0, color: 'rgb(255, 0, 0)' },      // sample
+            { min: 1, max: 1, color: 'rgb(0, 191, 255)' },    // control
             { min: 2, max: 2, color: 'rgb(116, 116, 116)' },  // reserved
             { min: 3, max: 3, color: 'rgb(240, 240, 240)' },   // available
             { min: 5, max: 5, color: 'rgb(255, 165, 0)' },      // bulk fill
+            { min: 6, max: 6, color: 'rgb(120, 191, 255)' },    // control curve
           ],
           orient: 'horizontal',
           left: 'center',
@@ -435,10 +455,12 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           max: 5,
           type: 'piecewise',
           pieces: [
+            { min: 0, max: 0, color: 'rgb(255, 0, 0)' },      // sample
             { min: 1, max: 1, color: 'rgb(0, 191, 255)' },    // control
             { min: 2, max: 2, color: 'rgb(116, 116, 116)' },  // reserved
             { min: 3, max: 3, color: 'rgb(240, 240, 240)' },   // available
-            { min: 4, max: 4, color: 'rgb(255, 255, 0)' }, // solvent
+            { min: 4, max: 4, color: 'rgb(255, 255, 0)' },     // solvent
+            { min: 6, max: 6, color: 'rgb(120, 191, 255)' },    // control curve
 
           ],
           orient: 'horizontal',
@@ -447,8 +469,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       }
     }
     
-    const cols = this.generateCols(plateSize);
-    const rows = this.generateRows(plateSize);
+    const cols = generateCols(plateSize);
+    const rows = generateRows(plateSize).reverse();
 
     var option = {
       title: {
@@ -495,7 +517,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
             show: true,
             formatter: function (params) {
               // 根据数值显示对应的字母
-              const letters = ['S', 'C', 'R', 'A', "V", "B"];
+              const letters = ['S', 'C', 'R', 'A', "V", "B", "c"];
               return letters[params.value[2]];
             }
           },
@@ -514,9 +536,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   //    cp chart
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   initCPList(){
     console.log("initCPList")
@@ -547,8 +569,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
     const newNumber = maxNumber + 1;
     const newName = `CP_${newNumber}`;
-    const cols = this.generateCols(this.cpSize);
-    const rows = this.generateRows(this.cpSize);
+    const cols = generateCols(this.cpSize);
+    const rows = generateRows(this.cpSize);
     var wellLst = [];
     for (var c = 0; c < cols.length; c++) {
       for (var r = 0; r < rows.length; r++) {
@@ -605,13 +627,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     });
   }
 
-  // general set index to type
+  // general set point type
   setCPPoint(type: number){
     console.log(`cpIsSetArea: ${this.cpIsSetArea}`);
     if(this.cpIsSetArea){
       var newData = []
       this.cpOption.series[0].data.forEach(e => {
-        if(this.checkInArea(e[1],e[0]+1,this.cpStartCol,this.cpEndCol,this.cpStartRow,this.cpEndRow)){   // col check, need +1
+        if(checkInArea(e[1],e[0]+1,this.cpStartCol,this.cpEndCol,this.cpStartRow,this.cpEndRow,this.cpSize)){   // col check, need +1
           newData.push([e[0],e[1],type])
         }else{
           newData.push(e)
@@ -665,10 +687,11 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   //    ip chart
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
+  // load db params
   initParams(){
     let ipParams = this.proContent.parameter;
     if (ipParams==null){
@@ -682,16 +705,20 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.reagentVolume=ipParams.reagentVolume
     this.destMaxTransfer=ipParams.destMaxTransfer
     this.concenTolerance=ipParams.concenTolerance
-    this.curveReplicates=ipParams.curveReplicates
     this.destinationCopies=ipParams.destinationCopies
     this.sampleConcentration=ipParams.sampleConcentration
+    this.conUnitSample=ipParams.conUnitSample
     this.startConcentration=ipParams.startConcentration
+    this.conUnitStart=ipParams.conUnitStart
     this.dilutionFactor=ipParams.dilutionFactor
     this.dataPoints=ipParams.dataPoints
 
+    this.sampleDirection=ipParams.sampleDirection
+    this.curveDirection=ipParams.curveDirection
 
+    this.curveReplicates=ipParams.curveReplicates
+    this.perPlateControlCurve=ipParams.perPlateControlCurve
   }
-
 
   initIPList(){
     this.initParams();
@@ -720,8 +747,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
     const newNumber = maxNumber + 1;
     const newName = `IP_${newNumber}`;
-    const cols = this.generateCols(this.ipSize);
-    const rows = this.generateRows(this.ipSize);
+    const cols = generateCols(this.ipSize);
+    const rows = generateRows(this.ipSize);
     var wellLst = [];
     for (var c = 0; c < cols.length; c++) {
       for (var r = 0; r < rows.length; r++) {
@@ -778,13 +805,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     });
   }
 
-  // general set index to type
+  // general set point type
   setIPPoint(type: number){
     console.log(`ipIsSetArea: ${this.ipIsSetArea}`);
     if(this.ipIsSetArea){
       var newData = []
       this.ipOption.series[0].data.forEach(e => {
-        if(this.checkInArea(e[1],e[0]+1,this.ipStartCol,this.ipEndCol,this.ipStartRow,this.ipEndRow)){   // col check, need +1
+        if(checkInArea(e[1],e[0]+1,this.ipStartCol,this.ipEndCol,this.ipStartRow,this.ipEndRow,this.ipSize)){   // col check, need +1
           newData.push([e[0],e[1],type])
         }else{
           newData.push(e)
@@ -838,10 +865,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   //    dp chart
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
   initDPList(){
     this.dpList = [];
@@ -855,7 +881,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     console.log(this.dpList);
   }
 
-  createNewDP(){
+  createNewDP():Plate{
     // find max order
     let maxNumber = 0;
     for (const plate of this.dpList) {
@@ -869,8 +895,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
     const newNumber = maxNumber + 1;
     const newName = `DP_${newNumber}`;
-    const cols = this.generateCols(this.dpSize);
-    const rows = this.generateRows(this.dpSize);
+    const cols = generateCols(this.dpSize);
+    const rows = generateRows(this.dpSize);
     var wellLst = [];
     for (var c = 0; c < cols.length; c++) {
       for (var r = 0; r < rows.length; r++) {
@@ -889,6 +915,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     };
     this.dpList.push(newPlate);
     console.log("Updated plateList:", this.dpList);
+    return newPlate
   }
 
   deleteDP(){
@@ -927,13 +954,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     });
   }
 
-  // general set index to type
+  // general set point type
   setDPPoint(type: number){
     console.log(`dpIsSetArea: ${this.dpIsSetArea}`);
     if(this.dpIsSetArea){
       var newData = []
       this.dpOption.series[0].data.forEach(e => {
-        if(this.checkInArea(e[1],e[0]+1,this.dpStartCol,this.dpEndCol,this.dpStartRow,this.dpEndRow)){   // col check, need +1
+        if(checkInArea(e[1],e[0]+1,this.dpStartCol,this.dpEndCol,this.dpStartRow,this.dpEndRow,this.dpSize)){   // col check, need +1
           newData.push([e[0],e[1],type])
         }else{
           newData.push(e)
@@ -991,17 +1018,10 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-
-
-
-
-
-
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   //    nav
-  //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
   nextStep() {
-
     if(this.currentStep==0){
       if(this.selectedPro==null||this.selectedPro==undefined){
         console.log("Please select a protocol.")
@@ -1012,11 +1032,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
         return;
       }
     }
-
     if (this.currentStep < this.steps.length) {
       this.currentStep++;
     }
-
     if (this.currentStep === 1) {
       this.initSPList();
     }
@@ -1029,7 +1047,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     if (this.currentStep === 4) {
       this.initDPList();
     }
-
   }
 
   previousStep() {
@@ -1042,13 +1059,10 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
         this.showResetPro = false;
       }, 2000); 
       this.selectedPro=null
-
       this.resetAll();
       this.initProtocolList();
-
     }
   }
-
 
   resetAll(){
     // protocol
@@ -1075,138 +1089,122 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.spStartCol=1;
     this.spEndCol=24;
 
+    // cp chart list
+    this.cpChart=null;
+    this.cpOption=null;
+    this.cpDom=null;
+    this.cpList=[];
+    this.cpSize=384;
+    this.selectedCP=null;
+    this.cpCurrentIndex=-1;
+    this.cpCurrentPoint=[];
+    this.cpIsSetArea=false;
+    this.cpStartRow="A";
+    this.cpEndRow="P";
+    this.cpStartCol=1;
+    this.cpEndCol=24;
     
+    // ip chart list
+    this.ipChart=null;
+    this.ipOption=null;
+    this.ipDom=null;
+    this.ipList=[];
+    this.ipSize=384;
+    this.selectedIP=null;
+    this.ipCurrentIndex=-1;
+    this.ipCurrentPoint=[];
+    this.ipIsSetArea=false;
+    this.ipStartRow="A";
+    this.ipEndRow="P";
+    this.ipStartCol=1;
+    this.ipEndCol=24;
+
+
+    // dp chart list
+    this.dpChart=null;
+    this.dpOption=null;
+    this.dpDom=null;
+    this.dpList=[];
+    this.dpSize=384;
+    this.selectedDP=null;
+    this.dpCurrentIndex=-1;
+    this.dpCurrentPoint=[];
+    this.dpIsSetArea=false;
+    this.dpStartRow="A";
+    this.dpEndRow="P";
+    this.dpStartCol=1;
+    this.dpEndCol=24;
 
   }
 
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
-  //    deleteModal
-  //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  //    deleteModal  todo...  delete confirm
+  //////////////////////////////////////////////////////////////////////////////
   
 
 
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
-  //    Utility
-  //////////////////////////////////////////////////////////////////////////////////////////
-
-  generateCols(size:number){
-    var cols = [];
-    if (size==96) {
-      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    }else if(size==384){
-      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
-    }else if(size==1536){
-      cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-      32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
-    }else{
-        console.log("size error: "+ size)
-        return null;
-    }
-    return cols;
-  }
-
-  generateRows(size:number){
-    var rows = [];
-    if (size==96) {
-      rows = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
-    }else if(size==384){
-      rows = ['P', 'O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
-    }else if(size==1536){
-      rows = ['AF','AE','AD','AC','AB','AA','Z','Y','X','W','V','U','T','S','R','Q','P', 'O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',]
-    }else{
-        console.log("size error: "+ size)
-        return null;
-    }
-    return rows;
-  }
-
-  checkInArea(row:string, col:number,st_col:number,ed_col:number,st_row:string,ed_row:string):boolean{
-    const cols = this.generateCols(this.spSize);
-    const rows = this.generateRows(this.spSize).reverse();
-
-    var stRowI = rows.indexOf(st_row.toUpperCase())
-    var edRowI = rows.indexOf(ed_row.toUpperCase())
-    var stColI = cols.indexOf(st_col)
-    var edColI = cols.indexOf(ed_col)
-
-
-    var rowI = rows.indexOf(row)
-    var colI = cols.indexOf(col)
-
-    if (stColI==-1||edColI==-1||stRowI==-1||edRowI==-1){
-      console.log("start/end row/col not in range.")
-      return false;
-    }
-
-    if (rowI==-1||colI==-1){
-      console.log("check row/col not in range.")
-      return false;
-    }
-
-    if (rowI<stRowI ||rowI>edRowI){
-      return false;
-    }
-
-    if (colI<stColI ||colI>edColI){
-      return false
-    }
-    // console.log(`check | row index ${rows.indexOf(row)}, col index ${cols.indexOf(col)}`)
-    // console.log(`spStartCol index ${cols.indexOf(this.spStartCol)}, spEndCol index ${rows.indexOf(this.spEndCol)}`)
-    // console.log(`in area | row index ${rowI}, col index ${colI}`)
-
-    return true;
-  }
 
 
 
 
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
-  //    IP Tabs
-  // interMaxTransfer:number=1000;
-  // interMinTransfer:number=2.5;
-  // bulkFill:number=15;
-  // maxInterPlateNum:number=1;
-  // maxInterConcenNum:number=3;
 
-  // reagentVolume:number=0;
-  // destMaxTransfer:number=200;
-  // concenTolerance:number=10;
-  // curveReplicates:number=1;
-  // destinationCopies: number=1;
 
-  // sampleConcentration: number=10;
-  // startConcentration: number=10;
-  // dilutionFactor: number=3;
-  // dataPoints: number=8;
-  // ipConUnitSample:string="uM";
-  // ipConUnitStart:string="uM";
-  //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //    IP Tabs and IP/DP transfer logic
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   setActiveTab(index: number): void {
     this.activeTab = index;
   }
 
+
+  // generate ip table, [theore, final, inter]list
   generateIPTable(){
     console.log("generateIPTable")
-    let MaxInterConcenNum = 2                       //this.maxInterConcenNum
-    const ConcenTolerance = 10                        //this.concenTolerance
-    let ReagentVolume = 0//this.reagentVolume=40*uL
-    let DilutionFactor = 3                          //this.dilutionFactor
-    let DataPoints = 8                              //this.dataPoints
+    let MaxInterConcenNum = this.maxInterConcenNum//2                       //this.maxInterConcenNum
+    const ConcenTolerance = this.concenTolerance//10                        //this.concenTolerance
+    let ReagentVolume = this.reagentVolume*uL//=40*uL
+    let DilutionFactor = this.dilutionFactor//3                          //this.dilutionFactor
+    let DataPoints = this.dataPoints//8                              //this.dataPoints
     let MinTransVol = this.interMinTransfer*nL      //2.5*nL
-    let InterMaxTransfer = 1000*nL                  //this.interMaxTransfer*nL//1000*nL
-    let MaxTransVol = 40*nL                         //this.destMaxTransfer*nL//197.5*nL
+    let InterMaxTransfer = this.interMaxTransfer*nL//1000*nL                  //this.interMaxTransfer*nL//1000*nL
+    let MaxTransVol = this.destMaxTransfer*nL//40*nL                         //this.destMaxTransfer*nL//197.5*nL
     let MinTransStep = this.interMinTransfer*nL     //2.5*nL
 
-    let SourceConcentration = 10*mM                 //this.sampleConcentration*mM//1*10**1*mM
-    let StartConcentration = 10*mM                  //this.startConcentration*mM//100*uM
-    let BulkFillVol = 15*uL//this.bulkFill*uL              //15*uL
+    let SourceConcentration = this.sampleConcentration*getUnit(this.conUnitSample)//10*mM                 //this.sampleConcentration*mM//1*10**1*mM
+    let StartConcentration = this.startConcentration*getUnit(this.conUnitStart)                //this.startConcentration*mM//100*uM
+    let BulkFillVol = this.bulkFill*uL              //15*uL
 
     this.solvent = Math.round(MaxTransVol*100/(ReagentVolume+MaxTransVol)*100)/100  //%
     let Solvent = this.solvent/100
@@ -1214,7 +1212,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     let InterAllFinalConcenLst = []
     let TheorConcenLst = []
     let CurrentConcen = 0
-
+    this.theoreticalList = []
 
     //# Theoretical concentration
     for (let i = 0; i < DataPoints; i++) {
@@ -1295,7 +1293,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       if (a.TheoreConcen === b.TheoreConcen) {
         return a.ErrorConcen - b.ErrorConcen; //  Ascending order for 'ErrorConcen' if 'TheoreConcen' is the same
       }
-      return b.TheoreConcen - a.TheoreConcen; // Descending order for 'TheoreConcen'
+      return Number(b.TheoreConcen) - Number(a.TheoreConcen); // Descending order for 'TheoreConcen'
     });
 
     console.log(this.actualList)
@@ -1305,9 +1303,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     const seen = new Set<number>();
 
     for (const item of this.actualList) {
-      if (!seen.has(item.TheoreConcen)) {
+      if (!seen.has(Number(item.TheoreConcen))) {
         finalActualList.push(item);
-        seen.add(item.TheoreConcen);
+        seen.add(Number(item.TheoreConcen));
       }
     }
 
@@ -1315,27 +1313,351 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     console.log(this.actualList)
 
 
-
-
-
+    // generate layout
+    // this.generateIPLayout();
   }
 
+  // reset sample and control to available in IP
+  ipSampleControlReset(){
+    const cols = generateCols(this.ipSize);
+    const rows = generateRows(this.ipSize);
+    for (let r = 0; r < rows.length; r++) {
+      const row = rows[r];
+      for (let c = 0; c < cols.length; c++) {
+        const col = cols[c];
+        const ipPoint = this.ipList[0].wells.find((x) => x.col === col && x.row === row);
+        if (ipPoint&&(ipPoint.type==0||ipPoint.type==1)) {
+          ipPoint.type= 3;
+          ipPoint.concentration= "";
+          ipPoint.name= "";
+          const index = this.ipList[0].wells.findIndex((x) => x.col === col && x.row === row);
+          this.ipList[0].wells[index] = ipPoint;// todo?? select ip chart
+        }
+      }
+    }
+    var data = [];
+    this.ipList[0].wells.forEach(well => {
+      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+    });
+    this.ipOption.series[0].data = data
+    this.ipChart.clear();
+    this.ipOption.animation=false;
+    this.ipChart.setOption(this.ipOption)
+  }
 
-  generateIPLayout(){
-    //1. (samples+controls)*interListNum
+  // reset sample and control(with name) to available in DP
+  dpSampleControlReset(){
+    const cols = generateCols(this.dpSize);
+    const rows = generateRows(this.dpSize);
+
+    if (this.dpList.length>0) {
+      this.dpList = this.dpList.slice(0, 1);
+      this.selectedDP = this.dpList[0]
+    }
+
+    for (let p = 0; p < this.dpList.length; p++) {
+      const plate = this.dpList[p];
+      for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        for (let c = 0; c < cols.length; c++) {
+          const col = cols[c];
+          const point = plate.wells.find((x) => x.col === col && x.row === row);
+          if (point&&(point.type==0||point.type==6)){
+            point.type= 3;
+            point.concentration= "";
+            point.name= "";
+            const index = plate.wells.findIndex((x) => x.col === col && x.row === row);
+            plate.wells[index] = point;// todo?? select ip chart
+          }
+        }
+      }
+
+      this.dpList[p]=plate;
+
+      var data = [];
+      plate.wells.forEach(well => {
+        data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+      });
+      this.ipOption.series[0].data = data
+      this.ipChart.clear();
+      this.ipOption.animation=false;
+      this.ipChart.setOption(this.ipOption)
+
+    }
+    
     
   }
 
 
-  generateDPLayout(){
+  // generate pick list and layout. all in one
+  generateIPLayoutAndPickList(){
+    // 1. generate ip table
+    // reset IP Layout, 0/1 =>3
+    this.ipSampleControlReset();
+    this.generateIPTable();
+
+    //////////////////////////////////////////////////////////////////////////////
+    //  sp => ip
+    //////////////////////////////////////////////////////////////////////////////
+    let sp2ipPickList:Pick[] = []
+
+    let sampleNum = 1
+    for (let i = 0; i < this.spList.length; i++) {
+      let sourcePlate = this.spList[i];
+      if (sourcePlate==null||sourcePlate.wells==null||sourcePlate.wells.length==0) {
+        continue;
+      }
+      // reorder sp wells
+      for (let k = 0; k < sourcePlate.wells.length; k++) {
+        const sourceWell = sourcePlate.wells[k];
+        //get sample well
+        if (sourceWell.type==PointType.Sample) {
+          // only support one IP
+          let destPlate = getAvailablePlateFromList(this.ipList, this.intermediateList.length);
+          if(destPlate==null){
+            console.log("no enough available well")//todo error
+            break;
+          }
+          console.log(destPlate)
+          let [pickList, newDestPlate] = perPointIPLayoutAndPickList(destPlate,sourcePlate,sourceWell, sampleNum,this.intermediateList,"Sample",this.sampleDirection,this.curveDirection)
+          // update new dest plate to this.xxxList
+          let destIndex = this.ipList.findIndex(x=>x.name==newDestPlate.name)
+          this.ipList[destIndex] = newDestPlate
+          this._updateIPChart()
+          // push pick list
+          sp2ipPickList.push(...pickList);
+          sampleNum = sampleNum+1
+        }
+      }
+    }
+
+    console.log("this.ipList")
+    console.log(this.ipList)
+    console.log("sp2ipPickList")
+    console.log(sp2ipPickList)
+    
+
+    //////////////////////////////////////////////////////////////////////////////
+    //  cp => ip
+    //////////////////////////////////////////////////////////////////////////////
+    let cp2ipPickList:Pick[] = []
+
+    let controlNum = 1
+    for (let i = 0; i < this.cpList.length; i++) {
+      let sourcePlate = this.cpList[i];
+      if (sourcePlate==null||sourcePlate.wells==null||sourcePlate.wells.length==0) {
+        continue;
+      }
+      // reorder sp wells
+      for (let k = 0; k < sourcePlate.wells.length; k++) {
+        const sourceWell = sourcePlate.wells[k];
+        //get control well
+        if (sourceWell.type==PointType.Control) {
+          // only support one IP
+          let destPlate = getAvailablePlateFromList(this.ipList, this.intermediateList.length);
+          if(destPlate==null){
+            console.log("no enough available well")//todo error
+            break;
+          }
+          console.log(destPlate)
+          let [pickList, newDestPlate] = perPointIPLayoutAndPickList(destPlate,sourcePlate,sourceWell, controlNum,this.intermediateList,"Control",this.sampleDirection,this.curveDirection)
+          // update new dest plate to this.xxxList
+          let destIndex = this.ipList.findIndex(x=>x.name==newDestPlate.name)
+          this.ipList[destIndex] = newDestPlate
+          this._updateIPChart()
+          // push pick list
+          cp2ipPickList.push(...pickList);
+          controlNum = controlNum + 1
+        }
+      }
+    }
+
+    console.log("this.ipList")
+    console.log(this.ipList)
+    console.log("cp2ipPickList")
+    console.log(cp2ipPickList)
+
+  }
+
+
+  // generate dp pick list and dp layout with [actual list]
+  generateDPLayoutAndPickList(){
+    // 1. generate ip table
+    // reset contol(with concentration/name), sample
+    this.dpSampleControlReset();
+
+    ////////////////////////////////////////
+    //  sp/ip => dp  (Sample)
+    ////////////////////////////////////////
+    let samplePickList:Pick[] = []
+    let controlPickList:Pick[] = []
+    let sampleNum = 1
+
+    let firstPlate = true;
+    //let useDpNameList = []
+
+    for (let i = 0; i < this.spList.length; i++) {
+      let sourcePlate = this.spList[i];
+      if (sourcePlate==null||sourcePlate.wells==null||sourcePlate.wells.length==0) {
+        continue;
+      }
+      for (let k = 0; k < sourcePlate.wells.length; k++) {
+        const sourceWell = sourcePlate.wells[k];
+        //get sample well
+        if (sourceWell.type==PointType.Sample) {
+
+          // add control curve in dp_1, dp_1 should 
+          if(firstPlate){
+            console.log("first dp add control curve..")
+            let cpl= this._addPerPlateControlCurve(this.dpList[0])
+            controlPickList.push(...cpl)
+          }
+
+          let destPlate = getAvailablePlateFromList(this.dpList, this.actualList.length*this.curveReplicates);
+
+          // new dp plate, and no exist dp, create
+          if(destPlate==null){
+            console.log("no enough available well")
+            //create dp list, copy dp[0]
+            this._createAvailableDPFromTemplate();
+            destPlate = getAvailablePlateFromList(this.dpList, this.actualList.length*this.curveReplicates);
+            // add control curve per new dp
+            let cpl  = this._addPerPlateControlCurve(destPlate)
+            controlPickList.push(...cpl)
+          }
+
+          let [pickList, newDestPlate] = samplePointDPLayoutAndPickList(destPlate, sourcePlate, sourceWell, this.ipList[0], sampleNum, this.actualList, "Sample", this.sampleDirection, this.curveDirection, this.sampleConcentration, this.curveReplicates)
+          //update new dest plate to this.xxxList
+          let destIndex = this.dpList.findIndex(x=>x.name==newDestPlate.name)
+          this.dpList[destIndex] = newDestPlate
+          this._updateDPChart()
+          // push pick list
+          samplePickList.push(...pickList);
+
+          // logic used
+          sampleNum = sampleNum + 1
+          firstPlate = false;
+          
+        }
+      }
+
+      console.log("this.dpList")
+      console.log(this.dpList)
+      console.log("samplePickList")
+      console.log(samplePickList)
+      console.log("controlPickList")
+      console.log(controlPickList)
+    
+    }
+
+
+    ////////////////////////////////////////
+    //  ip => dp  (Solvent)
+    ////////////////////////////////////////
+
 
   }
 
 
 
+  exportPickList(){
+
+  }
 
 
 
+  // update the IP chart with this.iplist
+  _updateIPChart(){
+    var data = [];
+    this.ipList[0].wells.forEach(well => {
+      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+    });
+    this.ipOption.series[0].data = data
+    this.ipChart.clear();
+    this.ipOption.animation=false;
+    this.ipChart.setOption(this.ipOption)
+  }
+
+  // update the DP chart with this.dplist
+  _updateDPChart(){
+    var data = [];
+    let dp = this.dpList.find(x=>x.name==this.selectedDP.name)
+    dp.wells.forEach(well => {
+      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+    });
+    this.dpOption.series[0].data = data
+    this.dpChart.clear();
+    this.dpOption.animation=false;
+    this.dpChart.setOption(this.dpOption)
+  }
+
+  // create new plate by template
+  _createAvailableDPFromTemplate(){
+    //copy plate[0]
+    let plate0 = this.dpList[0]
+    let newPlate = JSON.parse(JSON.stringify(plate0));
+
+    if(this.dpList.length>0){
+      // find max order
+      let maxNumber = 0;
+      for (const plate of this.dpList) {
+        const nameParts = plate.name.split("_");
+        if (nameParts.length === 2 && !isNaN(Number(nameParts[1]))) {
+            const number = Number(nameParts[1]);
+            if (number > maxNumber) {
+                maxNumber = number;
+            }
+        }
+      }
+      const newNumber = maxNumber + 1;
+      const newName = `DP_${newNumber}`;
+
+      let newWells:Well[]=[]
+      plate0.wells.forEach(w => {
+        if(w.type==0||w.type==6){
+          let newWell:Well={
+            col:w.col,
+            row:w.row,
+            type:3
+          }
+          newWells.push(newWell)
+        }else{
+          newWells.push(w)
+        }
+      });
+      newPlate.name=newName
+      newPlate.wells=newWells
+      newPlate.barcode=""
+      this.dpList.push(newPlate);
+    }else{
+      newPlate = this.createNewDP();
+    }
+  }
+
+
+  // ip => dp  (Control), only one control point
+  _addPerPlateControlCurve(destPlate:Plate):Pick[]{
+    let controlPickList:Pick[] = []
+    
+    if(this.perPlateControlCurve==true){
+      console.log(" Add control above plate.......")
+      let cp = this.cpList[0]
+      if (cp==null||cp.wells==null||cp.wells.length==0) {
+        console.log("no control point")
+      }else{
+        let cWell = cp.wells[0]
+        let [pickList, newDestPlate] = controlPointDPLayoutAndPickList(destPlate, cp, cWell, this.ipList[0], this.actualList, this.sampleDirection, this.curveDirection, this.sampleConcentration, this.curveReplicates)
+        //update new dest plate to this.xxxList
+        let destIndex = this.dpList.findIndex(x=>x.name==newDestPlate.name)
+        this.dpList[destIndex] = newDestPlate
+        this._updateDPChart()
+        // push pick list
+        controlPickList.push(...pickList);
+        
+      }
+    }
+    return controlPickList
+  }
 
 
 
@@ -1354,9 +1676,432 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    Functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function generateCols(size:number):number[]{
+  var cols = [];
+  if (size==96) {
+    cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  }else if(size==384){
+    cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+  }else if(size==1536){
+    cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+  }else{
+      console.log("size error: "+ size)
+      return null;
+  }
+  return cols;
+}
+
+function generateRows(size:number):string[]{
+  var rows = [];
+  if (size==96) {
+    rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+  }else if(size==384){
+    rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
+  }else if(size==1536){
+    rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF']
+  }else{
+      console.log("size error: "+ size)
+      return null;
+  }
+  return rows;
+}
+
+
+// check if point in area
+function checkInArea(row:string, col:number,st_col:number,ed_col:number,st_row:string,ed_row:string,plateSize:number):boolean{
+  const cols = generateCols(plateSize);
+  const rows = generateRows(plateSize);
+
+  var stRowI = rows.indexOf(st_row.toUpperCase())
+  var edRowI = rows.indexOf(ed_row.toUpperCase())
+  var stColI = cols.indexOf(st_col)
+  var edColI = cols.indexOf(ed_col)
+
+
+  var rowI = rows.indexOf(row)
+  var colI = cols.indexOf(col)
+
+  if (stColI==-1||edColI==-1||stRowI==-1||edRowI==-1){
+    console.log("start/end row/col not in range.")
+    return false;
+  }
+
+  if (rowI==-1||colI==-1){
+    console.log("check row/col not in range.")
+    return false;
+  }
+
+  if (rowI<stRowI ||rowI>edRowI){
+    return false;
+  }
+
+  if (colI<stColI ||colI>edColI){
+    return false
+  }
+  // console.log(`check | row index ${rows.indexOf(row)}, col index ${cols.indexOf(col)}`)
+  // console.log(`spStartCol index ${cols.indexOf(this.spStartCol)}, spEndCol index ${rows.indexOf(this.spEndCol)}`)
+  // console.log(`in area | row index ${rowI}, col index ${colI}`)
+
+  return true;
+}
+
+
+function getUnit(unit:string):number{
+  if (unit=="M") {return M}
+  if (unit=="mM") {return mM}
+  if (unit=="uM") {return uM}
+  if (unit=="nM") {return nM}
+  if (unit=="pM") {return nM}
+  if (unit=="fM") {return nM}
+  if (unit=="aM") {return nM}
+  return mM;
+}
+
+
+function getAvailablePlateFromList(plateList:Plate[], dataPoints:number):Plate{
+  for (let i = 0; i < plateList.length; i++) {
+    const plate = plateList[i];
+
+    if(plate.wells==null||plate.wells.length==0){
+      continue;
+    }
+
+    let availWells = plate.wells.filter(well => well.type === 3);
+    if (availWells.length>=dataPoints) {
+      return plate;
+    }
+  }
+  return null;
+}
+
+
+
+// get first available well of plate
+function getFirstAvailableWell(sampleDirect:string, plate:Plate):Well{
+  let well:Well;
+  //push all wells to list, order them
+  let size = plate.wells.length
+  let rowOrderList = generateRows(size)
+  let colOrderList = generateCols(size)
+  if (sampleDirect=="Across") {
+    // order wells
+    plate.wells.sort((a, b) => {
+      // first order by row
+      const rowAIndex = rowOrderList.indexOf(a.row);
+      const rowBIndex = rowOrderList.indexOf(b.row);
+      if (rowAIndex !== rowBIndex) {
+        return rowAIndex - rowBIndex;
+      }
+      // if row equal, then order by col
+      const colAIndex = colOrderList.indexOf(a.col);
+      const colBIndex = colOrderList.indexOf(b.col);
+      return colAIndex - colBIndex;
+    });
+  }else{//down
+    // order wells
+    plate.wells.sort((a, b) => {
+      // first order by col
+      const colAIndex = colOrderList.indexOf(a.col);
+      const colBIndex = colOrderList.indexOf(b.col);
+      if (colAIndex !== colBIndex) {
+        return colAIndex - colBIndex;
+      }
+      // if col equal, then order by row
+      const rowAIndex = rowOrderList.indexOf(a.row);
+      const rowBIndex = rowOrderList.indexOf(b.row);
+      return rowAIndex - rowBIndex;
+    });
+  }
+  let avaList = plate.wells.filter(x=>x.type==3)
+  well = avaList[0];
+  return well;
+}
+
+
+// get next available well list of plate
+function getNextAvailableWellList(firstWell:Well, curveDirect:string, plate:Plate, listNum:number):Well[]{
+  let wellList = []
+
+  //push all wells to list, order them
+  let size = plate.wells.length
+  let rowOrderList = generateRows(size)
+  let colOrderList = generateCols(size)
+
+  if (curveDirect=="Across"){
+    // order wells
+    plate.wells.sort((a, b) => {
+      // first order by row
+      const rowAIndex = rowOrderList.indexOf(a.row);
+      const rowBIndex = rowOrderList.indexOf(b.row);
+      if (rowAIndex !== rowBIndex) {
+        return rowAIndex - rowBIndex;
+      }
+      // if row equal, then order by col
+      const colAIndex = colOrderList.indexOf(a.col);
+      const colBIndex = colOrderList.indexOf(b.col);
+      return colAIndex - colBIndex;
+    });
+
+  }else{ //down
+    // order wells
+    plate.wells.sort((a, b) => {
+      // first order by col
+      const colAIndex = colOrderList.indexOf(a.col);
+      const colBIndex = colOrderList.indexOf(b.col);
+      if (colAIndex !== colBIndex) {
+        return colAIndex - colBIndex;
+      }
+      // if col equal, then order by row
+      const rowAIndex = rowOrderList.indexOf(a.row);
+      const rowBIndex = rowOrderList.indexOf(b.row);
+      return rowAIndex - rowBIndex;
+    });
+  }
+  //get first well index
+  let avaList = plate.wells.filter(x=>x.type==3)
+  let firstIndex = avaList.findIndex(x=>x.row==firstWell.row&&x.col==firstWell.col)
+  wellList = avaList.slice(firstIndex, listNum+firstIndex);
+  return wellList
+}
+
+
+function perPointIPLayoutAndPickList(destPlate:Plate, sourcePlate:Plate, sourceWell:Well, sampleNum:number, interPointList:IntermediateEntity[], pointName:string,
+  sampleDirection:string,curveDirection:string)
+:[Pick[],Plate]
+{
+  // foreach sample point
+  //let sampleNum = 1
+  let pickList:Pick[]=[]
+
+  let firstWell = getFirstAvailableWell(sampleDirection, destPlate);
+
+  // get available well list
+  let availWellList = getNextAvailableWellList(firstWell, curveDirection, destPlate, interPointList.length)
+
+  //console.log("availWellList")
+  //console.log(availWellList)
+
+  // change well to inter well, and push [inter] volume
+  
+  for (let n = 0; n < interPointList.length; n++) {
+    const interEntity = interPointList[n];
+    let pick:Pick={
+      spName:sourcePlate.name,
+      spRow:sourceWell.row,
+      spCol:sourceWell.col,
+
+      dpName:destPlate.name,
+      dpRow:availWellList[n].row,
+      dpCol:availWellList[n].col,
+
+      vol: interEntity.TransVolResult,
+    }
+    pickList.push(pick)
+
+    availWellList[n].concentration= interEntity.FinalConcen
+    if (pointName=="Sample") {availWellList[n].type=0}
+    if (pointName=="Control") {availWellList[n].type=6}
+    availWellList[n].name=`${pointName}_${sampleNum}`
+  }
+
+  // update dest well list
+  availWellList.forEach(ava => {
+    let indexAva = destPlate.wells.findIndex(w=>w.row==ava.row&&w.col==ava.col)
+    destPlate.wells[indexAva] = ava 
+  });
+
+  return [pickList, destPlate]
+}
+
+// sp/ip to dp, sample point
+function samplePointDPLayoutAndPickList(destPlate:Plate, sourcePlate:Plate, sourceWell:Well, interPlate:Plate, sampleNum:number, actualPointList:ActualEntity[], pointName:string,
+  sampleDirection:string,curveDirection:string,sampleCon:number, curveReplicates:number)
+:[Pick[],Plate]
+{
+  // foreach sample point
+  //let sampleNum = 1
+  let pickList:Pick[]=[]
+
+  let firstWell = getFirstAvailableWell(sampleDirection, destPlate);
+
+  // get available well list
+  let availWellList = getNextAvailableWellList(firstWell, curveDirection, destPlate, actualPointList.length*curveReplicates)
+
+  //console.log("availWellList")
+  //console.log(availWellList)
+
+  // change well to inter well, and push [inter] volume
+  for (let c = 0; c < curveReplicates; c++) {
+    for (let n = 0; n < actualPointList.length; n++) {
+      let index = n+c*actualPointList.length
+        const actualEntity = actualPointList[n];
+
+      // find point with name and concentration
+      let pick:Pick={
+        spName:"",
+        spRow:"",
+        spCol:0,
+        dpName:destPlate.name,
+        dpRow:availWellList[index].row,
+        dpCol:availWellList[index].col,
+
+        vol: actualEntity.TransVolResult,
+      }
+      if (Number(actualEntity.SourceConcen)==sampleCon) {
+        pick.spName = sourcePlate.name
+        pick.spRow = sourceWell.row
+        pick.spCol = sourceWell.col
+      }else{
+        let srWell = interPlate.wells.find(x=>x.name==`${pointName}_${sampleNum}`&&x.concentration==actualEntity.SourceConcen)
+        pick.spName = interPlate.name
+        pick.spRow = srWell.row
+        pick.spCol = srWell.col
+      }
+
+      
+      pickList.push(pick)
+
+      availWellList[index].concentration= actualEntity.RealConcen
+      if (pointName=="Sample") {availWellList[index].type=0}
+      // if (pointName=="Control") {availWellList[n].type=1}
+      availWellList[index].name=`${pointName}_${sampleNum}`
+    }
+  }
+
+  // update dest well list
+  availWellList.forEach(ava => {
+    let indexAva = destPlate.wells.findIndex(w=>w.row==ava.row&&w.col==ava.col)
+    destPlate.wells[indexAva] = ava 
+  });
+
+  return [pickList, destPlate]
+}
+
+
+// sp/ip to dp, control point
+function controlPointDPLayoutAndPickList(destPlate:Plate, controlPlate:Plate, controlWell:Well, interPlate:Plate, actualPointList:ActualEntity[]
+  ,sampleDirection:string, curveDirection:string, sampleCon:number, curveReplicates:number)
+:[Pick[],Plate]
+{
+  // foreach sample point
+  //let sampleNum = 1
+  let pickList:Pick[]=[]
+
+  let firstWell = getFirstAvailableWell(sampleDirection, destPlate);
+
+  // get available well list
+  let availWellList = getNextAvailableWellList(firstWell, curveDirection, destPlate, actualPointList.length*curveReplicates)
+
+  //console.log("availWellList")
+  //console.log(availWellList)
+
+  // change well to inter well, and push [inter] volume
+  for (let c = 0; c < curveReplicates; c++) {
+    for (let n = 0; n < actualPointList.length; n++) {
+      let index = n+c*actualPointList.length
+      const actualEntity = actualPointList[n];
+      // find point with name and concentration
+      let pick:Pick={
+        spName:"",
+        spRow:"",
+        spCol:0,
+        dpName:destPlate.name,
+        dpRow:availWellList[index].row,
+        dpCol:availWellList[index].col,
+  
+        vol: actualEntity.TransVolResult,
+      }
+      if (Number(actualEntity.SourceConcen)==sampleCon) {
+        pick.spName = controlPlate.name
+        pick.spRow = controlWell.row
+        pick.spCol = controlWell.col
+      }else{
+        let srWell = interPlate.wells.find(x=>x.name==`Control_1`&&x.concentration==actualEntity.SourceConcen)
+        pick.spName = interPlate.name
+        pick.spRow = srWell.row
+        pick.spCol = srWell.col
+      }
+      
+      pickList.push(pick)
+  
+      availWellList[index].concentration= actualEntity.RealConcen
+      availWellList[index].type=6
+  
+      availWellList[index].name=`Control_1`
+    }
+  }
+  
+
+  // update dest well list
+  availWellList.forEach(ava => {
+    let indexAva = destPlate.wells.findIndex(w=>w.row==ava.row&&w.col==ava.col)
+    destPlate.wells[indexAva] = ava 
+  });
+
+  return [pickList, destPlate]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //    Dilution algorithm
-//////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1452,7 +2197,7 @@ function getFinalTransList(
   MinTransStep:number, 
   ConcenTolerance:number,
   // Solvent:number,
-):[number[],any[]]{
+):[number[],ActualEntity[]]{
   let actualList = []
   for (let i = 0; i < allPoints.length; i++) {
     let theorPoint = allPoints[i];
@@ -1464,13 +2209,13 @@ function getFinalTransList(
           allPointsFound.push(theorPoint)
           let Comment = ""
           if (ConcenTolerance==100){ Comment = "Out of limit"} //last step, out of limit
-          let actualEntity={
+          let actualEntity:ActualEntity={
             SourceConcen:SourceConcen.toExponential(3),
             TransVolResult:TransVolResult,
             BackfillVol:BackfillVol,
             TheoreConcen:TheoreConcen.toExponential(3),
             RealConcen:RealConcen.toExponential(3),
-            ErrorConcen:Math.round(ErrorConcen*100)/100,
+            ErrorConcen:Math.round(ErrorConcen*1e2)/1e2,
             Comment:Comment,
           }
           actualList.push(actualEntity)
@@ -1492,8 +2237,8 @@ function getInterTransList(
   MinTransStep: number,
   ConcenTolerance:number,
   // Solvent:number,
-):[number[],any]{
-  let result ={}
+):[number[],IntermediateEntity]{
+  let result: IntermediateEntity;
   // if no suitable inter points, to get 1
   for (let i = 0; i < allPoints.length; i++) {
     let theorPoint = allPoints[i];
@@ -1521,54 +2266,6 @@ function getInterTransList(
 
 
 
-function tableActual(
-  SourceConcen: number,
-  TransVol: number,
-  BackfillVol: number,
-  TheoreConcen: number,
-  FinalConcen: number
-): void {
-  const ErrorConcen = Math.round(((FinalConcen - TheoreConcen) / TheoreConcen) * 1e5) / 1e5 * 100;
-  //console.log(`${SourceConcen} | ${TransVol} | ${BackfillVol} | ${TheoreConcen} | ${FinalConcen} | ${ErrorConcen}%`);
-}
-
-
-function dilute(
-  SourceConcen: number,
-  TransVol: number,
-  BulkfillVol: number
-): number {
-  const FinalConcen = Math.round(SourceConcen * (TransVol / (BulkfillVol + TransVol)) * 1e5) / 1e5;
-  //console.log(`${SourceConcen} | ${TransVol} | ${FinalConcen} | ${BulkfillVol}`);
-  return FinalConcen;
-}
-
-
-// function findClosest(nums: number[], target: number): number {
-//   if (nums.length === 0) {
-//     //throw new Error("list is null");
-//     console.log("list is null");
-//   }
-//   let left: number = 0;
-//   let right: number = nums.length - 1;
-//   while (left < right) {
-//     const mid: number = Math.floor((left + right) / 2);
-//     if (nums[mid] > target) {
-//       left = mid + 1;
-//     } else {
-//       right = mid;
-//     }
-//   }
-//   if (left === 0) {
-//     return nums[0];
-//   }
-//   if (left === nums.length) {
-//     return nums[nums.length - 1];
-//   }
-//   const leftVal: number = nums[left - 1];
-//   const rightVal: number = nums[left];
-//   return Math.abs(leftVal - target) <= Math.abs(rightVal - target) ? leftVal : rightVal;
-// }
 
 
 
@@ -1578,9 +2275,19 @@ function dilute(
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Interface
-//////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    interface
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 interface ProtocolContent{
   parameter: Parameter;
@@ -1601,13 +2308,22 @@ interface Parameter {
   destMaxTransfer:number; //Per Point Max Transfer Volume
 
   concenTolerance:number; //Per Point Voncentration Tolerance(+/-%)
-  curveReplicates:number; //Number of Curve Replicates
+
   destinationCopies: number; //Number of Destination Copies
 
   sampleConcentration: number; // Sample Concentration
+  conUnitSample:string;
   startConcentration: number; //Starting Concentration
+  conUnitStart:string;
+
   dilutionFactor: number; //Dilution Factor
   dataPoints: number; //Data Points
+
+  sampleDirection:string; // Sample Direction
+  curveDirection:string; // Curve Direction
+
+  curveReplicates:number; //Number of Curve Replicates
+  perPlateControlCurve:boolean; //Control Curve Per Plate
 }
 
 
@@ -1617,14 +2333,57 @@ interface Plate {
   wells: Well[]; 
 }
 
+
 interface Well {
   row: string;    
   col: number;    
   type: number;   
+  name?: string;
+  concentration?: string;
 }
 
 
+interface Pick {
+  spName:string;
+  spRow:string;
+  spCol:number;
 
+  dpName:string;
+  dpRow:string;
+  dpCol:number;
+
+  vol:number;
+}
+
+
+interface ActualEntity{
+  SourceConcen:string;
+  TransVolResult:number;
+  BackfillVol:number;
+  TheoreConcen:string;
+  RealConcen:string;
+  ErrorConcen:number;
+  Comment:string;
+}
+
+
+interface IntermediateEntity{
+  SourceConcen:number;
+  TransVolResult:number;
+  FinalConcen:string;
+  BulkfillVol:number;
+}
+
+
+enum PointType {
+  Sample, // 0
+  Control, // 1
+  Reserved, // 2
+  Available, // 3
+  Solvent, //4
+  Bulkfill, //5
+
+}
 
 
 

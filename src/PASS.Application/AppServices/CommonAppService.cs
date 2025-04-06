@@ -72,7 +72,7 @@ namespace PASS.AppServices
         public async Task<List<LiquidCategoryDto>> GetAllLiquidCategoriesAsync()
         {
             var lst = (await _liquidCategoryRepository.GetListAsync()).Distinct().ToList();
-            var result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(lst).Order().ToList();
+            var result = ObjectMapper.Map<List<LiquidCategory>, List<LiquidCategoryDto>>(lst).OrderBy(x=>x.Name).ToList();
             return result;
         }
 

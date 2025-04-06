@@ -1,9 +1,9 @@
 import { Environment } from '@abp/ng.core';
 
-const baseUrl = 'http://localhost:4200';
+const baseUrl = 'https://web.pass:4200';
 
 const oAuthConfig = {
-  issuer: 'http://localhost:44364/',
+  issuer: 'https://auth.pass/',
   redirectUri: baseUrl,
   clientId: 'PASS_App',
   responseType: 'code',
@@ -20,7 +20,7 @@ export const environment = {
   oAuthConfig,
   apis: {
     default: {
-      url: 'http://localhost:44364',
+      url: 'https://auth.pass/',
       rootNamespace: 'PASS',
     },
     AbpAccountPublic: {
