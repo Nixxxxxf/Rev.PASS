@@ -72,8 +72,9 @@
 
 
 .c-btn{
-    width: 88px
+    width: 88px;
 }
+
 
 .g-btn{
     width: 110px
@@ -85,4 +86,9 @@
 
 .th {
     text-transform: none !important; /* 强制取消大写 */
+}
+
+.c-label{
+    max-height: 150px; 
+    overflow-y: auto
 }

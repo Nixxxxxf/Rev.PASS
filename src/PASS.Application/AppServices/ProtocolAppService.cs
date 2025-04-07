@@ -63,7 +63,13 @@ namespace PASS.AppServices
 
         public void AddNewProtocol(string name)
         {
-            _protocolRepository.InsertAsync(new Protocol() { Name = name });
+            var existPro = _protocolRepository.GetQueryableAsync().Result.Where(x => x.Name == name).FirstOrDefault();
+            if (existPro == default(Protocol))
+            {
+                Protocol newPro = new Protocol() { Name = name };
+                newPro.SetId(GuidGenerator.Create());
+                _protocolRepository.InsertAsync(newPro);
+            }
         }
 
         public void DeleteProtocol(string name)

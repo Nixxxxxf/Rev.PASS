@@ -4,7 +4,9 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } fr
 import { CommonService, CsvHeaderService, ProtocolService } from '@proxy/app-services';
 import { CsvHeaderDto, ProtocolDto } from '@proxy/dtos';
 import * as echarts from 'echarts';
-
+import * as XLSX from 'xlsx';
+import * as Papa from 'papaparse';
+import { CONFIRMATION_ICONS } from '@abp/ng.theme.shared/lib/tokens/confirmation-icons.token';
 
 @Component({
   selector: 'app-gradient-dilution',
@@ -44,6 +46,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   plateList:Plate[]=[];
 
   // sp chart list
+  spFileType:string="";
+  spFileContent:any;
   spChart:any;
   spOption:any;
   spDom:any;
@@ -90,9 +94,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   ipEndCol:number=24;
 
   // ip params
-  interMaxTransfer:number=1000;
+  interMaxTransfer:number=500;
   interMinTransfer:number=2.5;
-  bulkFill:number=15;
+  bulkFill:number=14;
   maxInterPlateNum:number=1;
   maxInterConcenNum:number=2;
 
@@ -140,6 +144,12 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   deleteHidden:boolean=true;
 
   //export
+  ipPickList:Pick[]=[];
+  dpPickList:Pick[]=[];
+  allPickList:Pick[]=[];
+  barcodeFileType:string="";
+  barcodeFileContent:any;
+  barcodeMap:Map<string, string>=new Map<string, string>();
   pickListName:string="";
 
 
@@ -290,6 +300,100 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.spList.push(newPlate);
     console.log("Updated plateList:", this.spList);
   }
+
+  onSourcePlateSelected(event) {
+    const file: File = event.target.files[0];
+    const reader: FileReader = new FileReader();
+    reader.onload = (e: any) => {
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        this.spFileType = "Excel";
+      }else if(file.name.endsWith('.csv') ){
+        this.spFileType = "Csv";
+      }else{
+        return; //error
+      }
+      this.spFileContent = e.target.result;
+    };
+    reader.readAsBinaryString(file);    
+  }
+
+
+  importIP(){
+    let data = parseFile(this.spFileContent, this.spFileType);
+    console.log(data)
+
+    this.spList = []
+
+    // push plate
+    let createdNames = []
+    for (let i = 0; i < data.length; i++) {
+      let d = data[i];
+      let plateName = `SP_${d.PlateNumber}`
+      let plate = createdNames.find(x=>x=plateName)
+      if(plate==null){
+        let newPlate: Plate={
+          name:plateName,
+          barcode:"",
+          wells:[],
+        }
+        this.spList.push(newPlate)
+        createdNames.push(plateName)
+      }
+    }
+
+    // create all available
+    for (let i = 0; i < this.spList.length; i++) {
+      let plate = this.spList[i];
+      const cols = generateCols(this.spSize);
+      const rows = generateRows(this.spSize);
+      var wellLst = [];
+      for (var c = 0; c < cols.length; c++) {
+        for (var r = 0; r < rows.length; r++) {
+          //let wellName = `${rows[r]}${cols[r]}`
+          const well:Well={
+            row: rows[r],
+            col: cols[c],
+            type: PointType.Available //available
+          }
+          wellLst.push(well);
+        }
+      }
+      this.spList[i].wells = wellLst
+    }
+
+    console.log("this.spList");
+    console.log(this.spList);
+    // set sample
+    for (let i = 0; i < data.length; i++) {
+      let d = data[i];
+      let plateName = `SP_${d.PlateNumber}`
+      let plateIndex = this.spList.findIndex(x=>x.name==plateName)
+      let plate = this.spList[plateIndex]
+      console.log("plate")
+      console.log(plateName)
+      console.log(plateIndex)
+      console.log(plate)
+      let newWells = []
+      plate.wells.forEach(w=>{
+        let wellName = `${w.row}${w.col}`
+        if (wellName==d.Well) {
+          newWells.push({
+            row:w.row,
+            col:w.col,
+            type: PointType.Sample
+          })
+        }else{
+          newWells.push(w)
+        }
+      })
+      this.spList[plateIndex].wells = newWells
+    }
+
+    this.selectedSP = this.plateList[0]
+    this._updateSPChart()
+  }
+
+  
 
   deleteSP(){
     var newLst = []
@@ -1032,9 +1136,26 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
         return;
       }
     }
+
+    // clear chart
+    if (this.currentStep === 1) {
+      this.clearSPChart();
+    }
+    if (this.currentStep === 2) {
+      this.clearCPChart();
+    }
+    if (this.currentStep === 3) {
+      this.clearIPChart();
+    }
+    if (this.currentStep === 4) {
+      this.clearDPChart();
+    }
+
     if (this.currentStep < this.steps.length) {
       this.currentStep++;
     }
+
+    // init chart
     if (this.currentStep === 1) {
       this.initSPList();
     }
@@ -1135,11 +1256,51 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.dpStartCol=1;
     this.dpEndCol=24;
 
+
+    // table
+    this.theoreticalList=[];
+    this.actualList=[];
+    this.intermediateList=[];
+    this.activeTab=0;
+
+    // file
+    this.barcodeFileType="";
+    this.barcodeFileContent=null;
+    this.barcodeMap=new Map<string, string>();
+    this.pickListName="";
+
+    this.spFileType="";
+    this.spFileContent=null;
+  }
+
+  clearSPChart(): void {
+    if (this.spChart) {
+        this.spChart.dispose();
+        this.spChart = null;
+    }
+  }
+
+  clearCPChart(): void {
+    if (this.cpChart) {
+        this.cpChart.dispose();
+        this.cpChart = null;
+    }
+  }
+
+  clearIPChart(): void {
+    if (this.ipChart) {
+        this.ipChart.dispose();
+        this.ipChart = null;
+    }
   }
 
 
-
-
+  clearDPChart(): void {
+    if (this.dpChart) {
+        this.dpChart.dispose();
+        this.dpChart = null;
+    }
+  }
 
 
 
@@ -1187,7 +1348,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   setActiveTab(index: number): void {
     this.activeTab = index;
   }
-
 
   // generate ip table, [theore, final, inter]list
   generateIPTable(){
@@ -1326,7 +1486,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       for (let c = 0; c < cols.length; c++) {
         const col = cols[c];
         const ipPoint = this.ipList[0].wells.find((x) => x.col === col && x.row === row);
-        if (ipPoint&&(ipPoint.type==0||ipPoint.type==1)) {
+        if (ipPoint&&(ipPoint.type==PointType.Sample||ipPoint.type==PointType.ControlCurve)) {
           ipPoint.type= 3;
           ipPoint.concentration= "";
           ipPoint.name= "";
@@ -1378,10 +1538,10 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       plate.wells.forEach(well => {
         data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
       });
-      this.ipOption.series[0].data = data
-      this.ipChart.clear();
-      this.ipOption.animation=false;
-      this.ipChart.setOption(this.ipOption)
+      this.dpOption.series[0].data = data
+      this.dpChart.clear();
+      this.dpOption.animation=false;
+      this.dpChart.setOption(this.dpOption)
 
     }
     
@@ -1395,7 +1555,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     // reset IP Layout, 0/1 =>3
     this.ipSampleControlReset();
     this.generateIPTable();
-
+    this.ipPickList = []
     //////////////////////////////////////////////////////////////////////////////
     //  sp => ip
     //////////////////////////////////////////////////////////////////////////////
@@ -1423,13 +1583,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           // update new dest plate to this.xxxList
           let destIndex = this.ipList.findIndex(x=>x.name==newDestPlate.name)
           this.ipList[destIndex] = newDestPlate
-          this._updateIPChart()
           // push pick list
           sp2ipPickList.push(...pickList);
           sampleNum = sampleNum+1
         }
       }
     }
+    this._updateIPChart()
 
     console.log("this.ipList")
     console.log(this.ipList)
@@ -1464,19 +1624,24 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           // update new dest plate to this.xxxList
           let destIndex = this.ipList.findIndex(x=>x.name==newDestPlate.name)
           this.ipList[destIndex] = newDestPlate
-          this._updateIPChart()
           // push pick list
           cp2ipPickList.push(...pickList);
           controlNum = controlNum + 1
         }
       }
     }
+    this._updateIPChart()
 
     console.log("this.ipList")
     console.log(this.ipList)
     console.log("cp2ipPickList")
     console.log(cp2ipPickList)
 
+
+    this.ipPickList.push(...sp2ipPickList)
+    this.ipPickList.push(...cp2ipPickList)
+    console.log("this.ipPickList")
+    console.log(this.ipPickList)
   }
 
 
@@ -1486,8 +1651,10 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     // reset contol(with concentration/name), sample
     this.dpSampleControlReset();
 
+    this.dpPickList = []
+
     ////////////////////////////////////////
-    //  sp/ip => dp  (Sample)
+    //  sp/ip => dp  (Sample/control curve)
     ////////////////////////////////////////
     let samplePickList:Pick[] = []
     let controlPickList:Pick[] = []
@@ -1530,7 +1697,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           //update new dest plate to this.xxxList
           let destIndex = this.dpList.findIndex(x=>x.name==newDestPlate.name)
           this.dpList[destIndex] = newDestPlate
-          this._updateDPChart()
           // push pick list
           samplePickList.push(...pickList);
 
@@ -1540,6 +1706,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           
         }
       }
+      this._updateDPChart()
 
       console.log("this.dpList")
       console.log(this.dpList)
@@ -1552,18 +1719,120 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
 
 
     ////////////////////////////////////////
-    //  ip => dp  (Solvent)
+    //  cp => dp  (Control)
     ////////////////////////////////////////
+    //let controlPickList:Pick[] = []
+    if(this.cpList.length>0||this.cpList[0].wells.length>0){
+      //get control well
+      const controlWell = this.cpList[0].wells[0];
+      for (let p = 0; p < this.dpList.length; p++) {
+        const destPlate = this.dpList[p];
+        let [pickList, _] = rawControlPointDPLayoutAndPickList(destPlate,this.cpList[0],controlWell,this.destMaxTransfer)
+        controlPickList.push(...pickList);
+      
+      }
+      console.log("add raw control, controlPickList")
+      console.log(controlPickList)
+    }
+    
+
+    ////////////////////////////////////////
+    //  ip => dp  (back fill)
+    ////////////////////////////////////////
+    let backfillPickList:Pick[] = []
+
+    //get all sample/control_curve point
+    for (let p = 0; p < this.dpList.length; p++) {
+      const dp = this.dpList[p];
+      dp.wells.forEach(well => {
+        if (well.type==PointType.Sample||well.type==PointType.ControlCurve) {
+          let pick:Pick={
+            spName:"",
+            spRow:"",
+            spCol:0,
+            dpName:dp.name,
+            dpRow:well.row,
+            dpCol:well.col,
+    
+            vol: this.destMaxTransfer-well.volume,
+          }
+          if (pick.vol>0) {
+            backfillPickList.push(pick)
+          }
+        }
+      });
+    }
+    // all bulk fill point
+    let bulkFillWell = []
+    this.ipList[0].wells.forEach(well=>{
+      if(well.type==PointType.Bulkfill){
+        bulkFillWell.push(well)
+      }
+    })
+    // combine bulk fill source point
+    for (let i = 0; i < backfillPickList.length; i++) {
+        const sWell = bulkFillWell[i % bulkFillWell.length];
+        backfillPickList[i].spName = this.ipList[0].name;
+        backfillPickList[i].spRow = sWell.row;
+        backfillPickList[i].spCol = sWell.col;
+    }
+    console.log("backfillPickList")
+    console.log(backfillPickList)
 
 
+    ////////////////////////////////////////
+    //  ip => dp  (solvent)
+    ////////////////////////////////////////
+    let solventPickList:Pick[] = []
+
+    //get all sample/control_curve point
+    for (let p = 0; p < this.dpList.length; p++) {
+      const dp = this.dpList[p];
+      dp.wells.forEach(well => {
+        if (well.type==PointType.Solvent) {
+          let pick:Pick={
+            spName:"",
+            spRow:"",
+            spCol:0,
+            dpName:dp.name,
+            dpRow:well.row,
+            dpCol:well.col,
+            vol: this.destMaxTransfer,
+          }
+          if (pick.vol>0) {
+            solventPickList.push(pick)
+          }
+        }
+      });
+    }
+
+    // combine bulk fill source point
+    for (let i = 0; i < solventPickList.length; i++) {
+        const sWell = bulkFillWell[i % bulkFillWell.length];
+        solventPickList[i].spName = this.ipList[0].name;
+        solventPickList[i].spRow = sWell.row;
+        solventPickList[i].spCol = sWell.col;
+    }
+    console.log("solventPickList")
+    console.log(solventPickList)
+
+
+
+    // append to picklist
+    this.dpPickList.push(...samplePickList)
+    this.dpPickList.push(...controlPickList)
+    this.dpPickList.push(...backfillPickList)
+    this.dpPickList.push(...solventPickList)
+    console.log("this.dpPickList")
+    console.log(this.dpPickList)
+
+    // all picklist
+    this.allPickList = []
+    this.allPickList.push(...this.ipPickList)
+    this.allPickList.push(...this.dpPickList)
+    console.log("this.allPickList")
+    console.log(this.allPickList)
   }
-
-
-
-  exportPickList(){
-
-  }
-
 
 
   // update the IP chart with this.iplist
@@ -1589,6 +1858,19 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.dpChart.clear();
     this.dpOption.animation=false;
     this.dpChart.setOption(this.dpOption)
+  }
+
+  // update the SP chart with this.dplist
+  _updateSPChart(){
+    var data = [];
+    let sp = this.spList.find(x=>x.name==this.selectedSP.name)
+    sp.wells.forEach(well => {
+      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+    });
+    this.spOption.series[0].data = data
+    this.spChart.clear();
+    this.spOption.animation=false;
+    this.spChart.setOption(this.spOption)
   }
 
   // create new plate by template
@@ -1634,7 +1916,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
   }
 
-
   // ip => dp  (Control), only one control point
   _addPerPlateControlCurve(destPlate:Plate):Pick[]{
     let controlPickList:Pick[] = []
@@ -1662,11 +1943,104 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
 
 
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //    import/export logic
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  onBarcodeFileSelected(event) {
+    const file: File = event.target.files[0];
+    const reader: FileReader = new FileReader();
+    reader.onload = (e: any) => {
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        this.barcodeFileType = "Excel";
+      }else if(file.name.endsWith('.csv') ){
+        this.barcodeFileType = "Csv";
+      }else{
+        return; //error
+      }
+      this.barcodeFileContent = e.target.result;
+    };
+    reader.readAsBinaryString(file);    
+  }
+
+  importBarcodeMap() {
+    //this.parser.handle_Sample_Plate(this.fileContent_9, this.fileType_9);
+    let data = parseFile(this.barcodeFileContent, this.barcodeFileType);
+    console.log(data)
+    this.barcodeMap.clear();
+    for (let i = 0; i < data.length; i++) {
+      const d = data[i];
+      if (!isNullOrEmpty(d.SP)) {
+        this.barcodeMap[`SP_${i+1}`]=d.SP
+      }
+      if (!isNullOrEmpty(d.CP)) {
+        this.barcodeMap[`CP_${i+1}`]=d.CP
+      }
+      if (!isNullOrEmpty(d.IP)) {
+        this.barcodeMap[`IP_${i+1}`]=d.IP
+      }
+      if (!isNullOrEmpty(d.DP)) {
+        this.barcodeMap[`DP_${i+1}`]=d.DP
+      }
+    }
+
+    for (const key in this.barcodeMap) {
+      console.log(`${key}: ${this.barcodeMap[key]}`);
+    }
+
+  }
+
+
+  setPickListBarcode(){
+    console.log("this.allPickList")
+    console.log(this.allPickList)
+
+    let newPickList = []
+    for (let i = 0; i < this.allPickList.length; i++) {
+      let pick = this.allPickList[i];
+      if (pick.spName in this.barcodeMap) {
+        pick.spName = this.barcodeMap[pick.spName]
+      }
+      if (pick.dpName in this.barcodeMap) {
+        pick.dpName = this.barcodeMap[pick.dpName]
+      }
+      newPickList.push(pick)
+    }
+    this.allPickList = newPickList
+    console.log("after set barcode this.allPickList")
+    console.log(this.allPickList)
+
+  }
+
+
+  exportPickList(){
+    // set real barcode
+    this.setPickListBarcode()
+
+    const csvString = objectsToCSV(this.allPickList);
+
+    // creare blob
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+    // create download link
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    if (isNullOrEmpty(this.pickListName)) {
+      link.download = "default.csv";
+    }
+    link.download = this.pickListName + ".csv";
+    link.click();
+
+    // release
+    URL.revokeObjectURL(url);
+
+  }
+
+
+
+
 }
-
-
-
-
 
 
 
@@ -1792,7 +2166,7 @@ function getAvailablePlateFromList(plateList:Plate[], dataPoints:number):Plate{
       continue;
     }
 
-    let availWells = plate.wells.filter(well => well.type === 3);
+    let availWells = plate.wells.filter(well => well.type === PointType.Available);
     if (availWells.length>=dataPoints) {
       return plate;
     }
@@ -1838,7 +2212,7 @@ function getFirstAvailableWell(sampleDirect:string, plate:Plate):Well{
       return rowAIndex - rowBIndex;
     });
   }
-  let avaList = plate.wells.filter(x=>x.type==3)
+  let avaList = plate.wells.filter(x=>x.type==PointType.Available)
   well = avaList[0];
   return well;
 }
@@ -1884,7 +2258,7 @@ function getNextAvailableWellList(firstWell:Well, curveDirect:string, plate:Plat
     });
   }
   //get first well index
-  let avaList = plate.wells.filter(x=>x.type==3)
+  let avaList = plate.wells.filter(x=>x.type==PointType.Available)
   let firstIndex = avaList.findIndex(x=>x.row==firstWell.row&&x.col==firstWell.col)
   wellList = avaList.slice(firstIndex, listNum+firstIndex);
   return wellList
@@ -1925,8 +2299,8 @@ function perPointIPLayoutAndPickList(destPlate:Plate, sourcePlate:Plate, sourceW
     pickList.push(pick)
 
     availWellList[n].concentration= interEntity.FinalConcen
-    if (pointName=="Sample") {availWellList[n].type=0}
-    if (pointName=="Control") {availWellList[n].type=6}
+    if (pointName=="Sample") {availWellList[n].type=PointType.Sample}
+    if (pointName=="Control") {availWellList[n].type=PointType.ControlCurve}
     availWellList[n].name=`${pointName}_${sampleNum}`
   }
 
@@ -1987,10 +2361,11 @@ function samplePointDPLayoutAndPickList(destPlate:Plate, sourcePlate:Plate, sour
       
       pickList.push(pick)
 
-      availWellList[index].concentration= actualEntity.RealConcen
-      if (pointName=="Sample") {availWellList[index].type=0}
+      availWellList[index].concentration = actualEntity.RealConcen
+      availWellList[index].volume = actualEntity.TransVolResult 
+      if (pointName=="Sample") {availWellList[index].type=PointType.Sample}
       // if (pointName=="Control") {availWellList[n].type=1}
-      availWellList[index].name=`${pointName}_${sampleNum}`
+      availWellList[index].name =`${pointName}_${sampleNum}`
     }
   }
 
@@ -2051,8 +2426,8 @@ function controlPointDPLayoutAndPickList(destPlate:Plate, controlPlate:Plate, co
       pickList.push(pick)
   
       availWellList[index].concentration= actualEntity.RealConcen
-      availWellList[index].type=6
-  
+      availWellList[index].type=PointType.ControlCurve
+      availWellList[index].volume = actualEntity.TransVolResult 
       availWellList[index].name=`Control_1`
     }
   }
@@ -2069,14 +2444,80 @@ function controlPointDPLayoutAndPickList(destPlate:Plate, controlPlate:Plate, co
 
 
 
+// raw cp to dp
+function rawControlPointDPLayoutAndPickList(destPlate:Plate, controlPlate:Plate, controlWell:Well, pointTransVol:number)
+:[Pick[],Plate]
+{
+  // foreach sample point
+  //let sampleNum = 1
+  let pickList:Pick[]=[]
+
+  for (let w = 0; w < destPlate.wells.length; w++) {
+    const destWell = destPlate.wells[w];
+    
+    if (destWell.type==PointType.Control) {
+      let pick:Pick={
+        spName:controlPlate.name,
+        spRow:controlWell.row,
+        spCol:controlWell.col,
+        dpName:destPlate.name,
+        dpRow:destWell.row,
+        dpCol:destWell.col,
+        vol: pointTransVol,
+      }
+      pickList.push(pick)
+    }
+  }
+
+  return [pickList, destPlate]
+}
 
 
 
 
+// parse filee
+function parseFile(fileContent:any, fileType:string, sheetNum:number=0, hasHeader=true):any[]{
+  if(fileType=="Excel"){
+    return parseExcelFile(fileContent,sheetNum);
+  }else if(fileType=="Csv"){
+    return parseCsvFile(fileContent,hasHeader);
+  }
+}
+
+function parseExcelFile(fileContent: any, sheet: number): any[] {
+  const workbook = XLSX.read(fileContent, { type: 'binary' });
+  const sheetName = workbook.SheetNames[sheet];
+  const worksheet = workbook.Sheets[sheetName];
+  return XLSX.utils.sheet_to_json(worksheet, { raw: true });
+}
+
+function parseCsvFile(fileContent: any, hasHeader: boolean = true): any[] {
+  const result = Papa.parse(fileContent, {
+    header: hasHeader,
+    skipEmptyLines: true
+  });
+  return result.data;
+}
 
 
 
+function objectsToCSV(data: Pick[]): string {
+    if (data.length === 0) return '';
 
+    let csvString = '';
+    data.forEach(item => {
+      const row = [
+        item.spName,
+        `${item.spRow}${item.spCol}`,
+        item.dpName,
+        item.vol,
+        `${item.dpRow}${item.dpCol}`,
+      ].join(',') + '\n';
+      csvString += row;
+    });
+
+    return csvString;
+  }
 
 
 
@@ -2340,6 +2781,7 @@ interface Well {
   type: number;   
   name?: string;
   concentration?: string;
+  volume?: number;
 }
 
 
@@ -2382,6 +2824,7 @@ enum PointType {
   Available, // 3
   Solvent, //4
   Bulkfill, //5
+  ControlCurve, //6
 
 }
 

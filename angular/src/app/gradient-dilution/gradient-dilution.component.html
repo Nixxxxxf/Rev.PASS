@@ -27,7 +27,7 @@
                                         (click)="createNewProtocol()">Create</button>
                                 </div>
 
-                                <div class="col-md-5">
+                                <div class="col-md-5 c-label">
                                     <div class="list-group flex-grow-1">
                                         <label class="list-group-item " *ngFor="let item of proList; let i = index">
                                             <input class="form-check-input me-1" type="radio" name="RadioDefault"
@@ -50,7 +50,7 @@
                         <div class="custom-border">
                             <div class="row">
                                 <div class="col-md-5">
-                                    <select class="form-select" aria-label="Default select example"
+                                    <select class="form-select mb-1" aria-label="Default select example"
                                         [(ngModel)]="spSize">
                                         <!-- <option selected>384</option> -->
                                         <option value="96">96</option>
@@ -58,15 +58,19 @@
                                         <option value="1536">1536</option>
                                     </select>
 
+                                    <input class="form-control mb-1" type="file" id="spFile" (change)="onSourcePlateSelected($event)" />
+                                    
                                 </div>
 
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="createNewSP()">Create</button>
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
+                                        (click)="importIP()">Import</button>
                                 </div>
                                 <div class="col-md-5">
                                     <div class="row">
-                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                        <div class="list-group flex-grow-1 c-label mb-1" style="padding-left: 10px;">
                                             <label class="list-group-item" *ngFor="let sp of spList; let i = index">
                                                 <input class="form-check-input me-1" type="radio" name="RadioDefault"
                                                     [value]="sp" [(ngModel)]="selectedSP" />
@@ -76,10 +80,10 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="initSPChart()">Show</button>
 
-                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                    <button type="button" class="btn btn-outline-danger c-btn mb-1"
                                         (click)="deleteSP()">Delete</button>
 
                                 </div>
@@ -161,12 +165,12 @@
                                 </div>
 
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="createNewCP()">Create</button>
                                 </div>
                                 <div class="col-md-5">
                                     <div class="row">
-                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                        <div class="list-group flex-grow-1 c-label" style="padding-left: 10px;">
                                             <label class="list-group-item" *ngFor="let cp of cpList; let i = index">
                                                 <input class="form-check-input me-1" type="radio" name="RadioDefault"
                                                     [value]="cp" [(ngModel)]="selectedCP" />
@@ -176,9 +180,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="initCPChart()">Show</button>
-                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                    <button type="button" class="btn btn-outline-danger c-btn mb-1"
                                         (click)="deleteCP()">Delete</button>
                                 </div>
                             </div>
@@ -417,7 +421,6 @@
                                         <option value="384">384</option>
                                         <option value="1536">1536</option>
                                     </select>
-
                                 </div>
 
                                 <div class="col-md-1">
@@ -426,7 +429,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     <div class="row">
-                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                        <div class="list-group flex-grow-1 c-label" style="padding-left: 10px;">
                                             <label class="list-group-item" *ngFor="let ip of ipList; let i = index">
                                                 <input class="form-check-input me-1" type="radio" name="RadioDefault"
                                                     [value]="ip" [(ngModel)]="selectedIP" />
@@ -436,9 +439,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="initIPChart()">Show</button>
-                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                    <button type="button" class="btn btn-outline-danger c-btn mb-1"
                                         (click)="deleteIP()">Delete</button>
                                 </div>
                             </div>
@@ -508,9 +511,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link" [class.active]="activeTab === 1" (click)="setActiveTab(1)">Actual</a>
                                 </li>
-                                <li class="nav-item">
+                                <!-- <li class="nav-item">
                                     <a class="nav-link" [class.active]="activeTab === 2" (click)="setActiveTab(2)">Curve Display</a>
-                                </li>
+                                </li> -->
                                 <li class="nav-item">
                                     <a class="nav-link" [class.active]="activeTab === 3" (click)="setActiveTab(3)">Intermediate</a>
                                 </li>
@@ -562,9 +565,9 @@
                                         </tbody>
                                     </table>
                                 </ng-container>
-                                <ng-container *ngIf="activeTab === 2">
+                                <!-- <ng-container *ngIf="activeTab === 2">
                                     to do chart
-                                </ng-container>
+                                </ng-container> -->
                                 <ng-container *ngIf="activeTab === 3">
                                     <table class="table">
                                         <thead>
@@ -613,7 +616,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     <div class="row">
-                                        <div class="list-group flex-grow-1" style="padding-left: 10px;">
+                                        <div class="list-group flex-grow-1 c-label" style="padding-left: 10px;">
                                             <label class="list-group-item" *ngFor="let dp of dpList; let i = index">
                                                 <input class="form-check-input me-1" type="radio" name="RadioDefault"
                                                     [value]="dp" [(ngModel)]="selectedDP" />
@@ -623,9 +626,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn mb-1"
                                         (click)="initDPChart()">Show</button>
-                                    <button type="button" class="btn btn-outline-danger c-btn"
+                                    <button type="button" class="btn btn-outline-danger c-btn mb-1"
                                         (click)="deleteDP()">Delete</button>
                                 </div>
                             </div>
@@ -698,21 +701,20 @@
                     <!-- export -->
                     <div *ngIf="i === 5">
                         <div class="custom-border">
-                            <div class="row mb-3">
+                            <div class="row mb-2">
                                 <div class="col-md-5">
                                     <input class="form-control" type="text" placeholder=""
                                         aria-label="default input example" [(ngModel)]="selectedPro.name" />
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-primary c-btn"
+                                    <button type="button" class="btn btn-outline-primary c-btn" style="margin-bottom: 0px;"
                                         (click)="saveProtocol()">Save</button>
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-2">
                                 <div class="col-md-5">
-                                    <input class="form-control" type="text" placeholder=""
-                                        aria-label="default input example"  />
+                                    <input class="form-control" type="file" id="formFile" (change)="onBarcodeFileSelected($event)" />
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="btn btn-outline-primary l-btn"
@@ -720,7 +722,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-2">
                                 <div class="col-md-5">
                                     <input class="form-control" type="text" placeholder=""
                                         aria-label="default input example" [(ngModel)]="pickListName" />
@@ -731,10 +733,10 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-2">
                                 <div class="col-md-5">
                                     <input class="form-control" type="text" placeholder=""
-                                        aria-label="default input example"  />
+                                        aria-label="default input example" />
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="btn btn-outline-success l-btn"
