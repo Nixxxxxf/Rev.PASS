@@ -4,7 +4,8 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Renderer2 } fr
 import { CommonService, CsvHeaderService, ProtocolService } from '@proxy/app-services';
 import { CsvHeaderDto, ProtocolDto } from '@proxy/dtos';
 import * as echarts from 'echarts';
-import * as XLSX from 'xlsx';
+import JSZip from 'jszip';
+// import XLSX from 'xlsx';
 import * as Papa from 'papaparse';
 import { CONFIRMATION_ICONS } from '@abp/ng.theme.shared/lib/tokens/confirmation-icons.token';
 
@@ -150,7 +151,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   barcodeFileType:string="";
   barcodeFileContent:any;
   barcodeMap:Map<string, string>=new Map<string, string>();
-  pickListName:string="";
+  exportName:string="";
 
 
   ngOnInit(): void {
@@ -252,6 +253,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     // first time init
     this.proContent = JSON.parse(this.selectedPro.content);
     this.spList = [];
+    if(this.proContent==null){
+      return
+    }
     this.plateList = this.proContent.plateList;
     if(this.plateList==null){
       this.plateList = [];
@@ -329,7 +333,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     for (let i = 0; i < data.length; i++) {
       let d = data[i];
       let plateName = `SP_${d.PlateNumber}`
-      let plate = createdNames.find(x=>x=plateName)
+      let plate = createdNames.find(x=>x==plateName)
       if(plate==null){
         let newPlate: Plate={
           name:plateName,
@@ -520,7 +524,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
         ],
         orient: 'horizontal',
         left: 'center',
-        bottom: '10%'
+        bottom: '10%',
+        dimension: 2
       }
     }else if(chartName.includes("CP")){
       visualMap = {
@@ -534,7 +539,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
         ],
         orient: 'horizontal',
         left: 'center',
-        bottom: '10%'
+        bottom: '10%',
+        dimension: 2
       }
     }else if(chartName.includes("IP")){
         visualMap = {
@@ -551,7 +557,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
           ],
           orient: 'horizontal',
           left: 'center',
-          bottom: '10%'
+          bottom: '10%',
+          dimension: 2
       }
     }else if(chartName.includes("DP")){
         visualMap = {
@@ -564,12 +571,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
             { min: 2, max: 2, color: 'rgb(116, 116, 116)' },  // reserved
             { min: 3, max: 3, color: 'rgb(240, 240, 240)' },   // available
             { min: 4, max: 4, color: 'rgb(255, 255, 0)' },     // solvent
-            { min: 6, max: 6, color: 'rgb(120, 191, 255)' },    // control curve
+            { min: 6, max: 60, color: 'rgb(120, 191, 255)' },    // control curve
 
           ],
           orient: 'horizontal',
           left: 'center',
-          bottom: '10%'
+          bottom: '10%',
+          dimension: 2
       }
     }
     
@@ -632,6 +640,18 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
             },
             
           },
+          tooltip: {
+            formatter: function (params) {
+              return [
+                `<div style="text-align: center; margin: 3px 0;">${params.value[1]}${params.value[0] + 1}</div>` + '<hr size=1 style="margin: 3px 0;">',
+                `<table style="border-collapse: collapse; width: 100%; margin: 3px 0;">`,
+                `<tr><td style="text-align: right; padding-right: 5px;">Name:&nbsp</td><td style="text-align: left;">${params.value[3]}</td></tr>`,
+                `<tr><td style="text-align: right; padding-right: 5px;">Conc.:&nbsp</td><td style="text-align: left;">${params.value[4]}</td></tr>`,
+                `<tr><td style="text-align: right; padding-right: 5px;">Volume:&nbsp</td><td style="text-align: left;">${params.value[5]}</td></tr>`,
+                `</table>`
+            ].join('');
+            }
+          },
           
         }
       ]
@@ -647,8 +667,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   initCPList(){
     console.log("initCPList")
     this.cpList = [];
-    console.log(this.proContent.plateList)
-    console.log(this.plateList)
+    if(this.proContent==null){
+      return
+    }
     //this.plateList = this.proContent.plateList;
     for (let index = 0; index < this.plateList.length; index++) {
       const p = this.plateList[index];
@@ -827,6 +848,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   initIPList(){
     this.initParams();
     this.ipList = [];
+    if(this.proContent==null){
+      return
+    }
     this.plateList = this.proContent.plateList;
     for (let index = 0; index < this.plateList.length; index++) {
       const p = this.plateList[index];
@@ -975,6 +999,9 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
 
   initDPList(){
     this.dpList = [];
+    if(this.proContent==null){
+      return
+    }
     this.plateList = this.proContent.plateList;
     for (let index = 0; index < this.plateList.length; index++) {
       const p = this.plateList[index];
@@ -1175,6 +1202,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       this.currentStep--;
     }
     if (this.currentStep==0) {
+      console.log("reset all")
       this.showResetPro=true;
       setTimeout(() => {
         this.showResetPro = false;
@@ -1186,11 +1214,16 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
   resetAll(){
+    // clear chart
+    this.clearSPChart();
+    this.clearCPChart();
+    this.clearIPChart();
+    this.clearDPChart();
+    
     // protocol
     this.proList = [];
     this.selectedPro={};
     this.newPro="";
-    this.showResetPro= false;
     this.showNonePro = false;
     this.proContent=null;
     this.plateList=[];
@@ -1267,7 +1300,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     this.barcodeFileType="";
     this.barcodeFileContent=null;
     this.barcodeMap=new Map<string, string>();
-    this.pickListName="";
+    this.exportName="";
 
     this.spFileType="";
     this.spFileContent=null;
@@ -1578,7 +1611,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
             console.log("no enough available well")//todo error
             break;
           }
-          console.log(destPlate)
+          //console.log(destPlate)
           let [pickList, newDestPlate] = perPointIPLayoutAndPickList(destPlate,sourcePlate,sourceWell, sampleNum,this.intermediateList,"Sample",this.sampleDirection,this.curveDirection)
           // update new dest plate to this.xxxList
           let destIndex = this.ipList.findIndex(x=>x.name==newDestPlate.name)
@@ -1714,6 +1747,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       console.log(samplePickList)
       console.log("controlPickList")
       console.log(controlPickList)
+      console.log("this.dpList")
+      console.log(this.dpList)
     
     }
 
@@ -1839,7 +1874,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   _updateIPChart(){
     var data = [];
     this.ipList[0].wells.forEach(well => {
-      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+      data.push([well.col-1,well.row,well.type, well.name, well.concentration, well.volume]) // well to data:     col 1==>0
     });
     this.ipOption.series[0].data = data
     this.ipChart.clear();
@@ -1852,7 +1887,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     var data = [];
     let dp = this.dpList.find(x=>x.name==this.selectedDP.name)
     dp.wells.forEach(well => {
-      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+      data.push([well.col-1,well.row,well.type, well.name, well.concentration, well.volume]) // well to data:     col 1==>0
     });
     this.dpOption.series[0].data = data
     this.dpChart.clear();
@@ -1865,7 +1900,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     var data = [];
     let sp = this.spList.find(x=>x.name==this.selectedSP.name)
     sp.wells.forEach(well => {
-      data.push([well.col-1,well.row,well.type]) // well to data:     col 1==>0
+      data.push([well.col-1,well.row,well.type, well.name, well.concentration, well.volume]) // well to data:     col 1==>0
     });
     this.spOption.series[0].data = data
     this.spChart.clear();
@@ -1948,6 +1983,11 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   onBarcodeFileSelected(event) {
+    console.log("onBarcodeFileSelected")
+    this.barcodeFileContent = null;
+    if (event.target.files.length == 0){
+      return;
+    };
     const file: File = event.target.files[0];
     const reader: FileReader = new FileReader();
     reader.onload = (e: any) => {
@@ -1964,7 +2004,6 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
   importBarcodeMap() {
-    //this.parser.handle_Sample_Plate(this.fileContent_9, this.fileType_9);
     let data = parseFile(this.barcodeFileContent, this.barcodeFileType);
     console.log(data)
     this.barcodeMap.clear();
@@ -1991,13 +2030,13 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-  setPickListBarcode(){
+  setPickListBarcode():Pick[]{
     console.log("this.allPickList")
     console.log(this.allPickList)
 
     let newPickList = []
     for (let i = 0; i < this.allPickList.length; i++) {
-      let pick = this.allPickList[i];
+      let pick = JSON.parse(JSON.stringify(this.allPickList[i])); //deep copy
       if (pick.spName in this.barcodeMap) {
         pick.spName = this.barcodeMap[pick.spName]
       }
@@ -2006,37 +2045,263 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
       }
       newPickList.push(pick)
     }
-    this.allPickList = newPickList
-    console.log("after set barcode this.allPickList")
-    console.log(this.allPickList)
+    
+    console.log("after set barcode newPickList")
+    return newPickList
 
   }
 
 
-  exportPickList(){
+  
+
+
+  // export all files to zip
+  exportAll() {
+    const zip = new JSZip();
+
+    const pickList = pickListToCSV(optimizePath(this._generatePickList()))
+    const apOrder = objectsToCSV(this._generateAPOrder(),true);
+    const ipOrder = objectsToCSV(this._generateIPOrder(),true);
+    const countAP = objectsToCSV(this._generateCountAP(),false);
+    const countIP = objectsToCSV(this._generateCountIP(),false);
+    const countSP = objectsToCSV(this._generateCountSP(),false);
+    const indexIP = objectsToCSV(this._generateIndexIPCount(),false);
+    const processAP = objectsToCSV(this._generateProcessListAP(),false);
+    const processIP = objectsToCSV(this._generateProcessListIP(),false);
+    const processRef = objectsToCSV(this._generateProcessListRef(),false);
+    const processSP = objectsToCSV(this._generateProcessListSP(),false);
+    
+
+    zip.file(`Echo${this.exportName}picklist.csv`, pickList);
+    zip.file(`APOrder.csv`, apOrder);
+    zip.file(`IPOrder.csv`, ipOrder);
+    zip.file(`Counts_Echo${this.exportName}_AP.txt`, countAP);
+    zip.file(`Counts_Echo${this.exportName}_IP.txt`, countIP);
+    zip.file(`Counts_Echo${this.exportName}_SP.txt`, countSP);
+    zip.file(`Index_Echo${this.exportName}_IPCounts.txt`, indexIP);
+    zip.file(`ProcessList_Echo${this.exportName}_AP.txt`, processAP);
+    zip.file(`ProcessList_Echo${this.exportName}_IP.txt`, processIP);
+    zip.file(`ProcessList_Echo${this.exportName}_Ref.txt`, processRef);
+    zip.file(`ProcessList_Echo${this.exportName}_SP.txt`, processSP);
+
+    zip.generateAsync({ type: 'blob' }).then((content) => {
+      // download
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(content);
+      link.href = url;
+      link.download = `${this.selectedPro.name}_Settings.zip`; 
+      link.click();
+
+      // release
+      URL.revokeObjectURL(url);
+    });
+  }
+
+
+  _generatePickList():Pick[]{
     // set real barcode
-    this.setPickListBarcode()
-
-    const csvString = objectsToCSV(this.allPickList);
-
-    // creare blob
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-
-    // create download link
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    if (isNullOrEmpty(this.pickListName)) {
-      link.download = "default.csv";
-    }
-    link.download = this.pickListName + ".csv";
-    link.click();
-
-    // release
-    URL.revokeObjectURL(url);
-
+    let pickListBar = this.setPickListBarcode()
+    return pickListBar
   }
 
+
+  _generateAPOrder():any[]{
+    let list = []
+
+    // get sp to ap list
+    this.allPickList;
+    let sp2dp = []
+    for (let i = 0; i < this.allPickList.length; i++) {
+      const pick = this.allPickList[i];
+      if (pick.spName.includes("SP") && pick.dpName.includes("DP")) {
+        let trans = {sp:pick.spName, dp:pick.dpName}
+        if (!sp2dp.find(x=>x.sp==trans.sp&&x.dp==trans.dp)) {
+          sp2dp.push(trans)
+        }
+      }
+    }
+
+    for (let i = 0; i < sp2dp.length; i++) {
+      list.push({
+        Order:"SP"
+      })
+    }
+    for (let i = 0; i < this.dpList.length; i++) {
+      list.push({
+        Order:"Ref"
+      })
+    }
+    for (let i = 0; i < this.dpList.length; i++) {
+      list.push({
+        Order:"IP"
+      })
+    }
+    return list
+  }
+
+
+  _generateIPOrder():any[]{
+    let list = []
+    for (let i = 0; i < this.spList.length; i++) {
+      list.push({
+        Order:"SP"
+      })
+    }
+    
+    list.push({
+      Order:"Ref"
+    })
+  
+    return list
+  }
+
+
+  _generateCountAP():any[]{
+    let list = []
+    let l = this._generateAPOrder();
+    list.push({
+      A: l.length
+    })
+    return list
+  }
+
+  _generateCountIP():any[]{
+    let list = []
+    let c = this.spList.length+this.cpList.length+this.ipList.length
+    list.push({
+      A: c
+    })
+    
+    return list
+  }
+
+  _generateCountSP():any[]{
+    let list = []
+    list.push({
+      A: this.spList.length
+    })
+    
+    return list
+  }
+
+  _generateIndexIPCount():any[]{
+    let list = []
+    
+    list.push({
+      A: 0
+    })
+    
+    return list
+  }
+
+  _generateProcessListAP():any[]{
+
+    // get sp to dp list
+    this.allPickList;
+    let sp2dp = []
+    for (let i = 0; i < this.allPickList.length; i++) {
+      const pick = this.allPickList[i];
+      if (pick.spName.includes("SP") && pick.dpName.includes("DP")) {
+        let trans = {sp:pick.spName, dp:pick.dpName}
+        if (!sp2dp.find(x=>x.sp==trans.sp&&x.dp==trans.dp)) {
+          sp2dp.push(trans)
+        }
+      }
+    }
+
+    let list = []
+
+    // sp => dp
+    for (let i = 0; i < sp2dp.length; i++) {
+      const pd = sp2dp[i];
+      let e = pd.dp
+      let bar = ""
+      if (e in this.barcodeMap) {
+        bar = this.barcodeMap[e]
+      }else{ bar = e}
+      list.push({
+        Order:bar
+      })
+    }
+
+
+    // cp => dp
+    for (let i = 0; i < this.dpList.length; i++) {
+      const dp = this.dpList[i];
+      let e = dp.name
+      let bar = ""
+      if (e in this.barcodeMap) {
+        bar = this.barcodeMap[e]
+      }else{ bar = e}
+      list.push({
+        Order:bar
+      })
+    }
+
+    // ip => dp
+    for (let i = 0; i < this.dpList.length; i++) {
+      const dp = this.dpList[i];
+      let e = dp.name
+      let bar = ""
+      if (e in this.barcodeMap) {
+        bar = this.barcodeMap[e]
+      }else{ bar = e}
+      list.push({
+        Order:bar
+      })
+    }
+    
+    return list
+  }
+
+  _generateProcessListIP():any[]{
+    let list = []
+    // n*sp+1(ref)+1(ip)
+    for (let i = 0; i < this.spList.length+2; i++) {
+      let e = `IP_1`
+      let bar = ""
+      if (`IP_1` in this.barcodeMap) {
+        bar = this.barcodeMap[e]
+      }else{ bar = e}
+      list.push({
+        Order:bar
+      })
+    }
+    
+    return list
+  }
+
+  _generateProcessListRef():any[]{
+    let list = []
+
+    let e = `CP_1`
+    let bar = ""
+    if (`CP_1` in this.barcodeMap) {
+      bar = this.barcodeMap[e]
+    }else{ bar = e}
+    list.push({
+      Order:bar
+    })
+      
+    return list
+  }
+
+  _generateProcessListSP():any[]{
+    let list = []
+
+    for (let i = 0; i < this.spList.length; i++) {
+      let e = `SP_${i+1}`
+      let bar = ""
+      if (`SP_${i+1}` in this.barcodeMap) {
+        bar = this.barcodeMap[e]
+      }else{ bar = e}
+      list.push({
+        Order:bar
+      })
+    }
+    
+    return list
+  }
 
 
 
@@ -2477,19 +2742,20 @@ function rawControlPointDPLayoutAndPickList(destPlate:Plate, controlPlate:Plate,
 
 // parse filee
 function parseFile(fileContent:any, fileType:string, sheetNum:number=0, hasHeader=true):any[]{
-  if(fileType=="Excel"){
-    return parseExcelFile(fileContent,sheetNum);
-  }else if(fileType=="Csv"){
+  // if(fileType=="Excel"){
+  //   return parseExcelFile(fileContent,sheetNum);
+  // }else 
+  if(fileType=="Csv"){
     return parseCsvFile(fileContent,hasHeader);
   }
 }
 
-function parseExcelFile(fileContent: any, sheet: number): any[] {
-  const workbook = XLSX.read(fileContent, { type: 'binary' });
-  const sheetName = workbook.SheetNames[sheet];
-  const worksheet = workbook.Sheets[sheetName];
-  return XLSX.utils.sheet_to_json(worksheet, { raw: true });
-}
+// function parseExcelFile(fileContent: any, sheet: number): any[] {
+//   const workbook = XLSX.read(fileContent, { type: 'binary' });
+//   const sheetName = workbook.SheetNames[sheet];
+//   const worksheet = workbook.Sheets[sheetName];
+//   return XLSX.utils.sheet_to_json(worksheet, { raw: true });
+// }
 
 function parseCsvFile(fileContent: any, hasHeader: boolean = true): any[] {
   const result = Papa.parse(fileContent, {
@@ -2501,25 +2767,38 @@ function parseCsvFile(fileContent: any, hasHeader: boolean = true): any[] {
 
 
 
-function objectsToCSV(data: Pick[]): string {
-    if (data.length === 0) return '';
+function pickListToCSV(data: Pick[], header?:string[]): string {
+  if (data.length === 0) return '';
 
-    let csvString = '';
-    data.forEach(item => {
-      const row = [
-        item.spName,
-        `${item.spRow}${item.spCol}`,
-        item.dpName,
-        item.vol,
-        `${item.dpRow}${item.dpCol}`,
-      ].join(',') + '\n';
-      csvString += row;
-    });
+  let csvString = '';
 
-    return csvString;
+  if(header!=null){
+    csvString = header.join(',') + '\n';
   }
+  data.forEach(item => {
+    const row = [
+      item.spName,
+      `${item.spRow}${item.spCol}`,
+      item.dpName,
+      item.vol,
+      `${item.dpRow}${item.dpCol}`,
+    ].join(',') + '\n';
+    csvString += row;
+  });
+
+  return csvString;
+}
 
 
+function objectsToCSV(objects: any[], hasHeader:boolean): string {
+  const columns = Object.keys(objects[0]); // get headers
+  const rows = objects.map((obj) => columns.map((col) => obj[col]).join(','));
+  if (hasHeader) {
+    return [columns.join(','), ...rows].join('\n');
+  }else{
+    return [...rows].join('\n');
+  }
+}
 
 
 
@@ -2704,6 +2983,128 @@ function getInterTransList(
   return [InterAllFinalConcenLst, result]
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    Optimize movement path algorithm
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+function getPlateTrans(pickList:Pick[]):[string, string][]{
+  let transList = []
+  for (const e of pickList) {
+    const item = [e.spName, e.dpName];
+    if (!transList.some(existing => existing[0] === item[0] && existing[1] === item[1])) {
+      transList.push(item);
+    }
+  }
+  return transList
+}
+
+
+function getDiffPoints(rawList: Pick[], trans: [string, string]): [number, number, number][] {
+  let cols = generateCols(384)
+  let rows = generateRows(384)
+  
+  const diffPoints: [number, number, number][] = [];
+  for (let index = 0; index < rawList.length; index++) {
+      const r = rawList[index];
+      if (r.spName === trans[0] && r.dpName === trans[1]) {
+          const sr = r.spRow;
+          const sc = r.spCol;
+
+          const dr = r.dpRow;
+          const dc = r.dpCol;
+
+          const rd = rows.indexOf(sr) - rows.indexOf(dr);
+          const cd = cols.indexOf(sc) - cols.indexOf(dc);
+
+          diffPoints.push([rd, cd, index]); // [row diff, col diff, index]
+      }
+  }
+  return diffPoints;
+}
+
+
+function optimizePath(rawList:Pick[]): Pick[] {
+  const newPointList: [number, number, number][] = [];
+  const plateTrans = getPlateTrans(rawList);
+
+  for (const pt of plateTrans) {
+      const platePoints = getDiffPoints(rawList, pt); // (x_diff, y_diff, gol_index)
+
+      // 1. get y_list, work row
+      const yList = Array.from(new Set(platePoints.map((p) => p[1])));
+      yList.sort((a, b) => b - a);
+
+      // 2. get dic
+      const dic: { [key: number]: [number, number, number][] } = {};
+      for (const y of yList) {
+          dic[y] = [];
+      }
+      for (const y of yList) {
+          for (const p of platePoints) {
+              if (p[1] === y) {
+                  dic[y].push(p);
+              }
+          }
+      }
+
+      // 3. order dic per value
+      let keyI = 0;
+      for (const key of yList) {
+          if (keyI % 2 === 0) {
+              dic[key].sort((a, b) => a[0] - b[0]);
+          } else {
+              dic[key].sort((a, b) => b[0] - a[0]);
+          }
+          keyI += 1;
+      }
+
+      // 4. new order
+      const newPoints: [number, number, number][] = [];
+      for (const key of yList) {
+          newPoints.push(...dic[key]);
+      }
+      newPointList.push(...newPoints);
+  }
+
+  // 5. reorder pick list
+  const order = newPointList.map((p) => p[2]);
+  const newRawData = order.map((i) => rawList[i]);
+
+  return newRawData;
+}
+
+
+
+
+
+
+
+
 
 
 

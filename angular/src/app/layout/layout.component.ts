@@ -193,9 +193,9 @@ export class LayoutComponent implements OnInit {
         var lp = lpLst.find(x=>(x.plateChildFk.column==cols[c]&&x.plateChildFk.row==row));
         if(lp!=undefined){
           let result;
-          if (signal=="FAM"){result = Math.floor(lp.liquidFk.fam/1000)}
-          if (signal=="HEX"){result = Math.floor(lp.liquidFk.hex/1000)}
-          if (signal=="ROX"){result = Math.floor(lp.liquidFk.rox/1000)}
+          if (signal=="FAM"){result = Math.floor(lp.liquidFk.fam/10000)}
+          if (signal=="HEX"){result = Math.floor(lp.liquidFk.hex/10000)}
+          if (signal=="ROX"){result = Math.floor(lp.liquidFk.rox/10000)}
 
           data.push([col, row, result])
           resultMin = Math.min(resultMin,result)

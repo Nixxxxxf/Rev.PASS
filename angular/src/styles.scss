@@ -48,3 +48,14 @@
   // font-size: 0.75em !important;
   // letter-spacing: 0.75px;
 }
+
+
+:root .border-left{
+  border-left: 1px solid rgb(232, 238, 243); /* 浅灰色边框 */
+  //padding-top: 10px; /* 内边距，可根据需要调整 */
+  //padding-bottom: 10px; /* 内边距，可根据需要调整 */
+  padding: 10px; /* 内边距，可根据需要调整 */
+  //margin: 10px; /* 外边距，可根据需要调整 */
+  //border-radius: 5px; /* 圆角边框，可根据需要调整 */
+  //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 可选的阴影效果 */
+}
