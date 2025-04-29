@@ -17,6 +17,9 @@ import { CONFIRMATION_ICONS } from '@abp/ng.theme.shared/lib/tokens/confirmation
 })
 
 export class GradientDilutionComponent implements OnInit{//AfterViewInit {
+  @ViewChild('spListFileInput', { static: false }) spListFileInput: ElementRef;
+  @ViewChild('barcodeFileInput', { static: false }) barcodeFileInput: ElementRef;
+
 
   constructor(
     private commonService: CommonService, 
@@ -322,7 +325,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
   }
 
 
-  importIP(){
+  importSP(){
     let data = parseFile(this.spFileContent, this.spFileType);
     console.log(data)
 
@@ -394,7 +397,8 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     }
 
     this.selectedSP = this.plateList[0]
-    this._updateSPChart()
+    //this._updateSPChart()
+    this.spListFileInput.nativeElement.value = '';
   }
 
   
@@ -2026,7 +2030,7 @@ export class GradientDilutionComponent implements OnInit{//AfterViewInit {
     for (const key in this.barcodeMap) {
       console.log(`${key}: ${this.barcodeMap[key]}`);
     }
-
+    this.barcodeFileInput.nativeElement.value = '';
   }
 
 
