@@ -23,9 +23,9 @@ public class Program
                 {
                     loggerConfiguration
 #if DEBUG
-                        .MinimumLevel.Debug()
+                                                .MinimumLevel.Debug()
 #else
-            .MinimumLevel.Information()
+                                    .MinimumLevel.Information()
 #endif
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                         .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)

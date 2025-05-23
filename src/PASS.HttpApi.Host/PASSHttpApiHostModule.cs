@@ -81,19 +81,29 @@ public class PASSHttpApiHostModule : AbpModule
             });
         });
 
-        if (!hostingEnvironment.IsDevelopment())
-        {
-            PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
-            {
-                options.AddDevelopmentEncryptionAndSigningCertificate = false;
-            });
+        //if (!hostingEnvironment.IsDevelopment())
+        //{
+        //    PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+        //    {
+        //        options.AddDevelopmentEncryptionAndSigningCertificate = false;
+        //    });
 
-            PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
-            {
-                serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "8H6l9XyqTQ7dPMfp");
-                serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
-            });
-        }
+        //    PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
+        //    {
+        //        serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "8H6l9XyqTQ7dPMfp");
+        //        serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
+        //    });
+        //}
+        PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+        {
+            options.AddDevelopmentEncryptionAndSigningCertificate = false;
+        });
+
+        PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
+        {
+            serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "8H6l9XyqTQ7dPMfp");
+            serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
+        });
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)

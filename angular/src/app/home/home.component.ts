@@ -14,6 +14,7 @@ export class HomeComponent {
   constructor(private authService: AuthService) {}
 
   login() {
+    console.log("login")
     this.authService.navigateToLogin();
   }
 }

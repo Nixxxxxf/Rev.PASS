@@ -1,6 +1,6 @@
 import { Environment } from '@abp/ng.core';
 
-const baseUrl = 'https://web.pass:4200';
+const baseUrl = 'https://web.pass';
 
 const oAuthConfig = {
   issuer: 'https://auth.pass/',
@@ -28,8 +28,8 @@ export const environment = {
       rootNamespace: 'AbpAccountPublic',
     },
   },
-  remoteEnv: {
-    url: '/getEnvConfig',
-    mergeStrategy: 'deepmerge'
-  }
+  // remoteEnv: {
+  //   url: '/getEnvConfig',
+  //   mergeStrategy: 'deepmerge'
+  // }
 } as Environment;
